@@ -8,7 +8,7 @@ namespace SoyoFramework.Framework.Runtime.UsefulTools
 
     public class TypeEventSystem
     {
-        private readonly IOCContainer _events = new();
+        private readonly SimpleIOCContainer _events = new();
 
         public void Call<T>() where T : IEvent, new()
         {
