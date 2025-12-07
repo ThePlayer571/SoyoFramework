@@ -14,7 +14,7 @@ namespace SoyoFramework.Framework.Runtime.UsefulTools
         public void Register<T>(T instance) where T : class
         {
             var key = typeof(T);
-            var proxy = new Proxy<T>(instance);
+            IProxy<T> proxy = new Proxy<T>(instance);
             _container[key] = proxy;
         }
 
@@ -32,11 +32,10 @@ namespace SoyoFramework.Framework.Runtime.UsefulTools
 
         public IEnumerable<IProxy<T>> GetAll<T>() where T : class
         {
-            var keyType = typeof(T);
+            var key = typeof(T);
             return _container
-                .Where(kv => keyType.IsAssignableFrom(kv.Key))
-                .Select(kv => kv.Value as IProxy<T>)
-                .Where(proxy => proxy != null);
+                .Where(kv => key.IsAssignableFrom(kv.Key))
+                .Select(kv => kv.Value as IProxy<T>);
         }
 
         public void Clear() => _container.Clear();

@@ -21,13 +21,18 @@ namespace SoyoFramework.Framework.Runtime.Core
             // 注册初始层级信息
             OnInit();
 
-            // 统一初始化所有层级
-            foreach (var module in _container.GetAll<ICanInit>())
+            // 按次序初始化Model和System
+            foreach (var module in _container.GetAll<IModel>())
+            {
+                "find model preinit".LogInfo();
+                module.Get.PreInit();
+            }
+
+            foreach (var module in _container.GetAll<ISystem>())
             {
                 module.Get.PreInit();
             }
 
-            // 按次序初始化Model和System
             foreach (var model in _container.GetAll<IModel>())
             {
                 model.Get.Init();
