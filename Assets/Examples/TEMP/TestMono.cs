@@ -13,6 +13,7 @@ namespace Examples.TEMP
         
         private void Awake()
         {
+            WeakReference<TestMono> a; 
             _procedureManager = new ProcedureManager();
             _procedureManager.RegisterProcedure(ProcedureId.ExampleProcedureA, ProcedureChangeStage.EnterNormal, _ =>
             {

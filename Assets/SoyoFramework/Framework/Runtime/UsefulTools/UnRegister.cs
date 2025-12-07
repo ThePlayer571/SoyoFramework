@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace SoyoFramework.Framework.CoreKits
+namespace SoyoFramework.Framework.Runtime.UsefulTools
 {
     public interface IUnRegister
     {

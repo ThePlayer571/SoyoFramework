@@ -1,6 +1,6 @@
 using System;
 
-namespace SoyoFramework.Framework.CoreKits
+namespace SoyoFramework.Framework.Runtime.UsefulTools
 {
     public interface IEvent
     {

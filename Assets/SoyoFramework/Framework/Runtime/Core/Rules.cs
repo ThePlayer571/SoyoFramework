@@ -1,7 +1,7 @@
 using System;
-using SoyoFramework.Framework.CoreKits;
+using SoyoFramework.Framework.Runtime.UsefulTools;
 
-namespace SoyoFramework.Framework.Runtime
+namespace SoyoFramework.Framework.Runtime.Core
 {
     public interface IBelongToArchitecture
     {

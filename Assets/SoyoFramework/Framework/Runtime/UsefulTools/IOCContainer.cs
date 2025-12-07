@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SoyoFramework.Framework.CoreKits
+namespace SoyoFramework.Framework.Runtime.UsefulTools
 {
     public class IOCContainer
     {
@@ -26,7 +26,7 @@ namespace SoyoFramework.Framework.CoreKits
 
             return null;
         }
-        
+
         public IEnumerable<T> GetAll<T>() where T : class
         {
             var keyType = typeof(T);
