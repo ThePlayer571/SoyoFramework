@@ -1,0 +1,138 @@
+using System;
+using SoyoFramework.Framework.Runtime.LogKit;
+using SoyoFramework.Framework.Runtime.UsefulTools;
+
+namespace SoyoFramework.Framework.Runtime.Core
+{
+    public abstract class AbstractArchitecture : IArchitecture
+    {
+        #region 核心
+
+        private readonly ProxyIOCContainer _container = new();
+
+        protected void Init(bool setAsDefault = true)
+        {
+            if (Inited)
+            {
+                "Architecture已经初始化".LogError();
+                return;
+            }
+
+            // 注册初始层级信息
+            OnInit();
+
+            // 统一初始化所有层级
+            foreach (var module in _container.GetAll<ICanInit>())
+            {
+                module.Get.PreInit();
+            }
+
+            // 按次序初始化Model和System
+            foreach (var model in _container.GetAll<IModel>())
+            {
+                model.Get.Init();
+            }
+
+            foreach (var system in _container.GetAll<ISystem>())
+            {
+                system.Get.Init();
+            }
+
+            //
+            Inited = true;
+            if (setAsDefault)
+            {
+                ArchitectureHelper.DefaultArchitecture = this;
+            }
+        }
+
+        protected abstract void OnInit();
+        protected abstract void OnDeinit();
+
+
+        public bool Inited { get; private set; } = false;
+
+        public void RegisterModel<T>(T model) where T : class, IModel
+        {
+            model.AttachedArchitecture = this;
+            _container.Register<T>(model);
+
+            // 如果是在Architecture初始化后注册的Module，直接初始化
+            if (Inited)
+            {
+                model.PreInit();
+                model.Init();
+            }
+        }
+
+        public void RegisterSystem<T>(T system) where T : class, ISystem
+        {
+            system.AttachedArchitecture = this;
+            _container.Register<T>(system);
+
+            // 如果是在Architecture初始化后注册的Module，直接初始化
+            if (Inited)
+            {
+                system.PreInit();
+                system.Init();
+            }
+        }
+
+        public IProxy<T> GetSystem<T>() where T : class, ISystem
+        {
+            // 如果没有注册，创建一个空的Proxy并返回
+            var proxy = _container.Get<T>();
+            if (proxy == null)
+            {
+                _container.Register<T>(null);
+            }
+
+            return _container.Get<T>();
+        }
+
+        public IProxy<T> GetModel<T>() where T : class, IModel
+        {
+            // 如果没有注册，创建一个空的Proxy并返回
+            var proxy = _container.Get<T>();
+            if (proxy == null)
+            {
+                _container.Register<T>(null);
+            }
+
+            return _container.Get<T>();
+        }
+
+        #endregion
+
+
+        public void SendService<T>(T service) where T : IService
+        {
+            throw new NotImplementedException();
+        }
+
+        public TResult SendService<TResult>(IService<TResult> service)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IUnRegister RegisterEvent<T>(Action<T> onEvent) where T : IEvent
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SendEvent<T>() where T : IEvent, new()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SendEvent<T>(in T e) where T : IEvent
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UnRegisterEvent<T>(Action<T> onEvent) where T : IEvent
+        {
+            throw new NotImplementedException();
+        }
+    }
+}

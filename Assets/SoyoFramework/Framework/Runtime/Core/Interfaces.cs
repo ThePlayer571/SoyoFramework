@@ -5,37 +5,42 @@ namespace SoyoFramework.Framework.Runtime.Core
 {
     public interface IArchitecture
     {
+        // Architecture信息
+        bool Inited { get; }
+
         // 基础层级
-        void RegisterSystem<T>(T system) where T : ISystem;
-        void RegisterModel<T>(T model) where T : IModel;
-        T GetSystem<T>() where T : class, ISystem;
-        T GetModel<T>() where T : class, IModel;
+        void RegisterModel<T>(T model) where T : class, IModel;
+        void RegisterSystem<T>(T system) where T : class, ISystem;
+
+        // System
+        IProxy<T> GetSystem<T>() where T : class, ISystem;
+
+        // Model
+        IProxy<T> GetModel<T>() where T : class, IModel;
+
+        // Service
         void SendService<T>(T service) where T : IService;
         TResult SendService<TResult>(IService<TResult> service);
 
+        // Event
+        IUnRegister RegisterEvent<T>(Action<T> onEvent) where T : IEvent;
         void SendEvent<T>() where T : IEvent, new();
         void SendEvent<T>(in T e) where T : IEvent;
-
-        IUnRegister RegisterEvent<T>(Action<T> onEvent) where T : IEvent;
-
         void UnRegisterEvent<T>(Action<T> onEvent) where T : IEvent;
+    }
+    
+    public interface ISystem : ICanAttachToArchitecture, ICanInit, ICanGetModel
+    {
+    }
 
-        //
-        void Init(bool setAsDefault = true);
-        void Deinit();
+    public interface IModel : ICanAttachToArchitecture, ICanInit
+    {
     }
 
     public interface IController
     {
     }
 
-    public interface ISystem
-    {
-    }
-
-    public interface IModel
-    {
-    }
 
     public interface IService
     {

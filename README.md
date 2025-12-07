@@ -2,7 +2,62 @@
 
 我自己用的框架
 
+
+
+Model和System是持久
+
 ### ProcedureKit
+
+```
+引入Procedure机制，这是本框架的核心
+
+- Procedure机制
+	所有层级都可以有依赖于Procedure的生命周期，只能在指定区间调用（解决问题: 关卡外调用关卡Model）
+
+- 框架部分(不依赖Unity生命周期)
+[数据层]
+Model IOC单例。负责数据增删改查
+[逻辑层]
+System IOC单例。分担数据层面的逻辑
+[超巨层]
+Service 每个Service是一个类，功能单一，无状态。负责多个Model的数据操作，作为某个操作的唯一入口。全局可调用。Service禁止操作View
+
+层级可以不符合规范(为了方便写代码)，但必须使用HasBetterArch标记不符合规范的层级
+支持MonoSystem MonoModel MonoService，自动注册，用MonoBehavior的生命周期
+
+- 框架部分(依赖Unity生命周期)
+[表现层]
+Controller 接受信息，操作View。可以将自己注册到Architecture里面: 通过protected RegisterSelf功能。
+	Controller允许与View Model等层级耦合，请用[MetaLayer(Layer: View, Model)]特性标记
+
+- 框架外
+[表现层]
+{废除: 使用partial class更佳，没必要独立出一个脚本}PassiveView 被别人调用，提供表现变更的方法，封装程度是"方便好用"。推荐只被Controller调用
+AutoView 通过订阅Controller提供的事件，自主自动地更新View
+
+- UI
+增加初始数据类
+移除SubPanel的设定，Stack对所有类开放
+
+- Proxy机制
+所有层级通过Proxy获取，为了Procedure严谨
+Proxy可以隐式转换为层级对象，方便使用
+Proxy提供方法：UniTask WaitForValid: Proxy可以存空引用(Controller未注册时/受Procedure约束时)
+
+
+- 随笔
+原则上禁用所有单例
+文档要写：框架+允许违反框架的点和需要做的标注
+命名规则：
+	TEMP_用于临时结构
+	[HasBetterArch]
+	Node 纯引用类
+想要做的：
+	给BetterToggle, MultiGroup这些组件给上自定义的图标
+	统一的调试窗口，显示框架内当前所有Model, System, Controller，还能自定义发送Service
+	
+根框架不要使用DoTween, Naughty这些插件，有哪些插件需要说明清楚
+```
 
 
 
