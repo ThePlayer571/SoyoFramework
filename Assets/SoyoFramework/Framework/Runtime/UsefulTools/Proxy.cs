@@ -1,6 +1,13 @@
 namespace SoyoFramework.Framework.Runtime.UsefulTools
 {
-    public class Proxy<T> where T : class
+    public interface IProxy<T> where T : class
+    {
+        public T Get { get; }
+        public bool IsValid { get; }
+        internal void SetInstance(T instance);
+    }
+
+    internal class Proxy<T> : IProxy<T> where T : class
     {
         public T Get => _isValid ? _instance : null;
         public bool IsValid => _isValid;
@@ -10,10 +17,10 @@ namespace SoyoFramework.Framework.Runtime.UsefulTools
 
         internal Proxy(T instance)
         {
-            SetInstance(instance);
+            ((IProxy<T>)this).SetInstance(instance);
         }
 
-        internal void SetInstance(T instance)
+        void IProxy<T>.SetInstance(T instance)
         {
             if (instance == null)
             {

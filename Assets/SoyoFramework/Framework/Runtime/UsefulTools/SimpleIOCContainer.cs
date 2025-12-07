@@ -4,7 +4,6 @@ using System.Linq;
 
 namespace SoyoFramework.Framework.Runtime.UsefulTools
 {
-    
     public class SimpleIOCContainer
     {
         private readonly Dictionary<Type, object> _container = new();
