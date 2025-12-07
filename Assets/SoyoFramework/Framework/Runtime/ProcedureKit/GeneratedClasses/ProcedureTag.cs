@@ -5,6 +5,7 @@ namespace SoyoFramework.Framework.Runtime. ProcedureKit.GeneratedClasses
 {
     public enum ProcedureTag
     {
-        ExampleTag = 0
+        ExampleTagA = 0,
+        ExampleTagB = 1
     }
 }

@@ -13,11 +13,15 @@ MonoBehaviour:
   m_Name: ProcedureKitConfig
   m_EditorClassIdentifier: 
   TagNames:
-  - ExampleTag
+  - ExampleTagA
+  - ExampleTagB
   Procedures:
   - Name: Entrance
     TagIndices: 
     AllowedPreviousIndices: 
-  - Name: ExampleProcedure
+  - Name: ExampleProcedureA
     TagIndices: 00000000
-    AllowedPreviousIndices: 00000000
+    AllowedPreviousIndices: 0000000002000000
+  - Name: ExampleProcedureB
+    TagIndices: 01000000
+    AllowedPreviousIndices: 01000000

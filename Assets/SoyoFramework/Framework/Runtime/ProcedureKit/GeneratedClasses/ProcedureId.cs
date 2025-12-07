@@ -8,8 +8,11 @@ namespace SoyoFramework.Framework.Runtime.ProcedureKit. GeneratedClasses
     public enum ProcedureId
     {
         Entrance = 0,
-        [ProcedureTags(ProcedureTag. ExampleTag)]
-        [AllowedPreviousProcedures(ProcedureId.Entrance)]
-        ExampleProcedure = 1
+        [ProcedureTags(ProcedureTag. ExampleTagA)]
+        [AllowedPreviousProcedures(ProcedureId.Entrance, ProcedureId.ExampleProcedureB)]
+        ExampleProcedureA = 1,
+        [ProcedureTags(ProcedureTag. ExampleTagB)]
+        [AllowedPreviousProcedures(ProcedureId.ExampleProcedureA)]
+        ExampleProcedureB = 2
     }
 }
