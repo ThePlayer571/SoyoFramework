@@ -20,6 +20,14 @@ namespace SoyoFramework.Framework.Runtime.Core
     {
     }
 
+    public interface ICanUnRegisterModel : ICanAttachToArchitecture
+    {
+    }
+
+    public interface ICanUnRegisterSystem : ICanAttachToArchitecture
+    {
+    }
+
 
     public interface ICanGetService : ICanAttachToArchitecture
     {
@@ -75,6 +83,18 @@ namespace SoyoFramework.Framework.Runtime.Core
     {
         public static IProxy<T> GetSystem<T>(this ICanGetSystem self) where T : class, ISystem =>
             self.AttachedArchitecture.GetSystem<T>();
+    }
+
+    public static class CanUnRegisterModelExtension
+    {
+        public static void UnRegisterModel<T>(this ICanUnRegisterModel self) where T : class, IModel =>
+            self.AttachedArchitecture.UnRegisterModel<T>();
+    }
+
+    public static class CanUnRegisterSystemExtension
+    {
+        public static void UnRegisterSystem<T>(this ICanUnRegisterSystem self) where T : class, ISystem =>
+            self.AttachedArchitecture.UnRegisterSystem<T>();
     }
 
     public static class CanRegisterEventExtension

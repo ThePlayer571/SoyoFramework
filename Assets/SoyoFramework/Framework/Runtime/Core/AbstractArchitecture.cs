@@ -83,27 +83,27 @@ namespace SoyoFramework.Framework.Runtime.Core
             }
         }
 
+        public void UnRegisterModel<T>() where T : class, IModel
+        {
+            var proxy = _container.Get<T>();
+            proxy.Get.Deinit();
+            proxy.SetInstance(null);
+        }
+
+        public void UnRegisterSystem<T>() where T : class, ISystem
+        {
+            var proxy = _container.Get<T>();
+            proxy.Get.Deinit();
+            proxy.SetInstance(null);
+        }
+
         public IProxy<T> GetSystem<T>() where T : class, ISystem
         {
-            // 如果没有注册，创建一个空的Proxy并返回
-            var proxy = _container.Get<T>();
-            if (proxy == null)
-            {
-                _container.Register<T>(null);
-            }
-
             return _container.Get<T>();
         }
 
         public IProxy<T> GetModel<T>() where T : class, IModel
         {
-            // 如果没有注册，创建一个空的Proxy并返回
-            var proxy = _container.Get<T>();
-            if (proxy == null)
-            {
-                _container.Register<T>(null);
-            }
-
             return _container.Get<T>();
         }
 

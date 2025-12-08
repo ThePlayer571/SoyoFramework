@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using SoyoFramework.Framework.Runtime.Core;
 using SoyoFramework.Framework.Runtime.LogKit;
 using SoyoFramework.Framework.Runtime.UsefulTools;
@@ -34,6 +35,11 @@ namespace Examples.TEMP
         {
             a = 114;
         }
+
+        protected override void OnDeinit()
+        {
+            "Model 销毁".LogInfo();
+        }
     }
 
     public class TestSystem : AbstractSystem
@@ -44,6 +50,14 @@ namespace Examples.TEMP
         {
             _testModel = this.GetModel<TestModel>();
             $"a is {_testModel.Get.a}".LogInfo();
+
+            UniTask.Void(async () =>
+            {
+                await UniTask.WaitForSeconds(1f);
+                "一秒后，销毁TestModel".LogInfo();
+                this.UnRegisterModel<TestModel>();
+                $"TestModel is null: {_testModel.Get == null}".LogInfo();
+            });
         }
     }
 }

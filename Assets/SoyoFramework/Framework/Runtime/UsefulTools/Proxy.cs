@@ -1,8 +1,14 @@
+using JetBrains.Annotations;
+
 namespace SoyoFramework.Framework.Runtime.UsefulTools
 {
     public interface IProxy<out T> where T : class
     {
+        /// <summary>
+        /// 请不要把返回值赋值给其他引用，因为IProxy负责管理生命周期
+        /// </summary>
         public T Get { get; }
+
         public bool IsValid { get; }
         internal void SetInstance(object instance);
     }

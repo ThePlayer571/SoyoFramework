@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace SoyoFramework.Framework.Runtime.UsefulTools
@@ -18,18 +19,29 @@ namespace SoyoFramework.Framework.Runtime.UsefulTools
             _container[key] = proxy;
         }
 
+        [return: NotNull]
         public IProxy<T> Get<T>() where T : class
         {
             var key = typeof(T);
 
             if (_container.TryGetValue(key, out var retInstance))
             {
-                return retInstance as IProxy<T>;
+                return retInstance as IProxy<T> ??
+                       throw new Exception($"在ProxyIOCContainer中，Key: {key} 对应的实例无法转换为 IProxy<{key}>");
             }
 
-            return null;
+            // 如果没有找到，创建一个新的Proxy包装类
+            IProxy<T> proxy = new Proxy<T>(null);
+            _container[key] = proxy;
+            return proxy;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns>迭代器中的值非null</returns>
+        [return: NotNull]
         public IEnumerable<IProxy<T>> GetAll<T>() where T : class
         {
             var key = typeof(T);

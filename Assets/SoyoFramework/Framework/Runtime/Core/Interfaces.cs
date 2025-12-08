@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using SoyoFramework.Framework.Runtime.UsefulTools;
 
 namespace SoyoFramework.Framework.Runtime.Core
@@ -8,15 +9,18 @@ namespace SoyoFramework.Framework.Runtime.Core
         // Architecture信息
         bool Inited { get; }
 
-        // 基础层级
+        // Module todo 可能会把这个部分统一为 RegisterModule<T>(T module)
         void RegisterModel<T>(T model) where T : class, IModel;
         void RegisterSystem<T>(T system) where T : class, ISystem;
+        void UnRegisterModel<T>() where T : class, IModel;
+        void UnRegisterSystem<T>() where T : class, ISystem;
 
-        // System
+        [return: NotNull]
         IProxy<T> GetSystem<T>() where T : class, ISystem;
 
-        // Model
+        [return: NotNull]
         IProxy<T> GetModel<T>() where T : class, IModel;
+
 
         // Service
         void SendService<T>(T service) where T : IService;
@@ -28,8 +32,8 @@ namespace SoyoFramework.Framework.Runtime.Core
         void SendEvent<T>(in T e) where T : IEvent;
         void UnRegisterEvent<T>(Action<T> onEvent) where T : IEvent;
     }
-    
-    public interface ISystem : ICanAttachToArchitecture, ICanInit, ICanGetModel
+
+    public interface ISystem : ICanAttachToArchitecture, ICanInit, ICanGetModel, ICanUnRegisterModel, ICanUnRegisterSystem
     {
     }
 
