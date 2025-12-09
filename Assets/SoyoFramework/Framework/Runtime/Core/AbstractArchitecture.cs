@@ -24,7 +24,6 @@ namespace SoyoFramework.Framework.Runtime.Core
             // 按次序初始化Model和System
             foreach (var module in _container.GetAll<IModel>())
             {
-                "find model preinit".LogInfo();
                 module.Get.PreInit();
             }
 
