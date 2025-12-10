@@ -82,6 +82,19 @@ namespace SoyoFramework.Framework.Runtime.Core
             }
         }
 
+        public void RegisterService<T>(T service) where T : class, IService
+        {
+            service.AttachedArchitecture = this;
+            _container.Register<T>(service);
+
+            // 如果是在Architecture初始化后注册的Module，直接初始化
+            if (Inited)
+            {
+                service.PreInit();
+                service.Init();
+            }
+        }
+
         public void UnRegisterModel<T>() where T : class, IModel
         {
             var proxy = _container.Get<T>();
@@ -90,6 +103,13 @@ namespace SoyoFramework.Framework.Runtime.Core
         }
 
         public void UnRegisterSystem<T>() where T : class, ISystem
+        {
+            var proxy = _container.Get<T>();
+            proxy.Get.Deinit();
+            proxy.SetInstance(null);
+        }
+
+        public void UnRegisterService<T>() where T : class, IService
         {
             var proxy = _container.Get<T>();
             proxy.Get.Deinit();
@@ -106,15 +126,15 @@ namespace SoyoFramework.Framework.Runtime.Core
             return _container.Get<T>();
         }
 
-        #endregion
-
-
-        public void SendService<T>(T service) where T : IService
+        public IProxy<T> GetService<T>() where T : class, IService
         {
             throw new NotImplementedException();
         }
 
-        public TResult SendService<TResult>(IService<TResult> service)
+        #endregion
+
+
+        public void SendService<T>(T service) where T : IService
         {
             throw new NotImplementedException();
         }

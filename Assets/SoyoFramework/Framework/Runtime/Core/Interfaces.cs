@@ -9,11 +9,14 @@ namespace SoyoFramework.Framework.Runtime.Core
         // Architecture信息
         bool Inited { get; }
 
-        // Module todo 可能会把这个部分统一为 RegisterModule<T>(T module)
+        // Module
+        //  UnRegister会触发Deinit
         void RegisterModel<T>(T model) where T : class, IModel;
         void RegisterSystem<T>(T system) where T : class, ISystem;
+        void RegisterService<T>(T service) where T : class, IService;
         void UnRegisterModel<T>() where T : class, IModel;
         void UnRegisterSystem<T>() where T : class, ISystem;
+        void UnRegisterService<T>() where T : class, IService;
 
         [return: NotNull]
         IProxy<T> GetSystem<T>() where T : class, ISystem;
@@ -21,10 +24,10 @@ namespace SoyoFramework.Framework.Runtime.Core
         [return: NotNull]
         IProxy<T> GetModel<T>() where T : class, IModel;
 
+        [return: NotNull]
+        IProxy<T> GetService<T>() where T : class, IService;
 
         // Service
-        void SendService<T>(T service) where T : IService;
-        TResult SendService<TResult>(IService<TResult> service);
 
         // Event
         IUnRegister RegisterEvent<T>(Action<T> onEvent) where T : IEvent;
@@ -33,28 +36,39 @@ namespace SoyoFramework.Framework.Runtime.Core
         void UnRegisterEvent<T>(Action<T> onEvent) where T : IEvent;
     }
 
-    public interface ISystem : ICanAttachToArchitecture, ICanInit, ICanGetModel, ICanUnRegisterModel, ICanUnRegisterSystem
+    public interface IModule :
+        ICanAttachToArchitecture, ICanInit
     {
     }
 
-    public interface IModel : ICanAttachToArchitecture, ICanInit
+    public interface IModel :
+        IModule,
+        ICanSendEvent
     {
     }
 
-    public interface IController
+    public interface ISystem :
+        IModule,
+        ICanGetModel, ICanUnRegisterModel, ICanUnRegisterSystem,
+        ICanRegisterEvent, ICanSendEvent
     {
     }
 
 
-    public interface IService
+    public interface IService :
+        IModule,
+        ICanGetModel, ICanGetService
     {
-        void Execute();
     }
 
-    public interface IService<out TResult>
+    public interface IController :
+        IModule,
+        ICanGetModel, ICanGetService,
+        ICanRegisterEvent, ICanSendEvent
     {
-        TResult Execute();
     }
+
+
     // public interface IController : IBelongToArchitecture, ICanSetArchitecture, ICanSendService, ICanGetModel,
     //     ICanGetSystem, ICanRegisterEvent, ICanGetService
     // {

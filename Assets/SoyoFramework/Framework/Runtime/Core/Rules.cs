@@ -73,10 +73,8 @@ namespace SoyoFramework.Framework.Runtime.Core
 
     public static class CanGetModelExtension
     {
-        public static IProxy<T> GetModel<T>(this ICanAttachToArchitecture self) where T : class, IModel
-        {
-            return self.AttachedArchitecture.GetModel<T>();
-        }
+        public static IProxy<T> GetModel<T>(this ICanAttachToArchitecture self) where T : class, IModel =>
+            self.AttachedArchitecture.GetModel<T>();
     }
 
     public static class CanGetSystemExtension
@@ -104,18 +102,6 @@ namespace SoyoFramework.Framework.Runtime.Core
 
         public static void UnRegisterEvent<T>(this ICanRegisterEvent self, Action<T> onEvent) where T : IEvent =>
             self.AttachedArchitecture.UnRegisterEvent<T>(onEvent);
-    }
-
-    public static class CanSendServiceExtension
-    {
-        public static void SendService<T>(this ICanSendService self) where T : IService, new() =>
-            self.AttachedArchitecture.SendService<T>(new T());
-
-        public static void SendService<T>(this ICanSendService self, T service) where T : IService =>
-            self.AttachedArchitecture.SendService<T>(service);
-
-        public static TResult SendService<TResult>(this ICanSendService self, IService<TResult> service) =>
-            self.AttachedArchitecture.SendService(service);
     }
 
     public static class CanSendEventExtension

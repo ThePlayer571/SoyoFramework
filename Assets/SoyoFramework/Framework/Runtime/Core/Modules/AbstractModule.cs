@@ -1,8 +1,9 @@
-namespace SoyoFramework.Framework.Runtime.Core
+namespace SoyoFramework.Framework.Runtime.Core.Modules
 {
-    public abstract class AbstractSystem : ISystem
+    public abstract class AbstractModule : IModule
     {
         IArchitecture ICanAttachToArchitecture.AttachedArchitecture { get; set; }
+
         public bool PreInitialized { get; private set; }
         public bool Initialized { get; private set; }
 
