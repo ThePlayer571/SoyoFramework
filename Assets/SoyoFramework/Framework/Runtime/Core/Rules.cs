@@ -23,6 +23,10 @@ namespace SoyoFramework.Framework.Runtime.Core
     {
     }
 
+    public interface ICanGetService : ICanRelyOnArchitecture
+    {
+    }
+
     public interface ICanUnRegisterModel : ICanRelyOnArchitecture
     {
     }
@@ -31,8 +35,7 @@ namespace SoyoFramework.Framework.Runtime.Core
     {
     }
 
-
-    public interface ICanGetService : ICanRelyOnArchitecture
+    public interface ICanUnRegisterService : ICanRelyOnArchitecture
     {
     }
 
@@ -40,7 +43,7 @@ namespace SoyoFramework.Framework.Runtime.Core
     public interface ICanRegisterEvent : ICanRelyOnArchitecture
     {
     }
-    
+
 
     public interface ICanSendEvent : ICanRelyOnArchitecture
     {
@@ -83,6 +86,12 @@ namespace SoyoFramework.Framework.Runtime.Core
             self.RelyingArchitecture.GetSystem<T>();
     }
 
+    public static class CanGetServiceExtension
+    {
+        public static IProxy<T> GetService<T>(this ICanGetService self) where T : class, IService =>
+            self.RelyingArchitecture.GetService<T>();
+    }
+
     public static class CanUnRegisterModelExtension
     {
         public static void UnRegisterModel<T>(this ICanUnRegisterModel self) where T : class, IModel =>
@@ -93,6 +102,12 @@ namespace SoyoFramework.Framework.Runtime.Core
     {
         public static void UnRegisterSystem<T>(this ICanUnRegisterSystem self) where T : class, ISystem =>
             self.RelyingArchitecture.UnRegisterSystem<T>();
+    }
+    
+    public static class CanUnRegisterServiceExtension
+    {
+        public static void UnRegisterService<T>(this ICanUnRegisterService self) where T : class, IService =>
+            self.RelyingArchitecture.UnRegisterService<T>();
     }
 
     public static class CanRegisterEventExtension
