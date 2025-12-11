@@ -1,4 +1,4 @@
-namespace SoyoFramework.Framework.Runtime.Core.Modules
+namespace SoyoFramework.Framework.Runtime.Core.Layers
 {
     public abstract class AbstractModule : IModule
     {
@@ -7,24 +7,24 @@ namespace SoyoFramework.Framework.Runtime.Core.Modules
         public bool PreInitialized { get; private set; }
         public bool Initialized { get; private set; }
 
-        void ICanInit.Init()
+        void ICanInitByArchitecture.Init()
         {
             if (!PreInitialized)
             {
-                ((ICanInit)this).PreInit();
+                ((ICanInitByArchitecture)this).PreInit();
             }
 
             OnInit();
             Initialized = true;
         }
 
-        void ICanInit.PreInit()
+        void ICanInitByArchitecture.PreInit()
         {
             OnPreInit();
             PreInitialized = true;
         }
 
-        void ICanInit.Deinit()
+        void ICanInitByArchitecture.Deinit()
         {
             OnDeinit();
         }

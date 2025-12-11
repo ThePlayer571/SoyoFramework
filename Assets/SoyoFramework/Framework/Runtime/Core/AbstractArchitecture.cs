@@ -6,11 +6,17 @@ namespace SoyoFramework.Framework.Runtime.Core
 {
     public abstract class AbstractArchitecture : IArchitecture
     {
-        #region 核心
+        #region 可用字段
 
+        public bool Inited { get; private set; } = false;
         private readonly ProxyIOCContainer _container = new();
+        private readonly TypeEventSystem _eventSystem = new();
 
-        protected void Init(bool setAsDefault = true)
+        #endregion
+
+        #region 生命周期
+
+        public void Init(bool setAsDefault = true)
         {
             if (Inited)
             {
@@ -21,40 +27,64 @@ namespace SoyoFramework.Framework.Runtime.Core
             // 注册初始层级信息
             OnInit();
 
-            // 按次序初始化Model和System
-            foreach (var module in _container.GetAll<IModel>())
+            // 初始化模块
+            foreach (var module in _container.GetAll<IModule>())
             {
                 module.Get.PreInit();
             }
 
-            foreach (var module in _container.GetAll<ISystem>())
+            foreach (var module in _container.GetAll<IModule>())
             {
-                module.Get.PreInit();
-            }
-
-            foreach (var model in _container.GetAll<IModel>())
-            {
-                model.Get.Init();
-            }
-
-            foreach (var system in _container.GetAll<ISystem>())
-            {
-                system.Get.Init();
+                module.Get.Init();
             }
 
             //
             Inited = true;
+
+            // ArchitectureHelper支持
             if (setAsDefault)
             {
                 ArchitectureHelper.DefaultArchitecture = this;
             }
         }
 
+        public void Deinit()
+        {
+            // 防止重复Deinit
+            if (!Inited)
+            {
+                "Architecture没有初始化，无法Deinit".LogError();
+                return;
+            }
+
+            OnDeinit();
+
+            // 销毁模块
+            foreach (var module in _container.GetAll<IModule>())
+            {
+                module.Get.Deinit();
+                module.SetInstance(null);
+            }
+
+            // TypeEventSystem清理
+            _eventSystem.Clear();
+
+            // 标记未初始化
+            Inited = false;
+
+            // ArchitectureHelper支持
+            if (ArchitectureHelper.DefaultArchitecture == this)
+            {
+                ArchitectureHelper.DefaultArchitecture = null;
+            }
+        }
+
         protected abstract void OnInit();
         protected abstract void OnDeinit();
 
+        #endregion
 
-        public bool Inited { get; private set; } = false;
+        #region 接口实现
 
         public void RegisterModel<T>(T model) where T : class, IModel
         {
@@ -128,35 +158,25 @@ namespace SoyoFramework.Framework.Runtime.Core
 
         public IProxy<T> GetService<T>() where T : class, IService
         {
-            throw new NotImplementedException();
+            return _container.Get<T>();
         }
 
-        #endregion
-
-
-        public void SendService<T>(T service) where T : IService
-        {
-            throw new NotImplementedException();
-        }
 
         public IUnRegister RegisterEvent<T>(Action<T> onEvent) where T : IEvent
         {
-            throw new NotImplementedException();
+            return _eventSystem.Register<T>(onEvent);
         }
 
         public void SendEvent<T>() where T : IEvent, new()
         {
-            throw new NotImplementedException();
+            _eventSystem.Call<T>();
         }
 
         public void SendEvent<T>(in T e) where T : IEvent
         {
-            throw new NotImplementedException();
+            _eventSystem.Call<T>(in e);
         }
 
-        public void UnRegisterEvent<T>(Action<T> onEvent) where T : IEvent
-        {
-            throw new NotImplementedException();
-        }
+        #endregion
     }
 }

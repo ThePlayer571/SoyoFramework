@@ -18,7 +18,7 @@ namespace SoyoFramework.Framework.Runtime.UsefulTools
         public void Call<T>(in T e) where T : IEvent
         {
             var easyEvent = _events.Get<EasyEvent<T>>();
-            easyEvent?.Trigger(e);
+            easyEvent?.Trigger(in e);
         }
 
         public IUnRegister Register<T>(Action<T> callback) where T : IEvent
@@ -30,9 +30,7 @@ namespace SoyoFramework.Framework.Runtime.UsefulTools
                 _events.Register<EasyEvent<T>>(easyEvent);
             }
 
-            easyEvent.Register(callback);
-
-            return new CustomUnRegister(() => UnRegister(callback));
+            return easyEvent.Register(callback);
         }
 
         public void UnRegister<T>(Action<T> callback) where T : IEvent
@@ -40,5 +38,7 @@ namespace SoyoFramework.Framework.Runtime.UsefulTools
             var easyEvent = _events.Get<EasyEvent<T>>();
             easyEvent?.UnRegister(callback);
         }
+
+        public void Clear() => _events.Clear();
     }
 }

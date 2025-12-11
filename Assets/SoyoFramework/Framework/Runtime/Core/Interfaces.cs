@@ -6,11 +6,13 @@ namespace SoyoFramework.Framework.Runtime.Core
 {
     public interface IArchitecture
     {
-        // Architecture信息
+        // Architecture生命周期
+        void Init(bool setAsDefault = true);
+        void Deinit();
         bool Inited { get; }
 
         // Module
-        //  UnRegister会触发Deinit
+        // UnRegister 会触发Deinit
         void RegisterModel<T>(T model) where T : class, IModel;
         void RegisterSystem<T>(T system) where T : class, ISystem;
         void RegisterService<T>(T service) where T : class, IService;
@@ -27,17 +29,18 @@ namespace SoyoFramework.Framework.Runtime.Core
         [return: NotNull]
         IProxy<T> GetService<T>() where T : class, IService;
 
-        // Service
-
         // Event
         IUnRegister RegisterEvent<T>(Action<T> onEvent) where T : IEvent;
         void SendEvent<T>() where T : IEvent, new();
         void SendEvent<T>(in T e) where T : IEvent;
-        void UnRegisterEvent<T>(Action<T> onEvent) where T : IEvent;
     }
 
+    /// <summary>
+    /// 所有能被注册到Architecture的模块的基接口。
+    /// 实现了ICanInitByArchitecture，生命周期为 未初始化 -> PreInited -> Inited -> Deinit -> 销毁
+    /// </summary>
     public interface IModule :
-        ICanAttachToArchitecture, ICanInit
+        ICanAttachToArchitecture, ICanInitByArchitecture
     {
     }
 
@@ -49,7 +52,8 @@ namespace SoyoFramework.Framework.Runtime.Core
 
     public interface ISystem :
         IModule,
-        ICanGetModel, ICanUnRegisterModel, ICanUnRegisterSystem,
+        ICanGetModel, ICanGetService,
+        ICanUnRegisterModel, ICanUnRegisterSystem,
         ICanRegisterEvent, ICanSendEvent
     {
     }
@@ -61,38 +65,10 @@ namespace SoyoFramework.Framework.Runtime.Core
     {
     }
 
-    public interface IController :
-        IModule,
+    public interface IViewController :
+        ICanRelyOnArchitecture,
         ICanGetModel, ICanGetService,
         ICanRegisterEvent, ICanSendEvent
     {
     }
-
-
-    // public interface IController : IBelongToArchitecture, ICanSetArchitecture, ICanSendService, ICanGetModel,
-    //     ICanGetSystem, ICanRegisterEvent, ICanGetService
-    // {
-    // }
-    //
-    // public interface ISystem : IBelongToArchitecture, ICanSetArchitecture, ICanGetModel, ICanGetSystem, ICanGetService,
-    //     ICanSendEvent, ICanRegisterEvent, ICanInit
-    // {
-    // }
-    //
-    // public interface IModel : IBelongToArchitecture, ICanSetArchitecture, ICanInit
-    // {
-    // }
-    //
-    // public interface IService : IBelongToArchitecture, ICanGetSystem, ICanGetModel, ICanGetService, ICanSendEvent,
-    //     ICanSendService, ICanSetArchitecture
-    // {
-    //     void Execute();
-    // }
-    //
-    // public interface IService<out TResult> : IBelongToArchitecture, ICanGetSystem, ICanGetModel, ICanGetService,
-    //     ICanSendEvent, ICanSendService
-    //     , ICanSetArchitecture
-    // {
-    //     TResult Execute();
-    // }
 }

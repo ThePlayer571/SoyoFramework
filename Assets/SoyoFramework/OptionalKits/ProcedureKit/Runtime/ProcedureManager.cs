@@ -11,30 +11,7 @@ using SoyoFramework.Scripts.ToolKits.PhaseKit;
 
 namespace SoyoFramework.Framework.Runtime.ProcedureKit
 {
-    public interface IProcedureManager
-    {
-        ProcedureId CurrentProcedure { get; }
-        ProcedureCheckMode CheckMode { get; set; }
 
-        // 流程切换
-        UniTask ChangeProcedure(ProcedureId procedureId, ProcedureChangeInfo.ProcedureChangeParas paras);
-        UniTask ChangeProcedure(ProcedureId procedureId, params (string, object)[] paras);
-
-        // 流程订阅
-        IUnRegister RegisterProcedure(ProcedureId procedureId, ProcedureChangeStage stage,
-            Action<ProcedureChangeInfo> callback);
-
-        // 延迟切换
-        void AddAwait(UniTask task);
-
-        // 标签
-        bool HasTag(ProcedureId procedureId, ProcedureTag tag);
-        IReadOnlyList<ProcedureTag> GetTags(ProcedureId procedureId);
-        bool CurrentHasTag(ProcedureTag tag);
-        IReadOnlyList<ProcedureTag> GetCurrentTags();
-    }
-
-    // todo 改为internal
     public class ProcedureManager : IProcedureManager
     {
         #region 属性

@@ -3,47 +3,46 @@ using SoyoFramework.Framework.Runtime.UsefulTools;
 
 namespace SoyoFramework.Framework.Runtime.Core
 {
-    /// <summary>
-    /// 能绑定到Architecture
-    /// </summary>
-    public interface ICanAttachToArchitecture
+    public interface ICanRelyOnArchitecture
+    {
+        IArchitecture RelyingArchitecture { get; }
+    }
+
+    public interface ICanAttachToArchitecture : ICanRelyOnArchitecture
     {
         IArchitecture AttachedArchitecture { get; internal set; }
+        IArchitecture ICanRelyOnArchitecture.RelyingArchitecture => AttachedArchitecture;
     }
 
-    public interface ICanGetModel : ICanAttachToArchitecture
+    public interface ICanGetModel : ICanRelyOnArchitecture
     {
     }
 
 
-    public interface ICanGetSystem : ICanAttachToArchitecture
+    public interface ICanGetSystem : ICanRelyOnArchitecture
     {
     }
 
-    public interface ICanUnRegisterModel : ICanAttachToArchitecture
+    public interface ICanUnRegisterModel : ICanRelyOnArchitecture
     {
     }
 
-    public interface ICanUnRegisterSystem : ICanAttachToArchitecture
-    {
-    }
-
-
-    public interface ICanGetService : ICanAttachToArchitecture
+    public interface ICanUnRegisterSystem : ICanRelyOnArchitecture
     {
     }
 
 
-    public interface ICanRegisterEvent : ICanAttachToArchitecture
+    public interface ICanGetService : ICanRelyOnArchitecture
     {
     }
 
 
-    public interface ICanSendService : ICanAttachToArchitecture
+    public interface ICanRegisterEvent : ICanRelyOnArchitecture
     {
     }
+    
 
-    public interface ICanSendEvent : ICanAttachToArchitecture
+    public interface ICanSendEvent : ICanRelyOnArchitecture
     {
     }
 
@@ -51,7 +50,7 @@ namespace SoyoFramework.Framework.Runtime.Core
     /// <summary>
     /// 约定：初始化方法只能由Architecture调用
     /// </summary>
-    public interface ICanInit
+    public interface ICanInitByArchitecture : ICanAttachToArchitecture
     {
         bool PreInitialized { get; }
         bool Initialized { get; }
@@ -69,48 +68,46 @@ namespace SoyoFramework.Framework.Runtime.Core
         internal void Deinit();
     }
 
+
     #region Extensions
 
     public static class CanGetModelExtension
     {
-        public static IProxy<T> GetModel<T>(this ICanAttachToArchitecture self) where T : class, IModel =>
-            self.AttachedArchitecture.GetModel<T>();
+        public static IProxy<T> GetModel<T>(this ICanGetModel self) where T : class, IModel =>
+            self.RelyingArchitecture.GetModel<T>();
     }
 
     public static class CanGetSystemExtension
     {
         public static IProxy<T> GetSystem<T>(this ICanGetSystem self) where T : class, ISystem =>
-            self.AttachedArchitecture.GetSystem<T>();
+            self.RelyingArchitecture.GetSystem<T>();
     }
 
     public static class CanUnRegisterModelExtension
     {
         public static void UnRegisterModel<T>(this ICanUnRegisterModel self) where T : class, IModel =>
-            self.AttachedArchitecture.UnRegisterModel<T>();
+            self.RelyingArchitecture.UnRegisterModel<T>();
     }
 
     public static class CanUnRegisterSystemExtension
     {
         public static void UnRegisterSystem<T>(this ICanUnRegisterSystem self) where T : class, ISystem =>
-            self.AttachedArchitecture.UnRegisterSystem<T>();
+            self.RelyingArchitecture.UnRegisterSystem<T>();
     }
 
     public static class CanRegisterEventExtension
     {
         public static IUnRegister RegisterEvent<T>(this ICanRegisterEvent self, Action<T> onEvent) where T : IEvent =>
-            self.AttachedArchitecture.RegisterEvent<T>(onEvent);
-
-        public static void UnRegisterEvent<T>(this ICanRegisterEvent self, Action<T> onEvent) where T : IEvent =>
-            self.AttachedArchitecture.UnRegisterEvent<T>(onEvent);
+            self.RelyingArchitecture.RegisterEvent<T>(onEvent);
     }
 
     public static class CanSendEventExtension
     {
         public static void SendEvent<T>(this ICanSendEvent self) where T : IEvent, new() =>
-            self.AttachedArchitecture.SendEvent<T>();
+            self.RelyingArchitecture.SendEvent<T>();
 
         public static void SendEvent<T>(this ICanSendEvent self, T e) where T : IEvent =>
-            self.AttachedArchitecture.SendEvent<T>(e);
+            self.RelyingArchitecture.SendEvent<T>(e);
     }
 
     #endregion

@@ -54,17 +54,6 @@
 
 ##### 逻辑层：数据的处理与输出
 
-**Controller**：**继承MonoBehaviour，处理主要的逻辑**。
-这是框架的起点，任何逻辑都推荐始于Controller，逻辑混乱后再尝试重构。
-
-- 输入
-    - Unity生命周期 / Unity组件: 我使用MonoBehaviour的生命周期函数 / 接受Unity组件提供的信息，接受Unity的输入
-    - Event: 我通过EventSystem订阅事件，接受其他层级的输入
-    - Model TODO
-- 输出
-    - Service: 我通过获取Service的实例，调用其方法，通知其他层级
-    - Model TODO
-
 **Service**：**处理数据，作为某个操作的唯一入口**。
 只能提供方法，禁止提供事件、数据等。
 目的是提供共享的逻辑操作。
@@ -89,23 +78,24 @@
 
 ##### 表现层：将数据展示给用户
 
-**AutoView**：**继承MonoBehaviour，处理画面和音效等**。
-啥都干不了，建议给它拖拽赋值Controller的引用，然后在Controller里提供事件，AutoView订阅这些事件。
+**ViewController**：**继承MonoBehaviour，负责处理表现、接受输入**。
+推荐为所有逻辑的起源
 
 - 输入
-    - 无
+  - 
 - 输出
-    - 无
+  - 
 
-##### 超巨层：耦合多个层级，为了代码写的方便
+##### 超巨层：耦合多个层级，为了写代码方便
 
-**ViewController**：**继承Controller，耦合了Controller和AutoView**。
-实践中最常用的层级，一般是纯逻辑先用Controller，逻辑+表现用ViewController，ViewController臃肿了再拆成Controller+AutoView。
+**SuperSystem**：**耦合：Model, System, Service**。
+当一个小功能不想拆成多个层级时，可以使用SuperSystem。
+可以使用GetModel, GetSystem, GetService任意一个获取SuperSystem的实例。
+这个层级相当于QFramework中的System。
 
-- 输入
-    - 同 Controller
-- 输出
-    - 同 Controller
+**HasBetterArchAttribute**：**标记不符合规范的层级**。
+如果有难以符合架构的单例或组件，可以使用这个标记。
+允许传入string作为标注，建议描述清楚：1. 为什么不符合规范 2. 要想符合规范，应该属于什么层级
 
 TODO：进行 ISuperLayer 标记，才让GetSystem能获取到System
 
@@ -120,11 +110,11 @@ UnRegister对应Deinit，这个对应关系不直观，需要改名
 
 TODO: EasyEvent提供扩展：IEasyEvent，封装Trigger，实现类似event的语法糖
 
-TODO：Procedure允许方便地自定义排序，还有给每个阶段添加注释，允许自定义有几个阶段
+TODO：Procedure允许方便地自定义排序，还有给每个阶段添加注释，允许自定义有几个阶段\
+
+TODO: 给 ProcudureKit添加程序集
 
 ### 框架外内容整合
-
-TODO: 这里过时了，可以用Controller处理才对
 
 框架的设计精妙且“恰到好处”，原因是满足“尽量不使用单例”原则，但其他库不会管这一点。因此将其他库整合进框架时，需要做一些调整。
 
@@ -135,9 +125,20 @@ TODO: 这里过时了，可以用Controller处理才对
 当然，如果你对框架足够熟练，也可以不做这个封装。
 前提是要确保自己不会做出**在Model里订阅InputControl事件**这种诡异行为。
 
+反例：Addressable应该属于Service层级，因为它是一个逻辑操作的入口。但是通常不会做封装。
+
+### 层级注销
+
+注销 = Deinit + 引用变为null
+层级可以由System注册和注销
+
+###
+
 ## 杂项 / 随笔
 
 ### EasyEvent V.S. TypeEventSystem
+
+TODO：过时
 
 EasyEvent 特指存储在Model里的Event； TypeEventSystem 指全局的事件系统
 
