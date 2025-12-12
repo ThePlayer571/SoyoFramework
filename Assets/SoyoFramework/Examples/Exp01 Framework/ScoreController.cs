@@ -16,7 +16,7 @@ namespace SoyoFramework.Examples.Exp01_Framework
         private IProxy<IScoreModel> _ScoreModel;
         private IProxy<IScoreService> _ScoreService;
 
-        private void Awake()
+        private void Start()
         {
             _ScoreModel = this.GetModel<IScoreModel>();
             _ScoreService = this.GetService<IScoreService>();

@@ -110,9 +110,7 @@ UnRegister对应Deinit，这个对应关系不直观，需要改名
 
 TODO: EasyEvent提供扩展：IEasyEvent，封装Trigger，实现类似event的语法糖
 
-TODO：Procedure允许方便地自定义排序，还有给每个阶段添加注释，允许自定义有几个阶段\
-
-TODO: 给 ProcudureKit添加程序集
+TODO：Procedure允许方便地自定义排序，还有给每个阶段添加注释
 
 ### 框架外内容整合
 

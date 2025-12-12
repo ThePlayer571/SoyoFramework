@@ -3,15 +3,8 @@ using UnityEngine;
 
 namespace SoyoFramework.Examples.Exp01_Framework
 {
-    public class TapScoreGame : AbstractArchitecture
+    public class TapGame : AbstractArchitecture
     {
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        private static void InitArchitecture()
-        {
-            var architecture = new TapScoreGame();
-            architecture.Init();
-        }
-
         protected override void OnInit()
         {
             this.RegisterModel<IScoreModel>(new ScoreModel());
