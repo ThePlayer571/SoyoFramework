@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using SoyoFramework.Framework.Runtime.LogKit;
 
-namespace SoyoFramework.Framework.Runtime.ProcedureKit
+namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.DataClasses
 {
     public class ProcedureChangeInfo
     {

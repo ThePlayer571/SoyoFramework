@@ -1,4 +1,4 @@
-namespace SoyoFramework.Framework.Runtime.ProcedureKit
+namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.DataClasses
 {
     public enum ProcedureChangeStage
     {

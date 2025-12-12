@@ -1,4 +1,7 @@
 using SoyoFramework.Framework.Runtime.Core;
+using SoyoFramework.Framework.Runtime.Core.Layers;
+using SoyoFramework.Framework.Runtime.Core.SuperLayers;
+using UnityEngine;
 
 namespace SoyoFramework.Examples.Exp02_Framework_Complex
 {
@@ -11,5 +14,12 @@ namespace SoyoFramework.Examples.Exp02_Framework_Complex
         protected override void OnDeinit()
         {
         }
+    }
+
+
+    [SuperLayer("System + Model")]
+    public class HandSystem : AbstractSystem, IModel
+    {
+        // 写逻辑
     }
 }

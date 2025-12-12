@@ -1,4 +1,4 @@
-namespace SoyoFramework.Scripts.ToolKits.PhaseKit
+namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.DataClasses
 {
     public enum ProcedureCheckMode
     {

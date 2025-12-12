@@ -1,13 +1,13 @@
-using System. Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System. Text;
-using System. Text.RegularExpressions;
-using SoyoFramework. Framework.Runtime.ProcedureKit. DataClasses;
+using System.Text;
+using System.Text.RegularExpressions;
+using SoyoFramework.OptionalKits.ProcedureKit.Runtime.DataClasses;
 using UnityEditor;
 using UnityEngine;
 
-namespace SoyoFramework. Framework.Editor
+namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
 {
     public class ProcedureKitEditorWindow : EditorWindow
     {
@@ -41,7 +41,7 @@ namespace SoyoFramework. Framework.Editor
 
         // C# 标识符验证正则：以字母或下划线开头，后面可以是字母、数字或下划线
         private static readonly Regex ValidIdentifierRegex =
-            new Regex(@"^[a-zA-Z_][a-zA-Z0-9_]*$", RegexOptions. Compiled);
+            new Regex(@"^[a-zA-Z_][a-zA-Z0-9_]*$", RegexOptions.Compiled);
 
         // C# 关键字列表
         private static readonly HashSet<string> CSharpKeywords = new HashSet<string>
@@ -84,7 +84,7 @@ namespace SoyoFramework. Framework.Editor
                 else
                 {
                     // 文件不存在了，清除记忆
-                    EditorPrefs. DeleteKey(ConfigPathPrefKey);
+                    EditorPrefs.DeleteKey(ConfigPathPrefKey);
                 }
             }
         }
@@ -112,14 +112,14 @@ namespace SoyoFramework. Framework.Editor
 
             bool hasErrors = _validationErrors.Count > 0;
 
-            EditorGUILayout. Space(10);
+            EditorGUILayout.Space(10);
 
             // 顶部配置区域
             EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("ProcedureKitConfig", GUILayout. Width(120));
+            EditorGUILayout.LabelField("ProcedureKitConfig", GUILayout.Width(120));
             var newConfig =
                 (ProcedureKitConfigSO)EditorGUILayout.ObjectField(_config, typeof(ProcedureKitConfigSO), false);
-            EditorGUILayout. EndHorizontal();
+            EditorGUILayout.EndHorizontal();
 
             if (newConfig != _config)
             {
@@ -131,21 +131,21 @@ namespace SoyoFramework. Framework.Editor
 
             if (_config == null)
             {
-                EditorGUILayout. HelpBox("请拖入 ProcedureKitConfig SO 文件", MessageType.Info);
+                EditorGUILayout.HelpBox("请拖入 ProcedureKitConfig SO 文件", MessageType.Info);
                 return;
             }
 
-            EditorGUILayout. Space(5);
+            EditorGUILayout.Space(5);
 
             // 保存按钮
-            EditorGUILayout. BeginHorizontal();
-            GUI.enabled = ! hasErrors;
+            EditorGUILayout.BeginHorizontal();
+            GUI.enabled = !hasErrors;
             if (GUILayout.Button("保存配置信息", GUILayout.Height(30)))
             {
                 SaveToConfig();
             }
 
-            if (GUILayout. Button("保存并生成C#类", GUILayout. Height(30)))
+            if (GUILayout.Button("保存并生成C#类", GUILayout.Height(30)))
             {
                 SaveToConfig();
                 GenerateCSharpClasses();
@@ -159,12 +159,12 @@ namespace SoyoFramework. Framework.Editor
             // Region 选择
             _selectedRegion = GUILayout.Toolbar(_selectedRegion, _regionNames);
 
-            EditorGUILayout. Space(10);
+            EditorGUILayout.Space(10);
 
             // 主内容区域 (使用 FlexibleSpace 让错误框固定在底部)
-            EditorGUILayout. BeginVertical();
+            EditorGUILayout.BeginVertical();
 
-            _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition, GUILayout. ExpandHeight(true));
+            _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition, GUILayout.ExpandHeight(true));
 
             if (_selectedRegion == 0)
                 DrawRegion1_ProcedureIdAndTags();
@@ -176,7 +176,7 @@ namespace SoyoFramework. Framework.Editor
             // 底部错误信息区域 (固定在底部)
             if (hasErrors)
             {
-                EditorGUILayout. Space(5);
+                EditorGUILayout.Space(5);
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
                 EditorGUILayout.LabelField("验证错误", EditorStyles.boldLabel);
                 foreach (var error in _validationErrors)
@@ -195,8 +195,8 @@ namespace SoyoFramework. Framework.Editor
         private void ValidateAll()
         {
             _validationErrors.Clear();
-            _duplicateProcedureNames. Clear();
-            _duplicateTagNames. Clear();
+            _duplicateProcedureNames.Clear();
+            _duplicateTagNames.Clear();
             _invalidProcedureNames.Clear();
             _invalidTagNames.Clear();
 
@@ -214,11 +214,11 @@ namespace SoyoFramework. Framework.Editor
             }
 
             // 检查重复的 Tag
-            var tagNames = _tagNames. Where(n => !string.IsNullOrEmpty(n)).ToList();
+            var tagNames = _tagNames.Where(n => !string.IsNullOrEmpty(n)).ToList();
             _duplicateTagNames = tagNames
-                . GroupBy(n => n)
-                . Where(g => g.Count() > 1)
-                . Select(g => g.Key)
+                .GroupBy(n => n)
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
                 .ToHashSet();
 
             foreach (var dup in _duplicateTagNames)
@@ -231,8 +231,8 @@ namespace SoyoFramework. Framework.Editor
             {
                 if (!IsValidIdentifier(proc.Name))
                 {
-                    _invalidProcedureNames.Add(proc. Name);
-                    _validationErrors. Add($"无效的 ProcedureId: \"{proc.Name}\" - {GetIdentifierErrorReason(proc.Name)}");
+                    _invalidProcedureNames.Add(proc.Name);
+                    _validationErrors.Add($"无效的 ProcedureId: \"{proc.Name}\" - {GetIdentifierErrorReason(proc.Name)}");
                 }
             }
 
@@ -249,11 +249,11 @@ namespace SoyoFramework. Framework.Editor
 
         private bool IsValidIdentifier(string name)
         {
-            if (string. IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(name))
                 return false;
 
             // 检查是否符合C#标识符规则
-            if (! ValidIdentifierRegex.IsMatch(name))
+            if (!ValidIdentifierRegex.IsMatch(name))
                 return false;
 
             // 检查是否是C#关键字
@@ -271,10 +271,10 @@ namespace SoyoFramework. Framework.Editor
             if (char.IsDigit(name[0]))
                 return "不能以数字开头";
 
-            if (CSharpKeywords. Contains(name))
+            if (CSharpKeywords.Contains(name))
                 return "不能使用C#关键字";
 
-            if (! ValidIdentifierRegex.IsMatch(name))
+            if (!ValidIdentifierRegex.IsMatch(name))
                 return "只能包含字母、数字和下划线，且必须以字母或下划线开头";
 
             return "未知错误";
@@ -297,21 +297,21 @@ namespace SoyoFramework. Framework.Editor
         private void DrawRegion1_ProcedureIdAndTags()
         {
             // 添加Tag按钮 (右上角)
-            EditorGUILayout. BeginHorizontal();
+            EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
-            if (GUILayout. Button("+", GUILayout.Width(25)))
+            if (GUILayout.Button("+", GUILayout.Width(25)))
             {
                 _tagNames.Add("NewTag");
             }
 
-            EditorGUILayout. EndHorizontal();
+            EditorGUILayout.EndHorizontal();
 
             // 表格头部
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
             EditorGUILayout.LabelField("ProcedureId", EditorStyles.boldLabel, GUILayout.Width(150));
             for (int i = 0; i < _tagNames.Count; i++)
             {
-                EditorGUILayout. BeginVertical(GUILayout.Width(100));
+                EditorGUILayout.BeginVertical(GUILayout.Width(100));
                 EditorGUILayout.BeginHorizontal();
 
                 // 高亮错误的 Tag
@@ -320,7 +320,7 @@ namespace SoyoFramework. Framework.Editor
                 {
                     var originalColor = GUI.backgroundColor;
                     GUI.backgroundColor = new Color(1f, 0.5f, 0.5f);
-                    _tagNames[i] = EditorGUILayout. TextField(_tagNames[i], GUILayout.Width(80));
+                    _tagNames[i] = EditorGUILayout.TextField(_tagNames[i], GUILayout.Width(80));
                     GUI.backgroundColor = originalColor;
                 }
                 else
@@ -332,8 +332,8 @@ namespace SoyoFramework. Framework.Editor
                 {
                     RemoveTag(i);
                     i--;
-                    EditorGUILayout. EndHorizontal();
-                    EditorGUILayout. EndVertical();
+                    EditorGUILayout.EndHorizontal();
+                    EditorGUILayout.EndVertical();
                     continue;
                 }
 
@@ -342,19 +342,19 @@ namespace SoyoFramework. Framework.Editor
             }
 
             GUILayout.FlexibleSpace();
-            EditorGUILayout. EndHorizontal();
+            EditorGUILayout.EndHorizontal();
 
             // 表格内容
             for (int p = 0; p < _procedures.Count; p++)
             {
                 var proc = _procedures[p];
-                EditorGUILayout. BeginHorizontal();
+                EditorGUILayout.BeginHorizontal();
 
                 // ProcedureId 名称
                 bool isEntrance = p == 0 && proc.Name == "Entrance";
-                GUI.enabled = ! isEntrance;
+                GUI.enabled = !isEntrance;
 
-                EditorGUILayout. BeginHorizontal(GUILayout.Width(150));
+                EditorGUILayout.BeginHorizontal(GUILayout.Width(150));
 
                 // 高亮错误的 ProcedureId
                 bool isErrorProcedure = IsProcedureNameError(proc.Name);
@@ -362,25 +362,25 @@ namespace SoyoFramework. Framework.Editor
                 {
                     var originalColor = GUI.backgroundColor;
                     GUI.backgroundColor = new Color(1f, 0.5f, 0.5f);
-                    proc.Name = EditorGUILayout.TextField(proc. Name, GUILayout.Width(120));
+                    proc.Name = EditorGUILayout.TextField(proc.Name, GUILayout.Width(120));
                     GUI.backgroundColor = originalColor;
                 }
                 else
                 {
-                    proc. Name = EditorGUILayout.TextField(proc.Name, GUILayout.Width(120));
+                    proc.Name = EditorGUILayout.TextField(proc.Name, GUILayout.Width(120));
                 }
 
-                if (! isEntrance && GUILayout.Button("×", GUILayout.Width(18)))
+                if (!isEntrance && GUILayout.Button("×", GUILayout.Width(18)))
                 {
                     RemoveProcedure(p);
                     p--;
                     GUI.enabled = true;
                     EditorGUILayout.EndHorizontal();
-                    EditorGUILayout. EndHorizontal();
+                    EditorGUILayout.EndHorizontal();
                     continue;
                 }
 
-                EditorGUILayout. EndHorizontal();
+                EditorGUILayout.EndHorizontal();
 
                 GUI.enabled = true;
 
@@ -394,8 +394,8 @@ namespace SoyoFramework. Framework.Editor
                         alignment = TextAnchor.MiddleCenter
                     };
 
-                    string buttonText = hasTag ?  "✔" : "";
-                    if (GUILayout.Button(buttonText, style, GUILayout. Width(100), GUILayout.Height(20)))
+                    string buttonText = hasTag ? "✔" : "";
+                    if (GUILayout.Button(buttonText, style, GUILayout.Width(100), GUILayout.Height(20)))
                     {
                         if (hasTag)
                             proc.TagIndices.Remove(t);
@@ -409,8 +409,8 @@ namespace SoyoFramework. Framework.Editor
             }
 
             // 添加Procedure按钮 (左下角)
-            EditorGUILayout. Space(10);
-            EditorGUILayout. BeginHorizontal();
+            EditorGUILayout.Space(10);
+            EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("+", GUILayout.Width(25)))
             {
                 _procedures.Add(new ProcedureEntry { Name = "NewProcedure" });
@@ -446,8 +446,8 @@ namespace SoyoFramework. Framework.Editor
             // 更新所有procedure的AllowedPreviousIndices
             foreach (var proc in _procedures)
             {
-                proc.AllowedPreviousIndices. Remove(index);
-                for (int i = 0; i < proc.AllowedPreviousIndices. Count; i++)
+                proc.AllowedPreviousIndices.Remove(index);
+                for (int i = 0; i < proc.AllowedPreviousIndices.Count; i++)
                 {
                     if (proc.AllowedPreviousIndices[i] > index)
                         proc.AllowedPreviousIndices[i]--;
@@ -466,7 +466,7 @@ namespace SoyoFramework. Framework.Editor
             {
                 var proc = _procedures[procIndex];
 
-                EditorGUILayout. BeginVertical(EditorStyles.helpBox);
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
                 // 标题行
                 EditorGUILayout.BeginHorizontal();
@@ -476,17 +476,17 @@ namespace SoyoFramework. Framework.Editor
                 EditorGUILayout.EndHorizontal();
 
                 // 已选择的 AllowedPrevious
-                EditorGUILayout. BeginHorizontal();
-                EditorGUILayout. Space(20);
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.Space(20);
 
                 var toRemove = new List<int>();
                 foreach (var prevIndex in proc.AllowedPreviousIndices)
                 {
-                    if (prevIndex >= 0 && prevIndex < _procedures. Count)
+                    if (prevIndex >= 0 && prevIndex < _procedures.Count)
                     {
-                        EditorGUILayout. BeginHorizontal(EditorStyles.toolbar, GUILayout.Width(120));
-                        EditorGUILayout. LabelField(_procedures[prevIndex]. Name, GUILayout.Width(90));
-                        if (GUILayout. Button("×", GUILayout.Width(18)))
+                        EditorGUILayout.BeginHorizontal(EditorStyles.toolbar, GUILayout.Width(120));
+                        EditorGUILayout.LabelField(_procedures[prevIndex].Name, GUILayout.Width(90));
+                        if (GUILayout.Button("×", GUILayout.Width(18)))
                         {
                             toRemove.Add(prevIndex);
                         }
@@ -496,10 +496,10 @@ namespace SoyoFramework. Framework.Editor
                 }
 
                 foreach (var idx in toRemove)
-                    proc.AllowedPreviousIndices. Remove(idx);
+                    proc.AllowedPreviousIndices.Remove(idx);
 
                 // 添加按钮
-                if (GUILayout. Button("+", GUILayout.Width(25)))
+                if (GUILayout.Button("+", GUILayout.Width(25)))
                 {
                     ShowAddPreviousProcedureMenu(proc);
                 }
@@ -507,8 +507,8 @@ namespace SoyoFramework. Framework.Editor
                 GUILayout.FlexibleSpace();
                 EditorGUILayout.EndHorizontal();
 
-                EditorGUILayout. EndVertical();
-                EditorGUILayout. Space(5);
+                EditorGUILayout.EndVertical();
+                EditorGUILayout.Space(5);
             }
 
             // 如果只有 Entrance，显示提示
@@ -523,10 +523,10 @@ namespace SoyoFramework. Framework.Editor
             var menu = new GenericMenu();
             for (int i = 0; i < _procedures.Count; i++)
             {
-                if (! targetProc.AllowedPreviousIndices.Contains(i))
+                if (!targetProc.AllowedPreviousIndices.Contains(i))
                 {
                     int index = i;
-                    menu. AddItem(new GUIContent(_procedures[i].Name), false,
+                    menu.AddItem(new GUIContent(_procedures[i].Name), false,
                         () => { targetProc.AllowedPreviousIndices.Add(index); });
                 }
             }
@@ -546,18 +546,18 @@ namespace SoyoFramework. Framework.Editor
             _tagNames = new List<string>(_config.TagNames);
             _procedures = new List<ProcedureEntry>();
 
-            foreach (var entry in _config. Procedures)
+            foreach (var entry in _config.Procedures)
             {
                 _procedures.Add(new ProcedureEntry
                 {
-                    Name = entry. Name,
+                    Name = entry.Name,
                     TagIndices = new HashSet<int>(entry.TagIndices),
                     AllowedPreviousIndices = new List<int>(entry.AllowedPreviousIndices)
                 });
             }
 
             // 确保Entrance存在
-            if (_procedures.Count == 0 || _procedures[0]. Name != "Entrance")
+            if (_procedures.Count == 0 || _procedures[0].Name != "Entrance")
             {
                 _procedures.Insert(0, new ProcedureEntry { Name = "Entrance" });
             }
@@ -565,27 +565,27 @@ namespace SoyoFramework. Framework.Editor
             // 清除 Entrance 的 AllowedPreviousIndices（如果有的话）
             if (_procedures.Count > 0)
             {
-                _procedures[0].AllowedPreviousIndices. Clear();
+                _procedures[0].AllowedPreviousIndices.Clear();
             }
         }
 
         private void SaveToConfig()
         {
             _config.TagNames = new List<string>(_tagNames);
-            _config.Procedures = new List<ProcedureKitConfigSO. ProcedureEntry>();
+            _config.Procedures = new List<ProcedureKitConfigSO.ProcedureEntry>();
 
             foreach (var proc in _procedures)
             {
-                _config. Procedures.Add(new ProcedureKitConfigSO. ProcedureEntry
+                _config.Procedures.Add(new ProcedureKitConfigSO.ProcedureEntry
                 {
-                    Name = proc. Name,
-                    TagIndices = proc.TagIndices. ToList(),
+                    Name = proc.Name,
+                    TagIndices = proc.TagIndices.ToList(),
                     AllowedPreviousIndices = new List<int>(proc.AllowedPreviousIndices)
                 });
             }
 
             EditorUtility.SetDirty(_config);
-            AssetDatabase. SaveAssets();
+            AssetDatabase.SaveAssets();
             Debug.Log("配置已保存!");
         }
 
@@ -614,7 +614,7 @@ namespace SoyoFramework. Framework.Editor
                 AllowedPreviousIndices = new List<int>(p.AllowedPreviousIndices)
             }).ToList();
 
-            AssetDatabase. Refresh();
+            AssetDatabase.Refresh();
 
             // 恢复编辑数据
             _tagNames = savedTagNames;
@@ -627,13 +627,13 @@ namespace SoyoFramework. Framework.Editor
         {
             var sb = new StringBuilder();
             sb.AppendLine("// Auto-generated by ProcedureKit Editor");
-            sb. AppendLine("// Do not modify this file manually");
+            sb.AppendLine("// Do not modify this file manually");
             sb.AppendLine();
             sb.AppendLine("using SoyoFramework.Framework. Runtime.ProcedureKit. DataClasses;");
             sb.AppendLine();
             sb.AppendLine("namespace SoyoFramework.Framework.Runtime.ProcedureKit. GeneratedClasses");
             sb.AppendLine("{");
-            sb. AppendLine("    public enum ProcedureId");
+            sb.AppendLine("    public enum ProcedureId");
             sb.AppendLine("    {");
 
             for (int i = 0; i < _procedures.Count; i++)
@@ -642,38 +642,38 @@ namespace SoyoFramework. Framework.Editor
                 var attributes = new List<string>();
 
                 // Tags attribute
-                if (proc.TagIndices. Count > 0)
+                if (proc.TagIndices.Count > 0)
                 {
                     var tagParams = string.Join(", ", proc.TagIndices
                         .OrderBy(x => x)
-                        . Where(x => x < _tagNames.Count)
+                        .Where(x => x < _tagNames.Count)
                         .Select(x => $"ProcedureTag. {_tagNames[x]}"));
-                    if (! string.IsNullOrEmpty(tagParams))
+                    if (!string.IsNullOrEmpty(tagParams))
                         attributes.Add($"[ProcedureTags({tagParams})]");
                 }
 
                 // AllowedPreviousProcedures attribute (Entrance 不生成此 Attribute)
                 if (i > 0 && proc.AllowedPreviousIndices.Count > 0)
                 {
-                    var prevParams = string.Join(", ", proc. AllowedPreviousIndices
+                    var prevParams = string.Join(", ", proc.AllowedPreviousIndices
                         .Where(x => x < _procedures.Count)
                         .Select(x => $"ProcedureId.{_procedures[x].Name}"));
-                    if (! string.IsNullOrEmpty(prevParams))
+                    if (!string.IsNullOrEmpty(prevParams))
                         attributes.Add($"[AllowedPreviousProcedures({prevParams})]");
                 }
 
                 foreach (var attr in attributes)
                     sb.AppendLine($"        {attr}");
 
-                string comma = i < _procedures.Count - 1 ?  "," : "";
+                string comma = i < _procedures.Count - 1 ? "," : "";
                 sb.AppendLine($"        {proc.Name} = {i}{comma}");
             }
 
-            sb. AppendLine("    }");
+            sb.AppendLine("    }");
             sb.AppendLine("}");
 
-            string filePath = Path. Combine(GeneratePath, "ProcedureId.cs");
-            File. WriteAllText(filePath, sb.ToString());
+            string filePath = Path.Combine(GeneratePath, "ProcedureId.cs");
+            File.WriteAllText(filePath, sb.ToString());
         }
 
         private void GenerateProcedureTagFile()
@@ -681,9 +681,9 @@ namespace SoyoFramework. Framework.Editor
             var sb = new StringBuilder();
             sb.AppendLine("// Auto-generated by ProcedureKit Editor");
             sb.AppendLine("// Do not modify this file manually");
-            sb. AppendLine();
+            sb.AppendLine();
             sb.AppendLine("namespace SoyoFramework.Framework.Runtime. ProcedureKit.GeneratedClasses");
-            sb. AppendLine("{");
+            sb.AppendLine("{");
             sb.AppendLine("    public enum ProcedureTag");
             sb.AppendLine("    {");
 
@@ -693,11 +693,11 @@ namespace SoyoFramework. Framework.Editor
                 sb.AppendLine($"        {_tagNames[i]} = {i}{comma}");
             }
 
-            sb. AppendLine("    }");
+            sb.AppendLine("    }");
             sb.AppendLine("}");
 
-            string filePath = Path. Combine(GeneratePath, "ProcedureTag.cs");
-            File. WriteAllText(filePath, sb.ToString());
+            string filePath = Path.Combine(GeneratePath, "ProcedureTag.cs");
+            File.WriteAllText(filePath, sb.ToString());
         }
 
         #endregion

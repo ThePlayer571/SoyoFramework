@@ -4,19 +4,16 @@ using System.Linq;
 using System.Reflection;
 using Cysharp.Threading.Tasks;
 using SoyoFramework.Framework.Runtime.LogKit;
-using SoyoFramework.Framework.Runtime.ProcedureKit.DataClasses;
-using SoyoFramework.Framework.Runtime.ProcedureKit.GeneratedClasses;
 using SoyoFramework.Framework.Runtime.UsefulTools;
-using SoyoFramework.Scripts.ToolKits.PhaseKit;
+using SoyoFramework.OptionalKits.ProcedureKit.Runtime.DataClasses;
 
-namespace SoyoFramework.Framework.Runtime.ProcedureKit
+namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
 {
-
-    public class ProcedureManager : IProcedureManager
+    public abstract class ProcedureManager<TProcedureId, TTagId> : IProcedureManager<TProcedureId, TTagId>
     {
         #region 属性
 
-        public ProcedureId CurrentProcedure { get; private set; }
+        public TProcedureId CurrentProcedure { get; private set; }
         public ProcedureCheckMode CheckMode { get; set; } = ProcedureCheckMode.Warning;
 
         #endregion
@@ -24,11 +21,11 @@ namespace SoyoFramework.Framework.Runtime.ProcedureKit
         #region 字段
 
         // 事件存储
-        private readonly Dictionary<(ProcedureId, ProcedureChangeStage), EasyEvent<ProcedureChangeInfo>>
+        private readonly Dictionary<(TProcedureId, ProcedureChangeStage), EasyEvent<ProcedureChangeInfo>>
             _procedureCallbacks = new();
 
         // 防中断设计：允许在上个流程结束前切换流程
-        private readonly Queue<(ProcedureId procedureId, ProcedureChangeInfo.ProcedureChangeParas paras)>
+        private readonly Queue<(TProcedureId procedureId, ProcedureChangeInfo.ProcedureChangeParas paras)>
             _procedureChangeQueue = new();
 
         private bool _isChangingProcedure;
@@ -37,57 +34,29 @@ namespace SoyoFramework.Framework.Runtime.ProcedureKit
         private ProcedureChangeInfo.ProcedureChangeParas _lastProcedureChangeParas;
         private readonly Queue<UniTask> _awaitTasks = new();
 
-        // 反射缓存
-        private readonly Dictionary<ProcedureId, IReadOnlyList<ProcedureTag>> _tagsCache = new();
-        private readonly Dictionary<ProcedureId, IReadOnlyList<ProcedureId>> _allowedPreviousCache = new();
+        // 配置信息
+        private ProcedureConfig<TProcedureId, TTagId> _config;
 
         #endregion
 
         #region 构造函数
 
-        public ProcedureManager()
+        protected ProcedureManager(ProcedureConfig<TProcedureId, TTagId> config)
         {
-            CurrentProcedure = ProcedureId.Entrance;
-            InitializeReflectionCache();
-        }
-
-        #endregion
-
-        #region 初始化
-
-        private void InitializeReflectionCache()
-        {
-            var procedureIdType = typeof(ProcedureId);
-            var fields = procedureIdType.GetFields(BindingFlags.Public | BindingFlags.Static);
-
-            foreach (var field in fields)
-            {
-                if (!field.IsLiteral) continue;
-
-                var procedureId = (ProcedureId)field.GetValue(null);
-
-                // 缓存 Tags
-                var tagsAttr = field.GetCustomAttribute<ProcedureTagsAttribute>();
-                var tags = tagsAttr?.Tags ?? Array.Empty<ProcedureTag>();
-                _tagsCache[procedureId] = tags;
-
-                // 缓存 AllowedPreviousProcedures
-                var allowedPrevAttr = field.GetCustomAttribute<AllowedPreviousProceduresAttribute>();
-                var allowedPrevious = allowedPrevAttr?.AllowedPrevious ?? Array.Empty<ProcedureId>();
-                _allowedPreviousCache[procedureId] = allowedPrevious;
-            }
+            _config = config;
+            CurrentProcedure = config.InitialProcedure;
         }
 
         #endregion
 
         #region 接口实现 - 流程切换
 
-        public async UniTask ChangeProcedure(ProcedureId procedureId, params (string, object)[] paras)
+        public async UniTask ChangeProcedure(TProcedureId procedureId, params (string, object)[] paras)
         {
             await ChangeProcedure(procedureId, new ProcedureChangeInfo.ProcedureChangeParas(paras));
         }
 
-        public async UniTask ChangeProcedure(ProcedureId procedureId, ProcedureChangeInfo.ProcedureChangeParas paras)
+        public async UniTask ChangeProcedure(TProcedureId procedureId, ProcedureChangeInfo.ProcedureChangeParas paras)
         {
             var leaveFrom = CurrentProcedure;
             var changeTo = procedureId;
@@ -95,7 +64,17 @@ namespace SoyoFramework.Framework.Runtime.ProcedureKit
             // 检查前置流程
             if (!CheckAllowedPreviousProcedure(leaveFrom, changeTo))
             {
-                return; // ErrorAndStop 模式下阻断切换
+                switch (CheckMode)
+                {
+                    case ProcedureCheckMode.ErrorAndStop:
+                        $"进行了不允许的流程切换，已阻断：{leaveFrom} -> {changeTo}".LogError();
+                        return;
+                    case ProcedureCheckMode.Warning:
+                        $" 进行了不允许的流程切换：{leaveFrom} -> {changeTo}".LogWarning();
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
 
             // 防中断设计：若正在切换流程，则将请求入队列
@@ -137,7 +116,7 @@ namespace SoyoFramework.Framework.Runtime.ProcedureKit
             }
         }
 
-        public IUnRegister RegisterProcedure(ProcedureId procedureId, ProcedureChangeStage stage,
+        public IUnRegister RegisterProcedure(TProcedureId procedureId, ProcedureChangeStage stage,
             Action<ProcedureChangeInfo> callback)
         {
             var trigger = (procedureId, stage);
@@ -159,32 +138,34 @@ namespace SoyoFramework.Framework.Runtime.ProcedureKit
 
         #region 接口实现 - 标签
 
-        public bool HasTag(ProcedureId procedureId, ProcedureTag tag)
+        public bool HasTag(TProcedureId procedureId, TTagId tag)
         {
-            if (_tagsCache.TryGetValue(procedureId, out var tags))
+            if (_config.MetaDatas.TryGetValue(procedureId, out var metaData))
             {
-                return tags.Contains(tag);
+                return metaData.Tags.Contains(tag);
             }
 
+            "未找到ProcedureId {procedureId} 的配置数据，无法检查标签。".LogError();
             return false;
         }
 
-        public IReadOnlyList<ProcedureTag> GetTags(ProcedureId procedureId)
+        public IReadOnlyCollection<TTagId> GetTags(TProcedureId procedureId)
         {
-            if (_tagsCache.TryGetValue(procedureId, out var tags))
+            if (_config.MetaDatas.TryGetValue(procedureId, out var metaData))
             {
-                return tags;
+                return metaData.Tags;
             }
 
-            return Array.Empty<ProcedureTag>();
+            "未找到ProcedureId {procedureId} 的配置数据，无法获取标签。".LogError();
+            return Array.Empty<TTagId>();
         }
 
-        public bool CurrentHasTag(ProcedureTag tag)
+        public bool CurrentHasTag(TTagId tag)
         {
             return HasTag(CurrentProcedure, tag);
         }
 
-        public IReadOnlyList<ProcedureTag> GetCurrentTags()
+        public IReadOnlyCollection<TTagId> GetCurrentTags()
         {
             return GetTags(CurrentProcedure);
         }
@@ -198,44 +179,21 @@ namespace SoyoFramework.Framework.Runtime.ProcedureKit
         /// </summary>
         /// <param name="from">当前流程</param>
         /// <param name="to">目标流程</param>
-        /// <returns>true: 允许切换; false: 阻断切换 (仅在 ErrorAndStop 模式下)</returns>
-        private bool CheckAllowedPreviousProcedure(ProcedureId from, ProcedureId to)
+        /// <returns></returns>
+        private bool CheckAllowedPreviousProcedure(TProcedureId from, TProcedureId to)
         {
-            if (!_allowedPreviousCache.TryGetValue(to, out var allowedPrevious))
+            if (!_config.MetaDatas.TryGetValue(to, out var mataData))
             {
-                // 未配置 AllowedPreviousProcedures，默认允许所有
-                return true;
+                $"未找到ProcedureId {to} 的配置数据".LogError();
+                return false;
             }
 
-            // 如果 AllowedPrevious 为空数组，表示允许所有前置流程
-            if (allowedPrevious.Count == 0)
-            {
-                return true;
-            }
+            var allowedPrevious = mataData.AllowingPreviousProcedures;
 
-            // 检查当前流程是否在允许列表中
-            if (allowedPrevious.Contains(from))
-            {
-                return true;
-            }
-
-            // 不允许的流程切换
-            var message = $"[ProcedureKit] 进行了不允许的流程切换: {from} -> {to}";
-
-            switch (CheckMode)
-            {
-                case ProcedureCheckMode.ErrorAndStop:
-                    message.LogError();
-                    return false;
-                case ProcedureCheckMode.Warning:
-                    message.LogWarning();
-                    return true;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            return allowedPrevious.Contains(from);
         }
 
-        private void ExecuteCallbacks((ProcedureId, ProcedureChangeStage) trigger,
+        private void ExecuteCallbacks((TProcedureId, ProcedureChangeStage) trigger,
             ProcedureChangeInfo.ProcedureChangeParas changeParas)
         {
             if (_procedureCallbacks.TryGetValue(trigger, out var easyEvent))
