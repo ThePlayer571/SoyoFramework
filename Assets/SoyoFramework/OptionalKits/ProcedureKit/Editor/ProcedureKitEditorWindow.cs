@@ -1,3 +1,5 @@
+// 这个文件全是 Claude 写的，太牛逼了
+
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,11 +16,19 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
         private ProcedureKitConfigSO _config;
         private Vector2 _scrollPosition;
         private int _selectedRegion = 0;
-        private readonly string[] _regionNames = { "ProcedureId & Tags", "Allowed Previous Procedures" };
 
-        // 临时编辑数据
+        private readonly string[] _regionNames =
+            { "ProcedureId & Tags", "Allowed Previous Procedures", "Code Generation" };
+
+        // 临时编辑数据 - Region 1 & 2
         private List<string> _tagNames = new List<string>();
         private List<ProcedureEntry> _procedures = new List<ProcedureEntry>();
+
+        // 临时编辑数据 - Region 3
+        private string _generatePath = "Assets/Scripts/ProcedureKit/Generated";
+        private string _namespace = "Game. Procedures";
+        private string _procedureIdEnumName = "ProcedureId";
+        private string _procedureTagEnumName = "ProcedureTag";
 
         // 验证错误缓存
         private List<string> _validationErrors = new List<string>();
@@ -36,8 +46,6 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
             public HashSet<int> TagIndices = new HashSet<int>();
             public List<int> AllowedPreviousIndices = new List<int>();
         }
-
-        private const string GeneratePath = "Assets/SoyoFramework/Framework/Runtime/ProcedureKit/GeneratedClasses";
 
         // C# 标识符验证正则：以字母或下划线开头，后面可以是字母、数字或下划线
         private static readonly Regex ValidIdentifierRegex =
@@ -138,21 +146,13 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
             EditorGUILayout.Space(5);
 
             // 保存按钮
-            EditorGUILayout.BeginHorizontal();
             GUI.enabled = !hasErrors;
             if (GUILayout.Button("保存配置信息", GUILayout.Height(30)))
             {
                 SaveToConfig();
             }
 
-            if (GUILayout.Button("保存并生成C#类", GUILayout.Height(30)))
-            {
-                SaveToConfig();
-                GenerateCSharpClasses();
-            }
-
             GUI.enabled = true;
-            EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.Space(10);
 
@@ -166,10 +166,18 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
 
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition, GUILayout.ExpandHeight(true));
 
-            if (_selectedRegion == 0)
-                DrawRegion1_ProcedureIdAndTags();
-            else
-                DrawRegion2_AllowedPreviousProcedures();
+            switch (_selectedRegion)
+            {
+                case 0:
+                    DrawRegion1_ProcedureIdAndTags();
+                    break;
+                case 1:
+                    DrawRegion2_AllowedPreviousProcedures();
+                    break;
+                case 2:
+                    DrawRegion3_CodeGeneration();
+                    break;
+            }
 
             EditorGUILayout.EndScrollView();
 
@@ -244,6 +252,44 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
                     _invalidTagNames.Add(tag);
                     _validationErrors.Add($"无效的 Tag: \"{tag}\" - {GetIdentifierErrorReason(tag)}");
                 }
+            }
+
+            // 检查 Region 3 的配置
+            ValidateRegion3Settings();
+        }
+
+        private void ValidateRegion3Settings()
+        {
+            // 验证命名空间
+            if (!string.IsNullOrEmpty(_namespace))
+            {
+                var namespaceParts = _namespace.Split('.');
+                foreach (var part in namespaceParts)
+                {
+                    if (!IsValidIdentifier(part))
+                    {
+                        _validationErrors.Add($"无效的命名空间部分: \"{part}\" - {GetIdentifierErrorReason(part)}");
+                    }
+                }
+            }
+
+            // 验证枚举名称
+            if (!IsValidIdentifier(_procedureIdEnumName))
+            {
+                _validationErrors.Add(
+                    $"无效的 ProcedureId 枚举名:  \"{_procedureIdEnumName}\" - {GetIdentifierErrorReason(_procedureIdEnumName)}");
+            }
+
+            if (!IsValidIdentifier(_procedureTagEnumName))
+            {
+                _validationErrors.Add(
+                    $"无效的 ProcedureTag 枚举名:  \"{_procedureTagEnumName}\" - {GetIdentifierErrorReason(_procedureTagEnumName)}");
+            }
+
+            // 检查枚举名称是否重复
+            if (_procedureIdEnumName == _procedureTagEnumName)
+            {
+                _validationErrors.Add("ProcedureId 枚举名和 ProcedureTag 枚举名不能相同");
             }
         }
 
@@ -539,6 +585,96 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
 
         #endregion
 
+        #region Region 3: Code Generation
+
+        private void DrawRegion3_CodeGeneration()
+        {
+            EditorGUILayout.LabelField("代码生成设置", EditorStyles.boldLabel);
+            EditorGUILayout.Space(10);
+
+            // 生成路径
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("生成路径", GUILayout.Width(120));
+            _generatePath = EditorGUILayout.TextField(_generatePath);
+            if (GUILayout.Button("浏览", GUILayout.Width(50)))
+            {
+                string selectedPath = EditorUtility.OpenFolderPanel("选择生成路径", "Assets", "");
+                if (!string.IsNullOrEmpty(selectedPath))
+                {
+                    // 转换为相对路径
+                    if (selectedPath.StartsWith(Application.dataPath))
+                    {
+                        _generatePath = "Assets" + selectedPath.Substring(Application.dataPath.Length);
+                    }
+                    else
+                    {
+                        EditorUtility.DisplayDialog("错误", "请选择项目 Assets 文件夹内的路径", "确定");
+                    }
+                }
+            }
+
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.Space(5);
+
+            // 命名空间
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("命名空间", GUILayout.Width(120));
+            _namespace = EditorGUILayout.TextField(_namespace);
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.Space(10);
+            EditorGUILayout.LabelField("枚举名称设置", EditorStyles.boldLabel);
+            EditorGUILayout.Space(5);
+
+            // ProcedureId 枚举名
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("ProcedureId 枚举名", GUILayout.Width(120));
+            _procedureIdEnumName = EditorGUILayout.TextField(_procedureIdEnumName);
+            EditorGUILayout.EndHorizontal();
+
+            // ProcedureTag 枚举名
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("ProcedureTag 枚举名", GUILayout.Width(120));
+            _procedureTagEnumName = EditorGUILayout.TextField(_procedureTagEnumName);
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.Space(20);
+
+            // 生成预览
+            EditorGUILayout.LabelField("生成预览", EditorStyles.boldLabel);
+            EditorGUILayout.Space(5);
+
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.LabelField($"将生成以下文件到:  {_generatePath}");
+            EditorGUILayout.Space(5);
+            EditorGUILayout.LabelField($"  • {_procedureIdEnumName}.cs", EditorStyles.miniLabel);
+            EditorGUILayout.LabelField($"  • {_procedureTagEnumName}.cs", EditorStyles.miniLabel);
+            EditorGUILayout.LabelField($"  • ProcedureConfig.cs", EditorStyles.miniLabel);
+            EditorGUILayout.LabelField($"  • ProcedureManager.cs", EditorStyles.miniLabel);
+            EditorGUILayout.EndVertical();
+
+            EditorGUILayout.Space(20);
+
+            // 生成按钮
+            bool hasErrors = _validationErrors.Count > 0;
+            GUI.enabled = !hasErrors;
+            if (GUILayout.Button("生成 C# 类", GUILayout.Height(35)))
+            {
+                SaveToConfig();
+                GenerateCSharpClasses();
+            }
+
+            GUI.enabled = true;
+
+            if (hasErrors)
+            {
+                EditorGUILayout.HelpBox("存在验证错误，请先修复后再生成代码", MessageType.Warning);
+            }
+        }
+
+        #endregion
+
         #region Save/Load
 
         private void LoadFromConfig()
@@ -567,6 +703,12 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
             {
                 _procedures[0].AllowedPreviousIndices.Clear();
             }
+
+            // 加载 Region 3 设置
+            _generatePath = _config.GeneratePath;
+            _namespace = _config.Namespace;
+            _procedureIdEnumName = _config.ProcedureIdEnumName;
+            _procedureTagEnumName = _config.ProcedureTagEnumName;
         }
 
         private void SaveToConfig()
@@ -584,6 +726,12 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
                 });
             }
 
+            // 保存 Region 3 设置
+            _config.GeneratePath = _generatePath;
+            _config.Namespace = _namespace;
+            _config.ProcedureIdEnumName = _procedureIdEnumName;
+            _config.ProcedureTagEnumName = _procedureTagEnumName;
+
             EditorUtility.SetDirty(_config);
             AssetDatabase.SaveAssets();
             Debug.Log("配置已保存!");
@@ -596,14 +744,20 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
         private void GenerateCSharpClasses()
         {
             // 确保目录存在
-            if (!Directory.Exists(GeneratePath))
-                Directory.CreateDirectory(GeneratePath);
+            if (!Directory.Exists(_generatePath))
+                Directory.CreateDirectory(_generatePath);
 
-            // 生成 ProcedureId. cs
+            // 生成 ProcedureId 枚举
             GenerateProcedureIdFile();
 
-            // 生成 ProcedureTag.cs
+            // 生成 ProcedureTag 枚举
             GenerateProcedureTagFile();
+
+            // 生成 ProcedureConfig 类
+            GenerateProcedureConfigFile();
+
+            // 生成 ProcedureManager 类
+            GenerateProcedureManagerFile();
 
             // 保存当前编辑数据的副本
             var savedTagNames = new List<string>(_tagNames);
@@ -620,7 +774,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
             _tagNames = savedTagNames;
             _procedures = savedProcedures;
 
-            Debug.Log($"C# 类已生成到: {GeneratePath}");
+            Debug.Log($"C# 类已生成到: {_generatePath}");
         }
 
         private void GenerateProcedureIdFile()
@@ -629,42 +783,14 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
             sb.AppendLine("// Auto-generated by ProcedureKit Editor");
             sb.AppendLine("// Do not modify this file manually");
             sb.AppendLine();
-            sb.AppendLine("using SoyoFramework.Framework. Runtime.ProcedureKit. DataClasses;");
-            sb.AppendLine();
-            sb.AppendLine("namespace SoyoFramework.Framework.Runtime.ProcedureKit. GeneratedClasses");
+            sb.AppendLine($"namespace {_namespace}");
             sb.AppendLine("{");
-            sb.AppendLine("    public enum ProcedureId");
+            sb.AppendLine($"    public enum {_procedureIdEnumName}");
             sb.AppendLine("    {");
 
             for (int i = 0; i < _procedures.Count; i++)
             {
                 var proc = _procedures[i];
-                var attributes = new List<string>();
-
-                // Tags attribute
-                if (proc.TagIndices.Count > 0)
-                {
-                    var tagParams = string.Join(", ", proc.TagIndices
-                        .OrderBy(x => x)
-                        .Where(x => x < _tagNames.Count)
-                        .Select(x => $"ProcedureTag. {_tagNames[x]}"));
-                    if (!string.IsNullOrEmpty(tagParams))
-                        attributes.Add($"[ProcedureTags({tagParams})]");
-                }
-
-                // AllowedPreviousProcedures attribute (Entrance 不生成此 Attribute)
-                if (i > 0 && proc.AllowedPreviousIndices.Count > 0)
-                {
-                    var prevParams = string.Join(", ", proc.AllowedPreviousIndices
-                        .Where(x => x < _procedures.Count)
-                        .Select(x => $"ProcedureId.{_procedures[x].Name}"));
-                    if (!string.IsNullOrEmpty(prevParams))
-                        attributes.Add($"[AllowedPreviousProcedures({prevParams})]");
-                }
-
-                foreach (var attr in attributes)
-                    sb.AppendLine($"        {attr}");
-
                 string comma = i < _procedures.Count - 1 ? "," : "";
                 sb.AppendLine($"        {proc.Name} = {i}{comma}");
             }
@@ -672,7 +798,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
             sb.AppendLine("    }");
             sb.AppendLine("}");
 
-            string filePath = Path.Combine(GeneratePath, "ProcedureId.cs");
+            string filePath = Path.Combine(_generatePath, $"{_procedureIdEnumName}.cs");
             File.WriteAllText(filePath, sb.ToString());
         }
 
@@ -682,9 +808,9 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
             sb.AppendLine("// Auto-generated by ProcedureKit Editor");
             sb.AppendLine("// Do not modify this file manually");
             sb.AppendLine();
-            sb.AppendLine("namespace SoyoFramework.Framework.Runtime. ProcedureKit.GeneratedClasses");
+            sb.AppendLine($"namespace {_namespace}");
             sb.AppendLine("{");
-            sb.AppendLine("    public enum ProcedureTag");
+            sb.AppendLine($"    public enum {_procedureTagEnumName}");
             sb.AppendLine("    {");
 
             for (int i = 0; i < _tagNames.Count; i++)
@@ -696,7 +822,116 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
             sb.AppendLine("    }");
             sb.AppendLine("}");
 
-            string filePath = Path.Combine(GeneratePath, "ProcedureTag.cs");
+            string filePath = Path.Combine(_generatePath, $"{_procedureTagEnumName}.cs");
+            File.WriteAllText(filePath, sb.ToString());
+        }
+
+        private void GenerateProcedureConfigFile()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("// Auto-generated by ProcedureKit Editor");
+            sb.AppendLine("// Do not modify this file manually");
+            sb.AppendLine();
+            sb.AppendLine("using System.Collections.Generic;");
+            sb.AppendLine("using System.Diagnostics. CodeAnalysis;");
+            sb.AppendLine("using SoyoFramework.OptionalKits. ProcedureKit. Runtime. DataClasses;");
+            sb.AppendLine();
+            sb.AppendLine($"namespace {_namespace}");
+            sb.AppendLine("{");
+            sb.AppendLine(
+                $"    public class ProcedureConfig :  ProcedureConfig<{_procedureIdEnumName}, {_procedureTagEnumName}>");
+            sb.AppendLine("    {");
+            sb.AppendLine(
+                $"        public override {_procedureIdEnumName} InitialProcedure {{ get; }} = {_procedureIdEnumName}. Entrance;");
+            sb.AppendLine();
+            sb.AppendLine("        [NotNull]");
+            sb.AppendLine(
+                $"        public override Dictionary<{_procedureIdEnumName}, MetaData> MetaDatas {{ get; }} = new()");
+            sb.AppendLine("        {");
+
+            for (int i = 0; i < _procedures.Count; i++)
+            {
+                var proc = _procedures[i];
+
+                // 生成 Tags 数组
+                string tagsArray;
+                if (proc.TagIndices.Count > 0)
+                {
+                    var tagNames = proc.TagIndices
+                        .OrderBy(x => x)
+                        .Where(x => x < _tagNames.Count)
+                        .Select(x => $"{_procedureTagEnumName}.{_tagNames[x]}");
+                    tagsArray = $"new {_procedureTagEnumName}[] {{ {string.Join(", ", tagNames)} }}";
+                }
+                else
+                {
+                    tagsArray = $"new {_procedureTagEnumName}[] {{ }}";
+                }
+
+                // 生成 AllowedPreviousProcedures 数组
+                string allowedPrevArray;
+                if (proc.AllowedPreviousIndices.Count > 0)
+                {
+                    var prevNames = proc.AllowedPreviousIndices
+                        .Where(x => x < _procedures.Count)
+                        .Select(x => $"{_procedureIdEnumName}.{_procedures[x].Name}");
+                    allowedPrevArray = $"new {_procedureIdEnumName}[] {{ {string.Join(", ", prevNames)} }}";
+                }
+                else
+                {
+                    allowedPrevArray = $"new {_procedureIdEnumName}[] {{ }}";
+                }
+
+                string comma = i < _procedures.Count - 1 ? "," : "";
+
+                sb.AppendLine("            {");
+                sb.AppendLine($"                {_procedureIdEnumName}. {proc.Name},");
+                sb.AppendLine("                new MetaData(");
+                sb.AppendLine($"                    {tagsArray},");
+                sb.AppendLine($"                    {allowedPrevArray}");
+                sb.AppendLine("                )");
+                sb.AppendLine($"            }}{comma}");
+            }
+
+            sb.AppendLine("        };");
+            sb.AppendLine("    }");
+            sb.AppendLine("}");
+
+            string filePath = Path.Combine(_generatePath, "ProcedureConfig.cs");
+            File.WriteAllText(filePath, sb.ToString());
+        }
+
+        private void GenerateProcedureManagerFile()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("// Auto-generated by ProcedureKit Editor");
+            sb.AppendLine("// Do not modify this file manually");
+            sb.AppendLine();
+            sb.AppendLine("using SoyoFramework. OptionalKits. ProcedureKit.Runtime.Core;");
+            sb.AppendLine();
+            sb.AppendLine($"namespace {_namespace}");
+            sb.AppendLine("{");
+            sb.AppendLine(
+                $"    public interface IProcedureManager :  IProcedureManager<{_procedureIdEnumName}, {_procedureTagEnumName}>");
+            sb.AppendLine("    {");
+            sb.AppendLine("    }");
+            sb.AppendLine();
+            sb.AppendLine(
+                $"    public class ProcedureManager : ProcedureManager<{_procedureIdEnumName}, {_procedureTagEnumName}>, IProcedureManager");
+            sb.AppendLine("    {");
+            sb.AppendLine("        private ProcedureManager(ProcedureConfig config) : base(config)");
+            sb.AppendLine("        {");
+            sb.AppendLine("        }");
+            sb.AppendLine();
+            sb.AppendLine("        public static IProcedureManager CreateInstance()");
+            sb.AppendLine("        {");
+            sb.AppendLine("            var config = new ProcedureConfig();");
+            sb.AppendLine("            return new ProcedureManager(config);");
+            sb.AppendLine("        }");
+            sb.AppendLine("    }");
+            sb.AppendLine("}");
+
+            string filePath = Path.Combine(_generatePath, "ProcedureManager.cs");
             File.WriteAllText(filePath, sb.ToString());
         }
 

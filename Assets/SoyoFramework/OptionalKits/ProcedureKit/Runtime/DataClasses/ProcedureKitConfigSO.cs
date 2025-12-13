@@ -15,8 +15,14 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.DataClasses
             public List<int> AllowedPreviousIndices = new(); // AllowedPreviousProcedures索引
         }
 
-        public List<string> TagNames = new();
+        [Header("Procedure Data")] public List<string> TagNames = new();
         public List<ProcedureEntry> Procedures = new();
+
+        [Header("Code Generation Settings")] 
+        public string GeneratePath = "Assets/Scripts";
+        public string Namespace = "Soyo";
+        public string ProcedureIdEnumName = "ProcedureId";
+        public string ProcedureTagEnumName = "ProcedureTag";
 
         private void OnEnable()
         {

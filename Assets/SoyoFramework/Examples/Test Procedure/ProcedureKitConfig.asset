@@ -13,15 +13,19 @@ MonoBehaviour:
   m_Name: ProcedureKitConfig
   m_EditorClassIdentifier: 
   TagNames:
-  - ExampleTagA
-  - ExampleTagB
+  - TagX
+  - TagY
   Procedures:
   - Name: Entrance
-    TagIndices: 
-    AllowedPreviousIndices: 
-  - Name: ExampleProcedureA
     TagIndices: 00000000
-    AllowedPreviousIndices: 0000000002000000
-  - Name: ExampleProcedureB
+    AllowedPreviousIndices: 
+  - Name: ProcedureA
     TagIndices: 01000000
-    AllowedPreviousIndices: 01000000
+    AllowedPreviousIndices: 00000000
+  - Name: ProcedureB
+    TagIndices: 
+    AllowedPreviousIndices: 0000000001000000
+  GeneratePath: Assets/SoyoFramework/Examples/Test Procedure
+  Namespace: SoyoFramework.Examples.Test_Procedure
+  ProcedureIdEnumName: ProcedureId
+  ProcedureTagEnumName: ProcedureTag
