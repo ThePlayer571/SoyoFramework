@@ -1,4 +1,5 @@
 using System;
+using SoyoFramework.Framework.Runtime.Core.Layers;
 using SoyoFramework.Framework.Runtime.LogKit;
 using SoyoFramework.Framework.Runtime.UsefulTools;
 
@@ -9,7 +10,7 @@ namespace SoyoFramework.Framework.Runtime.Core
         #region 可用字段
 
         public bool Inited { get; private set; } = false;
-        private readonly ProxyIOCContainer _container = new();
+        private readonly SimpleIOCContainer _container = new();
         private readonly TypeEventSystem _eventSystem = new();
 
         #endregion
@@ -30,12 +31,12 @@ namespace SoyoFramework.Framework.Runtime.Core
             // 初始化模块
             foreach (var module in _container.GetAll<IModule>())
             {
-                module.Get.PreInit();
+                module.PreInit();
             }
 
             foreach (var module in _container.GetAll<IModule>())
             {
-                module.Get.Init();
+                module.Init();
             }
 
             //
@@ -62,8 +63,7 @@ namespace SoyoFramework.Framework.Runtime.Core
             // 销毁模块
             foreach (var module in _container.GetAll<IModule>())
             {
-                module.Get.Deinit();
-                module.SetInstance(null);
+                module.Deinit();
             }
 
             // TypeEventSystem清理
@@ -112,55 +112,16 @@ namespace SoyoFramework.Framework.Runtime.Core
             }
         }
 
-        public void RegisterService<T>(T service) where T : class, IService
-        {
-            service.AttachedArchitecture = this;
-            _container.Register<T>(service);
 
-            // 如果是在Architecture初始化后注册的Module，直接初始化
-            if (Inited)
-            {
-                service.PreInit();
-                service.Init();
-            }
-        }
-
-        public void UnRegisterModel<T>() where T : class, IModel
-        {
-            var proxy = _container.Get<T>();
-            proxy.Get.Deinit();
-            proxy.SetInstance(null);
-        }
-
-        public void UnRegisterSystem<T>() where T : class, ISystem
-        {
-            var proxy = _container.Get<T>();
-            proxy.Get.Deinit();
-            proxy.SetInstance(null);
-        }
-
-        public void UnRegisterService<T>() where T : class, IService
-        {
-            var proxy = _container.Get<T>();
-            proxy.Get.Deinit();
-            proxy.SetInstance(null);
-        }
-
-        public IProxy<T> GetSystem<T>() where T : class, ISystem
+        public T GetSystem<T>() where T : class, ISystem
         {
             return _container.Get<T>();
         }
 
-        public IProxy<T> GetModel<T>() where T : class, IModel
+        public T GetModel<T>() where T : class, IModel
         {
             return _container.Get<T>();
         }
-
-        public IProxy<T> GetService<T>() where T : class, IService
-        {
-            return _container.Get<T>();
-        }
-
 
         public IUnRegister RegisterEvent<T>(Action<T> onEvent) where T : IEvent
         {
@@ -175,6 +136,55 @@ namespace SoyoFramework.Framework.Runtime.Core
         public void SendEvent<T>(in T e) where T : IEvent
         {
             _eventSystem.Call<T>(in e);
+        }
+
+
+        public void RegisterTool<T>(T tool) where T : class, ITool
+        {
+            tool.AttachedArchitecture = this;
+            _container.Register<T>(tool);
+
+            // 如果是在Architecture初始化后注册的Module，直接初始化
+            if (Inited)
+            {
+                tool.PreInit();
+                tool.Init();
+            }
+        }
+
+        public T GetTool<T>() where T : class, ITool
+        {
+            return _container.Get<T>();
+        }
+
+        public void RegisterViewController<T>(T viewController) where T : class, IViewController
+        {
+            viewController.AttachedArchitecture = this;
+            _container.Register<T>(viewController);
+
+            // 如果是在Architecture初始化后注册的Module，直接初始化
+            if (Inited)
+            {
+                viewController.PreInit();
+                viewController.Init();
+            }
+        }
+
+        public T GetViewController<T>() where T : class, IViewController
+        {
+            return _container.Get<T>();
+        }
+
+        public void SendCommand(ICommand command)
+        {
+            command.AttachedArchitecture = this;
+            command.Execute();
+        }
+
+        public TResult SendCommand<TResult>(ICommand<TResult> command)
+        {
+            command.AttachedArchitecture = this;
+            return command.Execute();
         }
 
         #endregion

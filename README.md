@@ -62,9 +62,9 @@
 > 在Model里提供Action，本质上属于SendEvent的一种语法糖。
 > 但是可能有"不能RegisterEvent的层级"能获取Model，因此提供Action是种非常危险的行为。
 
-##### 逻辑层：数据的处理与输出
+##### 数据逻辑层
 
-**System**：**处理数据的层面的逻辑**。
+**System**：**处理数据层面的逻辑**。
 
 - 设计意图：
     - 程序逻辑的处理中心
@@ -78,7 +78,7 @@
             - GetModel
             - SendEvent
 
-##### 表现层：将数据展示给用户
+##### 表现层
 
 **ViewController**：**将数据呈现给玩家，接受玩家输入**。
 
@@ -153,7 +153,7 @@ SoyoFramework鼓励这种行为：**实践经验 > 教条主义**。
 
 ##### 超巨层 SuperLayer
 
-我们可以自定义新的层级，把多个层级的职能耦合在一起，称为SuperLayer。
+我们可以自定义新的层级，把多个层级的职能耦合在一起，称为SuperLayer。例如：
 
 **SuperSystem**：**耦合：Model, System, ViewController**。
 

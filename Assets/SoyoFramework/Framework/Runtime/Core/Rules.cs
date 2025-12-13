@@ -1,4 +1,5 @@
 using System;
+using SoyoFramework.Framework.Runtime.Core.Layers;
 using SoyoFramework.Framework.Runtime.UsefulTools;
 
 namespace SoyoFramework.Framework.Runtime.Core
@@ -10,32 +11,11 @@ namespace SoyoFramework.Framework.Runtime.Core
 
     public interface ICanAttachToArchitecture : ICanRelyOnArchitecture
     {
-        IArchitecture AttachedArchitecture { get; internal set; }
+        IArchitecture AttachedArchitecture { get; set; }
         IArchitecture ICanRelyOnArchitecture.RelyingArchitecture => AttachedArchitecture;
     }
 
     public interface ICanGetModel : ICanRelyOnArchitecture
-    {
-    }
-
-
-    public interface ICanGetSystem : ICanRelyOnArchitecture
-    {
-    }
-
-    public interface ICanGetService : ICanRelyOnArchitecture
-    {
-    }
-
-    public interface ICanUnRegisterModel : ICanRelyOnArchitecture
-    {
-    }
-
-    public interface ICanUnRegisterSystem : ICanRelyOnArchitecture
-    {
-    }
-
-    public interface ICanUnRegisterService : ICanRelyOnArchitecture
     {
     }
 
@@ -46,6 +26,10 @@ namespace SoyoFramework.Framework.Runtime.Core
 
 
     public interface ICanSendEvent : ICanRelyOnArchitecture
+    {
+    }
+
+    public interface ICanSendCommand : ICanRelyOnArchitecture
     {
     }
 
@@ -76,38 +60,8 @@ namespace SoyoFramework.Framework.Runtime.Core
 
     public static class CanGetModelExtension
     {
-        public static IProxy<T> GetModel<T>(this ICanGetModel self) where T : class, IModel =>
+        public static T GetModel<T>(this ICanGetModel self) where T : class, IModel =>
             self.RelyingArchitecture.GetModel<T>();
-    }
-
-    public static class CanGetSystemExtension
-    {
-        public static IProxy<T> GetSystem<T>(this ICanGetSystem self) where T : class, ISystem =>
-            self.RelyingArchitecture.GetSystem<T>();
-    }
-
-    public static class CanGetServiceExtension
-    {
-        public static IProxy<T> GetService<T>(this ICanGetService self) where T : class, IService =>
-            self.RelyingArchitecture.GetService<T>();
-    }
-
-    public static class CanUnRegisterModelExtension
-    {
-        public static void UnRegisterModel<T>(this ICanUnRegisterModel self) where T : class, IModel =>
-            self.RelyingArchitecture.UnRegisterModel<T>();
-    }
-
-    public static class CanUnRegisterSystemExtension
-    {
-        public static void UnRegisterSystem<T>(this ICanUnRegisterSystem self) where T : class, ISystem =>
-            self.RelyingArchitecture.UnRegisterSystem<T>();
-    }
-    
-    public static class CanUnRegisterServiceExtension
-    {
-        public static void UnRegisterService<T>(this ICanUnRegisterService self) where T : class, IService =>
-            self.RelyingArchitecture.UnRegisterService<T>();
     }
 
     public static class CanRegisterEventExtension
@@ -123,6 +77,15 @@ namespace SoyoFramework.Framework.Runtime.Core
 
         public static void SendEvent<T>(this ICanSendEvent self, T e) where T : IEvent =>
             self.RelyingArchitecture.SendEvent<T>(e);
+    }
+
+    public static class CanSendCommandExtension
+    {
+        public static void SendCommand(this ICanSendCommand self, ICommand command) =>
+            self.RelyingArchitecture.SendCommand(command);
+
+        public static TResult SendCommand<TResult>(this ICanSendCommand self, ICommand<TResult> command) =>
+            self.RelyingArchitecture.SendCommand(command);
     }
 
     #endregion
