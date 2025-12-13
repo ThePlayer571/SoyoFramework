@@ -1,5 +1,3 @@
-// 这个文件全是 Claude 写的，太牛逼了
-
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -21,7 +19,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
             { "ProcedureId & Tags", "Allowed Previous Procedures", "Code Generation" };
 
         // 临时编辑数据 - Region 1 & 2
-        private List<string> _tagNames = new List<string>();
+        private List<TagEntry> _tags = new List<TagEntry>();
         private List<ProcedureEntry> _procedures = new List<ProcedureEntry>();
 
         // 临时编辑数据 - Region 3
@@ -34,17 +32,26 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
         private List<string> _validationErrors = new List<string>();
         private HashSet<string> _duplicateProcedureNames = new HashSet<string>();
         private HashSet<string> _duplicateTagNames = new HashSet<string>();
+        private HashSet<int> _duplicateProcedureEnumValues = new HashSet<int>();
+        private HashSet<int> _duplicateTagEnumValues = new HashSet<int>();
         private HashSet<string> _invalidProcedureNames = new HashSet<string>();
         private HashSet<string> _invalidTagNames = new HashSet<string>();
 
         // EditorPrefs 键名
         private const string ConfigPathPrefKey = "ProcedureKitEditor_ConfigPath";
 
+        private class TagEntry
+        {
+            public string Name;
+            public int EnumValue;
+        }
+
         private class ProcedureEntry
         {
             public string Name;
-            public HashSet<int> TagIndices = new HashSet<int>();
-            public List<int> AllowedPreviousIndices = new List<int>();
+            public int EnumValue;
+            public HashSet<int> TagEnumValues = new HashSet<int>(); // 存储选中的Tag的EnumValue
+            public List<int> AllowedPreviousEnumValues = new List<int>(); // 存储AllowedPrevious的EnumValue
         }
 
         // C# 标识符验证正则：以字母或下划线开头，后面可以是字母、数字或下划线
@@ -74,7 +81,6 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
 
         private void OnEnable()
         {
-            // 窗口启用时，尝试加载上次使用的配置文件
             LoadRememberedConfig();
         }
 
@@ -91,7 +97,6 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
                 }
                 else
                 {
-                    // 文件不存在了，清除记忆
                     EditorPrefs.DeleteKey(ConfigPathPrefKey);
                 }
             }
@@ -115,7 +120,6 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
 
         private void OnGUI()
         {
-            // 每帧更新验证状态
             ValidateAll();
 
             bool hasErrors = _validationErrors.Count > 0;
@@ -132,7 +136,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
             if (newConfig != _config)
             {
                 _config = newConfig;
-                SaveConfigPath(); // 保存配置文件路径
+                SaveConfigPath();
                 if (_config != null)
                     LoadFromConfig();
             }
@@ -161,7 +165,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
 
             EditorGUILayout.Space(10);
 
-            // 主内容区域 (使用 FlexibleSpace 让错误框固定在底部)
+            // 主内容区域
             EditorGUILayout.BeginVertical();
 
             _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition, GUILayout.ExpandHeight(true));
@@ -181,7 +185,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
 
             EditorGUILayout.EndScrollView();
 
-            // 底部错误信息区域 (固定在底部)
+            // 底部错误信息区域
             if (hasErrors)
             {
                 EditorGUILayout.Space(5);
@@ -205,10 +209,12 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
             _validationErrors.Clear();
             _duplicateProcedureNames.Clear();
             _duplicateTagNames.Clear();
+            _duplicateProcedureEnumValues.Clear();
+            _duplicateTagEnumValues.Clear();
             _invalidProcedureNames.Clear();
             _invalidTagNames.Clear();
 
-            // 检查重复的 ProcedureId
+            // 检查重复的 ProcedureId 名称
             var procedureNames = _procedures.Select(p => p.Name).Where(n => !string.IsNullOrEmpty(n)).ToList();
             _duplicateProcedureNames = procedureNames
                 .GroupBy(n => n)
@@ -218,11 +224,24 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
 
             foreach (var dup in _duplicateProcedureNames)
             {
-                _validationErrors.Add($"重复的 ProcedureId: \"{dup}\"");
+                _validationErrors.Add($"重复的 ProcedureId 名称: \"{dup}\"");
             }
 
-            // 检查重复的 Tag
-            var tagNames = _tagNames.Where(n => !string.IsNullOrEmpty(n)).ToList();
+            // 检查重复的 ProcedureId EnumValue
+            var procedureEnumValues = _procedures.Select(p => p.EnumValue).ToList();
+            _duplicateProcedureEnumValues = procedureEnumValues
+                .GroupBy(v => v)
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
+                .ToHashSet();
+
+            foreach (var dup in _duplicateProcedureEnumValues)
+            {
+                _validationErrors.Add($"重复的 ProcedureId 枚举值:  {dup}");
+            }
+
+            // 检查重复的 Tag 名称
+            var tagNames = _tags.Select(t => t.Name).Where(n => !string.IsNullOrEmpty(n)).ToList();
             _duplicateTagNames = tagNames
                 .GroupBy(n => n)
                 .Where(g => g.Count() > 1)
@@ -231,7 +250,20 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
 
             foreach (var dup in _duplicateTagNames)
             {
-                _validationErrors.Add($"重复的 Tag: \"{dup}\"");
+                _validationErrors.Add($"重复的 Tag 名称: \"{dup}\"");
+            }
+
+            // 检查重复的 Tag EnumValue
+            var tagEnumValues = _tags.Select(t => t.EnumValue).ToList();
+            _duplicateTagEnumValues = tagEnumValues
+                .GroupBy(v => v)
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
+                .ToHashSet();
+
+            foreach (var dup in _duplicateTagEnumValues)
+            {
+                _validationErrors.Add($"重复的 Tag 枚举值: {dup}");
             }
 
             // 检查 ProcedureId 命名规范
@@ -240,17 +272,17 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
                 if (!IsValidIdentifier(proc.Name))
                 {
                     _invalidProcedureNames.Add(proc.Name);
-                    _validationErrors.Add($"无效的 ProcedureId: \"{proc.Name}\" - {GetIdentifierErrorReason(proc.Name)}");
+                    _validationErrors.Add($"无效的 ProcedureId:  \"{proc.Name}\" - {GetIdentifierErrorReason(proc.Name)}");
                 }
             }
 
             // 检查 Tag 命名规范
-            foreach (var tag in _tagNames)
+            foreach (var tag in _tags)
             {
-                if (!IsValidIdentifier(tag))
+                if (!IsValidIdentifier(tag.Name))
                 {
-                    _invalidTagNames.Add(tag);
-                    _validationErrors.Add($"无效的 Tag: \"{tag}\" - {GetIdentifierErrorReason(tag)}");
+                    _invalidTagNames.Add(tag.Name);
+                    _validationErrors.Add($"无效的 Tag:  \"{tag.Name}\" - {GetIdentifierErrorReason(tag.Name)}");
                 }
             }
 
@@ -260,7 +292,6 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
 
         private void ValidateRegion3Settings()
         {
-            // 验证命名空间
             if (!string.IsNullOrEmpty(_namespace))
             {
                 var namespaceParts = _namespace.Split('.');
@@ -273,7 +304,6 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
                 }
             }
 
-            // 验证枚举名称
             if (!IsValidIdentifier(_procedureIdEnumName))
             {
                 _validationErrors.Add(
@@ -283,10 +313,9 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
             if (!IsValidIdentifier(_procedureTagEnumName))
             {
                 _validationErrors.Add(
-                    $"无效的 ProcedureTag 枚举名:  \"{_procedureTagEnumName}\" - {GetIdentifierErrorReason(_procedureTagEnumName)}");
+                    $"无效的 ProcedureTag 枚举名: \"{_procedureTagEnumName}\" - {GetIdentifierErrorReason(_procedureTagEnumName)}");
             }
 
-            // 检查枚举名称是否重复
             if (_procedureIdEnumName == _procedureTagEnumName)
             {
                 _validationErrors.Add("ProcedureId 枚举名和 ProcedureTag 枚举名不能相同");
@@ -298,11 +327,9 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
             if (string.IsNullOrEmpty(name))
                 return false;
 
-            // 检查是否符合C#标识符规则
             if (!ValidIdentifierRegex.IsMatch(name))
                 return false;
 
-            // 检查是否是C#关键字
             if (CSharpKeywords.Contains(name))
                 return false;
 
@@ -331,47 +358,91 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
             return _duplicateProcedureNames.Contains(name) || _invalidProcedureNames.Contains(name);
         }
 
+        private bool IsProcedureEnumValueError(int enumValue)
+        {
+            return _duplicateProcedureEnumValues.Contains(enumValue);
+        }
+
         private bool IsTagNameError(string name)
         {
             return _duplicateTagNames.Contains(name) || _invalidTagNames.Contains(name);
         }
 
+        private bool IsTagEnumValueError(int enumValue)
+        {
+            return _duplicateTagEnumValues.Contains(enumValue);
+        }
+
         #endregion
 
-        #region Region 1: ProcedureId & Tags
+        #region Region 1:  ProcedureId & Tags
 
         private void DrawRegion1_ProcedureIdAndTags()
         {
-            // 添加Tag按钮 (右上角)
+            // 顶部按钮区域
             EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("按 Enum 值排序", GUILayout.Width(120)))
+            {
+                SortByEnumValue();
+            }
+
             GUILayout.FlexibleSpace();
             if (GUILayout.Button("+", GUILayout.Width(25)))
             {
-                _tagNames.Add("NewTag");
+                int nextEnumValue = _tags.Count > 0 ? _tags.Max(t => t.EnumValue) + 1 : 0;
+                _tags.Add(new TagEntry { Name = "NewTag", EnumValue = nextEnumValue });
             }
 
             EditorGUILayout.EndHorizontal();
 
-            // 表格头部
-            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
-            EditorGUILayout.LabelField("ProcedureId", EditorStyles.boldLabel, GUILayout.Width(150));
-            for (int i = 0; i < _tagNames.Count; i++)
-            {
-                EditorGUILayout.BeginVertical(GUILayout.Width(100));
-                EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.Space(5);
 
-                // 高亮错误的 Tag
-                bool isErrorTag = IsTagNameError(_tagNames[i]);
-                if (isErrorTag)
+            // 表格头部 - Tag 的 EnumValue 行
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Space(50); // EnumValue 列占位
+            GUILayout.Space(120); // ProcedureId 列占位
+            GUILayout.Space(22); // 删除按钮占位
+
+            for (int i = 0; i < _tags.Count; i++)
+            {
+                bool isEnumValueError = IsTagEnumValueError(_tags[i].EnumValue);
+                if (isEnumValueError)
                 {
                     var originalColor = GUI.backgroundColor;
                     GUI.backgroundColor = new Color(1f, 0.5f, 0.5f);
-                    _tagNames[i] = EditorGUILayout.TextField(_tagNames[i], GUILayout.Width(80));
+                    _tags[i].EnumValue = EditorGUILayout.IntField(_tags[i].EnumValue, GUILayout.Width(100));
                     GUI.backgroundColor = originalColor;
                 }
                 else
                 {
-                    _tagNames[i] = EditorGUILayout.TextField(_tagNames[i], GUILayout.Width(80));
+                    _tags[i].EnumValue = EditorGUILayout.IntField(_tags[i].EnumValue, GUILayout.Width(100));
+                }
+            }
+
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndHorizontal();
+
+            // 表格头部 - Tag 名称行
+            EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
+            EditorGUILayout.LabelField("", GUILayout.Width(50)); // EnumValue 列占位
+            EditorGUILayout.LabelField("ProcedureId", EditorStyles.boldLabel, GUILayout.Width(120));
+            GUILayout.Space(22); // 删除按钮占位
+
+            for (int i = 0; i < _tags.Count; i++)
+            {
+                EditorGUILayout.BeginHorizontal(GUILayout.Width(100));
+
+                bool isErrorTag = IsTagNameError(_tags[i].Name);
+                if (isErrorTag)
+                {
+                    var originalColor = GUI.backgroundColor;
+                    GUI.backgroundColor = new Color(1f, 0.5f, 0.5f);
+                    _tags[i].Name = EditorGUILayout.TextField(_tags[i].Name, GUILayout.Width(75));
+                    GUI.backgroundColor = originalColor;
+                }
+                else
+                {
+                    _tags[i].Name = EditorGUILayout.TextField(_tags[i].Name, GUILayout.Width(75));
                 }
 
                 if (GUILayout.Button("×", GUILayout.Width(18)))
@@ -379,12 +450,10 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
                     RemoveTag(i);
                     i--;
                     EditorGUILayout.EndHorizontal();
-                    EditorGUILayout.EndVertical();
                     continue;
                 }
 
                 EditorGUILayout.EndHorizontal();
-                EditorGUILayout.EndVertical();
             }
 
             GUILayout.FlexibleSpace();
@@ -396,13 +465,27 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
                 var proc = _procedures[p];
                 EditorGUILayout.BeginHorizontal();
 
-                // ProcedureId 名称
                 bool isEntrance = p == 0 && proc.Name == "Entrance";
+
+                // EnumValue 输入框
                 GUI.enabled = !isEntrance;
+                bool isEnumValueError = IsProcedureEnumValueError(proc.EnumValue);
+                if (isEnumValueError)
+                {
+                    var originalColor = GUI.backgroundColor;
+                    GUI.backgroundColor = new Color(1f, 0.5f, 0.5f);
+                    proc.EnumValue = EditorGUILayout.IntField(proc.EnumValue, GUILayout.Width(50));
+                    GUI.backgroundColor = originalColor;
+                }
+                else
+                {
+                    proc.EnumValue = EditorGUILayout.IntField(proc.EnumValue, GUILayout.Width(50));
+                }
 
-                EditorGUILayout.BeginHorizontal(GUILayout.Width(150));
+                GUI.enabled = true;
 
-                // 高亮错误的 ProcedureId
+                // ProcedureId 名称
+                GUI.enabled = !isEntrance;
                 bool isErrorProcedure = IsProcedureNameError(proc.Name);
                 if (isErrorProcedure)
                 {
@@ -416,24 +499,26 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
                     proc.Name = EditorGUILayout.TextField(proc.Name, GUILayout.Width(120));
                 }
 
+                // 删除按钮
                 if (!isEntrance && GUILayout.Button("×", GUILayout.Width(18)))
                 {
                     RemoveProcedure(p);
                     p--;
                     GUI.enabled = true;
                     EditorGUILayout.EndHorizontal();
-                    EditorGUILayout.EndHorizontal();
                     continue;
                 }
-
-                EditorGUILayout.EndHorizontal();
+                else if (isEntrance)
+                {
+                    GUILayout.Space(22);
+                }
 
                 GUI.enabled = true;
 
                 // Tags 勾选
-                for (int t = 0; t < _tagNames.Count; t++)
+                for (int t = 0; t < _tags.Count; t++)
                 {
-                    bool hasTag = proc.TagIndices.Contains(t);
+                    bool hasTag = proc.TagEnumValues.Contains(_tags[t].EnumValue);
                     var style = new GUIStyle(GUI.skin.button)
                     {
                         fontSize = 14,
@@ -444,9 +529,9 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
                     if (GUILayout.Button(buttonText, style, GUILayout.Width(100), GUILayout.Height(20)))
                     {
                         if (hasTag)
-                            proc.TagIndices.Remove(t);
+                            proc.TagEnumValues.Remove(_tags[t].EnumValue);
                         else
-                            proc.TagIndices.Add(t);
+                            proc.TagEnumValues.Add(_tags[t].EnumValue);
                     }
                 }
 
@@ -454,50 +539,56 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
                 EditorGUILayout.EndHorizontal();
             }
 
-            // 添加Procedure按钮 (左下角)
+            // 添加Procedure按钮
             EditorGUILayout.Space(10);
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("+", GUILayout.Width(25)))
             {
-                _procedures.Add(new ProcedureEntry { Name = "NewProcedure" });
+                int nextEnumValue = _procedures.Count > 0 ? _procedures.Max(p => p.EnumValue) + 1 : 0;
+                _procedures.Add(new ProcedureEntry { Name = "NewProcedure", EnumValue = nextEnumValue });
             }
 
             GUILayout.FlexibleSpace();
             EditorGUILayout.EndHorizontal();
         }
 
+        private void SortByEnumValue()
+        {
+            // 保持 Entrance 在第一位，其余按 EnumValue 排序
+            if (_procedures.Count > 1)
+            {
+                var entrance = _procedures[0];
+                var others = _procedures.Skip(1).OrderBy(p => p.EnumValue).ToList();
+                _procedures.Clear();
+                _procedures.Add(entrance);
+                _procedures.AddRange(others);
+            }
+
+            // Tag 按 EnumValue 排序
+            _tags = _tags.OrderBy(t => t.EnumValue).ToList();
+        }
+
         private void RemoveTag(int index)
         {
-            _tagNames.RemoveAt(index);
-            // 更新所有procedure的TagIndices
+            int removedEnumValue = _tags[index].EnumValue;
+            _tags.RemoveAt(index);
+
+            // 从所有 procedure 中移除对该 Tag 的引用
             foreach (var proc in _procedures)
             {
-                proc.TagIndices.Remove(index);
-                var newIndices = new HashSet<int>();
-                foreach (var i in proc.TagIndices)
-                {
-                    if (i > index)
-                        newIndices.Add(i - 1);
-                    else
-                        newIndices.Add(i);
-                }
-
-                proc.TagIndices = newIndices;
+                proc.TagEnumValues.Remove(removedEnumValue);
             }
         }
 
         private void RemoveProcedure(int index)
         {
+            int removedEnumValue = _procedures[index].EnumValue;
             _procedures.RemoveAt(index);
-            // 更新所有procedure的AllowedPreviousIndices
+
+            // 从所有 procedure 的 AllowedPreviousEnumValues 中移除对该 Procedure 的引用
             foreach (var proc in _procedures)
             {
-                proc.AllowedPreviousIndices.Remove(index);
-                for (int i = 0; i < proc.AllowedPreviousIndices.Count; i++)
-                {
-                    if (proc.AllowedPreviousIndices[i] > index)
-                        proc.AllowedPreviousIndices[i]--;
-                }
+                proc.AllowedPreviousEnumValues.Remove(removedEnumValue);
             }
         }
 
@@ -516,7 +607,8 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
 
                 // 标题行
                 EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.LabelField(proc.Name, EditorStyles.boldLabel, GUILayout.Width(150));
+                EditorGUILayout.LabelField($"[{proc.EnumValue}] {proc.Name}", EditorStyles.boldLabel,
+                    GUILayout.Width(180));
                 EditorGUILayout.LabelField("← Allowed Previous:", GUILayout.Width(120));
                 GUILayout.FlexibleSpace();
                 EditorGUILayout.EndHorizontal();
@@ -526,23 +618,24 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
                 EditorGUILayout.Space(20);
 
                 var toRemove = new List<int>();
-                foreach (var prevIndex in proc.AllowedPreviousIndices)
+                foreach (var prevEnumValue in proc.AllowedPreviousEnumValues)
                 {
-                    if (prevIndex >= 0 && prevIndex < _procedures.Count)
+                    var prevProc = _procedures.FirstOrDefault(p => p.EnumValue == prevEnumValue);
+                    if (prevProc != null)
                     {
-                        EditorGUILayout.BeginHorizontal(EditorStyles.toolbar, GUILayout.Width(120));
-                        EditorGUILayout.LabelField(_procedures[prevIndex].Name, GUILayout.Width(90));
+                        EditorGUILayout.BeginHorizontal(EditorStyles.toolbar, GUILayout.Width(140));
+                        EditorGUILayout.LabelField($"[{prevProc.EnumValue}] {prevProc.Name}", GUILayout.Width(110));
                         if (GUILayout.Button("×", GUILayout.Width(18)))
                         {
-                            toRemove.Add(prevIndex);
+                            toRemove.Add(prevEnumValue);
                         }
 
                         EditorGUILayout.EndHorizontal();
                     }
                 }
 
-                foreach (var idx in toRemove)
-                    proc.AllowedPreviousIndices.Remove(idx);
+                foreach (var enumValue in toRemove)
+                    proc.AllowedPreviousEnumValues.Remove(enumValue);
 
                 // 添加按钮
                 if (GUILayout.Button("+", GUILayout.Width(25)))
@@ -567,13 +660,13 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
         private void ShowAddPreviousProcedureMenu(ProcedureEntry targetProc)
         {
             var menu = new GenericMenu();
-            for (int i = 0; i < _procedures.Count; i++)
+            foreach (var proc in _procedures)
             {
-                if (!targetProc.AllowedPreviousIndices.Contains(i))
+                if (!targetProc.AllowedPreviousEnumValues.Contains(proc.EnumValue))
                 {
-                    int index = i;
-                    menu.AddItem(new GUIContent(_procedures[i].Name), false,
-                        () => { targetProc.AllowedPreviousIndices.Add(index); });
+                    int enumValue = proc.EnumValue;
+                    menu.AddItem(new GUIContent($"[{proc.EnumValue}] {proc.Name}"), false,
+                        () => { targetProc.AllowedPreviousEnumValues.Add(enumValue); });
                 }
             }
 
@@ -601,7 +694,6 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
                 string selectedPath = EditorUtility.OpenFolderPanel("选择生成路径", "Assets", "");
                 if (!string.IsNullOrEmpty(selectedPath))
                 {
-                    // 转换为相对路径
                     if (selectedPath.StartsWith(Application.dataPath))
                     {
                         _generatePath = "Assets" + selectedPath.Substring(Application.dataPath.Length);
@@ -679,30 +771,39 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
 
         private void LoadFromConfig()
         {
-            _tagNames = new List<string>(_config.TagNames);
-            _procedures = new List<ProcedureEntry>();
+            // 加载 Tags
+            _tags = new List<TagEntry>();
+            foreach (var tag in _config.Tags)
+            {
+                _tags.Add(new TagEntry
+                {
+                    Name = tag.Name,
+                    EnumValue = tag.EnumValue
+                });
+            }
 
+            // 加载 Procedures
+            _procedures = new List<ProcedureEntry>();
             foreach (var entry in _config.Procedures)
             {
                 _procedures.Add(new ProcedureEntry
                 {
                     Name = entry.Name,
-                    TagIndices = new HashSet<int>(entry.TagIndices),
-                    AllowedPreviousIndices = new List<int>(entry.AllowedPreviousIndices)
+                    EnumValue = entry.EnumValue,
+                    TagEnumValues = new HashSet<int>(entry.TagEnumValues),
+                    AllowedPreviousEnumValues = new List<int>(entry.AllowedPreviousEnumValues)
                 });
             }
 
-            // 确保Entrance存在
+            // 确保 Entrance 存在
             if (_procedures.Count == 0 || _procedures[0].Name != "Entrance")
             {
-                _procedures.Insert(0, new ProcedureEntry { Name = "Entrance" });
+                _procedures.Insert(0, new ProcedureEntry { Name = "Entrance", EnumValue = 0 });
             }
 
-            // 清除 Entrance 的 AllowedPreviousIndices（如果有的话）
-            if (_procedures.Count > 0)
-            {
-                _procedures[0].AllowedPreviousIndices.Clear();
-            }
+            // 确保 Entrance 的 EnumValue 为 0，且清除其 AllowedPreviousEnumValues
+            _procedures[0].EnumValue = 0;
+            _procedures[0].AllowedPreviousEnumValues.Clear();
 
             // 加载 Region 3 设置
             _generatePath = _config.GeneratePath;
@@ -713,16 +814,27 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
 
         private void SaveToConfig()
         {
-            _config.TagNames = new List<string>(_tagNames);
-            _config.Procedures = new List<ProcedureKitConfigSO.ProcedureEntry>();
+            // 保存 Tags
+            _config.Tags = new List<ProcedureKitConfigSO.TagEntry>();
+            foreach (var tag in _tags)
+            {
+                _config.Tags.Add(new ProcedureKitConfigSO.TagEntry
+                {
+                    Name = tag.Name,
+                    EnumValue = tag.EnumValue
+                });
+            }
 
+            // 保存 Procedures
+            _config.Procedures = new List<ProcedureKitConfigSO.ProcedureEntry>();
             foreach (var proc in _procedures)
             {
                 _config.Procedures.Add(new ProcedureKitConfigSO.ProcedureEntry
                 {
                     Name = proc.Name,
-                    TagIndices = proc.TagIndices.ToList(),
-                    AllowedPreviousIndices = new List<int>(proc.AllowedPreviousIndices)
+                    EnumValue = proc.EnumValue,
+                    TagEnumValues = proc.TagEnumValues.ToList(),
+                    AllowedPreviousEnumValues = new List<int>(proc.AllowedPreviousEnumValues)
                 });
             }
 
@@ -743,35 +855,28 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
 
         private void GenerateCSharpClasses()
         {
-            // 确保目录存在
             if (!Directory.Exists(_generatePath))
                 Directory.CreateDirectory(_generatePath);
 
-            // 生成 ProcedureId 枚举
             GenerateProcedureIdFile();
-
-            // 生成 ProcedureTag 枚举
             GenerateProcedureTagFile();
-
-            // 生成 ProcedureConfig 类
             GenerateProcedureConfigFile();
-
-            // 生成 ProcedureManager 类
             GenerateProcedureManagerFile();
 
             // 保存当前编辑数据的副本
-            var savedTagNames = new List<string>(_tagNames);
+            var savedTags = _tags.Select(t => new TagEntry { Name = t.Name, EnumValue = t.EnumValue }).ToList();
             var savedProcedures = _procedures.Select(p => new ProcedureEntry
             {
                 Name = p.Name,
-                TagIndices = new HashSet<int>(p.TagIndices),
-                AllowedPreviousIndices = new List<int>(p.AllowedPreviousIndices)
+                EnumValue = p.EnumValue,
+                TagEnumValues = new HashSet<int>(p.TagEnumValues),
+                AllowedPreviousEnumValues = new List<int>(p.AllowedPreviousEnumValues)
             }).ToList();
 
             AssetDatabase.Refresh();
 
             // 恢复编辑数据
-            _tagNames = savedTagNames;
+            _tags = savedTags;
             _procedures = savedProcedures;
 
             Debug.Log($"C# 类已生成到: {_generatePath}");
@@ -788,11 +893,13 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
             sb.AppendLine($"    public enum {_procedureIdEnumName}");
             sb.AppendLine("    {");
 
-            for (int i = 0; i < _procedures.Count; i++)
+            // 按 EnumValue 排序输出
+            var sortedProcedures = _procedures.OrderBy(p => p.EnumValue).ToList();
+            for (int i = 0; i < sortedProcedures.Count; i++)
             {
-                var proc = _procedures[i];
-                string comma = i < _procedures.Count - 1 ? "," : "";
-                sb.AppendLine($"        {proc.Name} = {i}{comma}");
+                var proc = sortedProcedures[i];
+                string comma = i < sortedProcedures.Count - 1 ? "," : "";
+                sb.AppendLine($"        {proc.Name} = {proc.EnumValue}{comma}");
             }
 
             sb.AppendLine("    }");
@@ -813,10 +920,13 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
             sb.AppendLine($"    public enum {_procedureTagEnumName}");
             sb.AppendLine("    {");
 
-            for (int i = 0; i < _tagNames.Count; i++)
+            // 按 EnumValue 排序输出
+            var sortedTags = _tags.OrderBy(t => t.EnumValue).ToList();
+            for (int i = 0; i < sortedTags.Count; i++)
             {
-                string comma = i < _tagNames.Count - 1 ? "," : "";
-                sb.AppendLine($"        {_tagNames[i]} = {i}{comma}");
+                var tag = sortedTags[i];
+                string comma = i < sortedTags.Count - 1 ? "," : "";
+                sb.AppendLine($"        {tag.Name} = {tag.EnumValue}{comma}");
             }
 
             sb.AppendLine("    }");
@@ -832,7 +942,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
             sb.AppendLine("// Auto-generated by ProcedureKit Editor");
             sb.AppendLine("// Do not modify this file manually");
             sb.AppendLine();
-            sb.AppendLine("using System.Collections.Generic;");
+            sb.AppendLine("using System. Collections.Generic;");
             sb.AppendLine("using System.Diagnostics. CodeAnalysis;");
             sb.AppendLine("using SoyoFramework.OptionalKits. ProcedureKit. Runtime. DataClasses;");
             sb.AppendLine();
@@ -849,18 +959,21 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
                 $"        public override Dictionary<{_procedureIdEnumName}, MetaData> MetaDatas {{ get; }} = new()");
             sb.AppendLine("        {");
 
-            for (int i = 0; i < _procedures.Count; i++)
+            // 按 EnumValue 排序输出
+            var sortedProcedures = _procedures.OrderBy(p => p.EnumValue).ToList();
+            for (int i = 0; i < sortedProcedures.Count; i++)
             {
-                var proc = _procedures[i];
+                var proc = sortedProcedures[i];
 
                 // 生成 Tags 数组
                 string tagsArray;
-                if (proc.TagIndices.Count > 0)
+                if (proc.TagEnumValues.Count > 0)
                 {
-                    var tagNames = proc.TagIndices
-                        .OrderBy(x => x)
-                        .Where(x => x < _tagNames.Count)
-                        .Select(x => $"{_procedureTagEnumName}.{_tagNames[x]}");
+                    var tagNames = proc.TagEnumValues
+                        .OrderBy(ev => ev)
+                        .Select(ev => _tags.FirstOrDefault(t => t.EnumValue == ev))
+                        .Where(t => t != null)
+                        .Select(t => $"{_procedureTagEnumName}.{t.Name}");
                     tagsArray = $"new {_procedureTagEnumName}[] {{ {string.Join(", ", tagNames)} }}";
                 }
                 else
@@ -870,11 +983,12 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
 
                 // 生成 AllowedPreviousProcedures 数组
                 string allowedPrevArray;
-                if (proc.AllowedPreviousIndices.Count > 0)
+                if (proc.AllowedPreviousEnumValues.Count > 0)
                 {
-                    var prevNames = proc.AllowedPreviousIndices
-                        .Where(x => x < _procedures.Count)
-                        .Select(x => $"{_procedureIdEnumName}.{_procedures[x].Name}");
+                    var prevNames = proc.AllowedPreviousEnumValues
+                        .Select(ev => _procedures.FirstOrDefault(p => p.EnumValue == ev))
+                        .Where(p => p != null)
+                        .Select(p => $"{_procedureIdEnumName}. {p.Name}");
                     allowedPrevArray = $"new {_procedureIdEnumName}[] {{ {string.Join(", ", prevNames)} }}";
                 }
                 else
@@ -882,7 +996,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
                     allowedPrevArray = $"new {_procedureIdEnumName}[] {{ }}";
                 }
 
-                string comma = i < _procedures.Count - 1 ? "," : "";
+                string comma = i < sortedProcedures.Count - 1 ? "," : "";
 
                 sb.AppendLine("            {");
                 sb.AppendLine($"                {_procedureIdEnumName}. {proc.Name},");

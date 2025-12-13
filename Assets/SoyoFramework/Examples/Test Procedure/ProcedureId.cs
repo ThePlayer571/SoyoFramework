@@ -7,6 +7,6 @@ namespace SoyoFramework.Examples.Test_Procedure
     {
         Entrance = 0,
         ProcedureA = 1,
-        ProcedureB = 2
+        ProcedureB = 100
     }
 }

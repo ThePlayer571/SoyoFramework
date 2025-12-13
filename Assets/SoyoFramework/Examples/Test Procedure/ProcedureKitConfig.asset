@@ -12,19 +12,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76102f0701df40ccb33b7aad683c5874, type: 3}
   m_Name: ProcedureKitConfig
   m_EditorClassIdentifier: 
-  TagNames:
-  - TagX
-  - TagY
+  Tags:
+  - Name: TagX
+    EnumValue: 0
+  - Name: TagY
+    EnumValue: 1
   Procedures:
   - Name: Entrance
-    TagIndices: 00000000
-    AllowedPreviousIndices: 
+    EnumValue: 0
+    TagEnumValues: 00000000
+    AllowedPreviousEnumValues: 
   - Name: ProcedureA
-    TagIndices: 01000000
-    AllowedPreviousIndices: 00000000
+    EnumValue: 1
+    TagEnumValues: 01000000
+    AllowedPreviousEnumValues: 00000000
   - Name: ProcedureB
-    TagIndices: 
-    AllowedPreviousIndices: 0000000001000000
+    EnumValue: 100
+    TagEnumValues: 
+    AllowedPreviousEnumValues: 0000000064000000
   GeneratePath: Assets/SoyoFramework/Examples/Test Procedure
   Namespace: SoyoFramework.Examples.Test_Procedure
   ProcedureIdEnumName: ProcedureId
