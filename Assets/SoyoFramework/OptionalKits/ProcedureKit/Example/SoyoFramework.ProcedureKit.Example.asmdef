@@ -1,0 +1,18 @@
+{
+    "name": "SoyoFramework.ProcedureKit.Example",
+    "rootNamespace": "",
+    "references": [
+        "GUID:58c1b14f353fc1c4382ad940a680c0bb",
+        "GUID:3843d7bddc8442c40a954d00ef600673",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

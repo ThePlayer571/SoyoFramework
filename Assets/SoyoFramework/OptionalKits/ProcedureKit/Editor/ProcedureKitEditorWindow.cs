@@ -1,3 +1,6 @@
+// 全是Claude写的，有点乱，来点好心人帮我重构喵
+// 不得不说AI写Editor真的太好用了，这是我30分钟写出来的
+
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;

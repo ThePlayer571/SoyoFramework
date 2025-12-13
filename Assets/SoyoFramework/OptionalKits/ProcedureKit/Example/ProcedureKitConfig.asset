@@ -30,7 +30,7 @@ MonoBehaviour:
     EnumValue: 100
     TagEnumValues: 
     AllowedPreviousEnumValues: 0000000064000000
-  GeneratePath: Assets/SoyoFramework/Examples/Test Procedure
-  Namespace: SoyoFramework.Examples.Test_Procedure
+  GeneratePath: Assets/SoyoFramework/OptionalKits/ProcedureKit/Example
+  Namespace: SoyoFramework.OptionalKits.ProcedureKit.Example
   ProcedureIdEnumName: ProcedureId
   ProcedureTagEnumName: ProcedureTag

@@ -4,7 +4,7 @@ using SoyoFramework.Framework.Runtime.LogKit;
 using SoyoFramework.OptionalKits.ProcedureKit.Runtime.DataClasses;
 using UnityEngine;
 
-namespace SoyoFramework.Examples.Test_Procedure
+namespace SoyoFramework.OptionalKits.ProcedureKit.Example
 {
     public class ProcedureKitExampleController : MonoBehaviour
     {
@@ -130,38 +130,46 @@ namespace SoyoFramework.Examples.Test_Procedure
 
         private void OnGUI()
         {
-            int width = 250, height = 38, margin = 12, y = 10;
+            int width = 400, height = 60, margin = 20;
+            // 计算中心位置
+            int screenWidth = Screen.width;
+            int screenHeight = Screen.height;
+            int totalButtons = 5;
+            int totalHeight = totalButtons * height + (totalButtons - 1) * margin;
+            int startX = (screenWidth - width) / 2;
+            int startY = (screenHeight - totalHeight) / 2;
+            int y = startY;
 
             GUI.enabled = !_runningTask;
-            if (GUI.Button(new Rect(10, y, width, height), "1. 基础用法"))
+            if (GUI.Button(new Rect(startX, y, width, height), "1. 基础用法"))
             {
                 RunButtonClicked(RunExample_BasicUsage);
             }
 
             y += height + margin;
 
-            if (GUI.Button(new Rect(10, y, width, height), "2. 标签功能"))
+            if (GUI.Button(new Rect(startX, y, width, height), "2. 标签功能"))
             {
                 RunButtonClicked(RunExample_TagFunctionality);
             }
 
             y += height + margin;
 
-            if (GUI.Button(new Rect(10, y, width, height), "3. 延时功能"))
+            if (GUI.Button(new Rect(startX, y, width, height), "3. 延时功能"))
             {
                 RunButtonClicked(RunExample_DelayFeature);
             }
 
             y += height + margin;
 
-            if (GUI.Button(new Rect(10, y, width, height), "4. 切换拦截"))
+            if (GUI.Button(new Rect(startX, y, width, height), "4. 切换拦截"))
             {
                 RunButtonClicked(RunExample_Intercept);
             }
 
             y += height + margin;
 
-            if (GUI.Button(new Rect(10, y, width, height), "5. 传参功能"))
+            if (GUI.Button(new Rect(startX, y, width, height), "5. 传参功能"))
             {
                 RunButtonClicked(RunExample_PassingParameters);
             }
@@ -171,7 +179,13 @@ namespace SoyoFramework.Examples.Test_Procedure
             GUI.enabled = true;
             if (_runningTask)
             {
-                GUI.Label(new Rect(10, y, 480, 24), "运行中...请稍候。");
+                var labelStyle = new GUIStyle(GUI.skin.label)
+                {
+                    fontSize = 28,
+                    alignment = TextAnchor.MiddleCenter
+                };
+                // 这个Label有Bug：一次显示之后就永久显示了。AI写的，不知道为啥
+                GUI.Label(new Rect(startX, y, width, 40), "运行中...请稍候。", labelStyle);
             }
         }
 
@@ -180,7 +194,11 @@ namespace SoyoFramework.Examples.Test_Procedure
         {
             if (_runningTask) return;
             _runningTask = true;
-            exampleMethod().ContinueWith(() => _runningTask = false).Forget();
+            exampleMethod().ContinueWith(async () =>
+            {
+                await UniTask.SwitchToMainThread();
+                _runningTask = false;
+            }).Forget();
         }
 
         #endregion

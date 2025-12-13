@@ -5,7 +5,7 @@ using System. Collections.Generic;
 using System.Diagnostics. CodeAnalysis;
 using SoyoFramework.OptionalKits. ProcedureKit. Runtime. DataClasses;
 
-namespace SoyoFramework.Examples.Test_Procedure
+namespace SoyoFramework.OptionalKits.ProcedureKit.Example
 {
     public class ProcedureConfig :  ProcedureConfig<ProcedureId, ProcedureTag>
     {
