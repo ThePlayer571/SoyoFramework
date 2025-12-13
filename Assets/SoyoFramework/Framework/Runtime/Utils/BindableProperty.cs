@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace SoyoFramework.Framework.Runtime.UsefulTools
+namespace SoyoFramework.Framework.Runtime.Utils
 {
     public interface IReadOnlyBindableProperty<out T>
     {

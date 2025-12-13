@@ -1,6 +1,4 @@
-using JetBrains.Annotations;
-
-namespace SoyoFramework.Framework.Runtime.UsefulTools
+namespace SoyoFramework.Framework.Runtime.Utils
 {
     public interface IProxy<out T> where T : class
     {

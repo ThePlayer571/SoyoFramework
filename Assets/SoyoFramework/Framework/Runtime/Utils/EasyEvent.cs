@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace SoyoFramework.Framework.Runtime.UsefulTools
+namespace SoyoFramework.Framework.Runtime.Utils
 {
     public class EasyEvent
     {
