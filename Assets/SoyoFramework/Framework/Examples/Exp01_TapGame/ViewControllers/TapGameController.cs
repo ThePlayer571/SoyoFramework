@@ -1,10 +1,11 @@
-using SoyoFramework.Examples.Exp01_Framework.Events;
+using SoyoFramework.Framework.Examples.Exp01_TapGame.Commands;
+using SoyoFramework.Framework.Examples.Exp01_TapGame.Events;
 using SoyoFramework.Framework.Runtime.Core;
 using SoyoFramework.Framework.Runtime.Core.Layers;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace SoyoFramework.Examples.Exp01_Framework.ViewControllers
+namespace SoyoFramework.Framework.Examples.Exp01_TapGame.ViewControllers
 {
     public class ScoreController : MonoVController
     {

@@ -1,6 +1,6 @@
 using SoyoFramework.Framework.Runtime.Utils;
 
-namespace SoyoFramework.Examples.Exp01_Framework.Events
+namespace SoyoFramework.Framework.Examples.Exp01_TapGame.Events
 {
     public class AfterScoreChanged : IEvent
     {

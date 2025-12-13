@@ -1,8 +1,7 @@
-using SoyoFramework.Examples.Exp01_Framework.ViewControllers;
+using SoyoFramework.Framework.Examples.Exp01_TapGame.ViewControllers;
 using SoyoFramework.Framework.Runtime.Core;
-using UnityEngine;
 
-namespace SoyoFramework.Examples.Exp01_Framework
+namespace SoyoFramework.Framework.Examples.Exp01_TapGame
 {
     public class TapGame : AbstractArchitecture
     {

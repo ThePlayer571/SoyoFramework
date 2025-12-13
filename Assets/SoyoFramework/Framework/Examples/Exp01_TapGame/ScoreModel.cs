@@ -1,9 +1,9 @@
-using SoyoFramework.Examples.Exp01_Framework.Events;
+using SoyoFramework.Framework.Examples.Exp01_TapGame.Events;
 using SoyoFramework.Framework.Runtime.Core;
 using SoyoFramework.Framework.Runtime.Core.Layers;
 using SoyoFramework.Framework.Runtime.Utils;
 
-namespace SoyoFramework.Examples.Exp01_Framework
+namespace SoyoFramework.Framework.Examples.Exp01_TapGame
 {
     public interface IScoreModel : IModel
     {

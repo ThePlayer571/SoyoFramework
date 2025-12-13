@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace SoyoFramework.Examples.Exp01_Framework
+namespace SoyoFramework.Framework.Examples.Exp01_TapGame
 {
     public class GameInitializer : MonoBehaviour
     {

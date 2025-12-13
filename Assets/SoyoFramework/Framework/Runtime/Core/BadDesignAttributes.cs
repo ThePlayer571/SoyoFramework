@@ -1,6 +1,6 @@
 using System;
 
-namespace SoyoFramework.Framework.Runtime.Core.SuperLayers
+namespace SoyoFramework.Framework.Runtime.Core
 {
     /// <summary>
     /// 标记设计缺陷
