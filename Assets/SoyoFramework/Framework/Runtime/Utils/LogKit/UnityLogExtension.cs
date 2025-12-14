@@ -1,6 +1,6 @@
 using Debug = UnityEngine.Debug;
 
-namespace SoyoFramework.Framework.Runtime.LogKit
+namespace SoyoFramework.Framework.Runtime.Utils.LogKit
 {
     public static class UnityLogExtension
     {

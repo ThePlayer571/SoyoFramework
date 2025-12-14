@@ -1,4 +1,5 @@
-using SoyoFramework.Framework.Runtime.LogKit;
+using SoyoFramework.Framework.Runtime.Utils.LogKit;
+using UnityEngine;
 
 namespace SoyoFramework.Framework.Runtime.Core
 {
@@ -13,13 +14,13 @@ namespace SoyoFramework.Framework.Runtime.Core
             {
                 if (_defaultArchitecture != null)
                 {
-                    "设置失败：DefaultArchitecture已经被设置，不能重复设置".LogError();
+                    Debug.LogError("设置失败：DefaultArchitecture已经被设置，不能重复设置");
                     return;
                 }
 
                 if (!value.Inited)
                 {
-                    "设置失败：DefaultArchitecture必须是已经初始化的Architecture".LogError();
+                    Debug.LogError("设置失败：DefaultArchitecture必须是已经初始化的Architecture");
                     return;
                 }
 

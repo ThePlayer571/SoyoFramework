@@ -1,7 +1,7 @@
 using System;
-using SoyoFramework.Framework.Runtime.Core.Layers;
-using SoyoFramework.Framework.Runtime.LogKit;
+using SoyoFramework.Framework.Runtime.Core.CoreUtils;
 using SoyoFramework.Framework.Runtime.Utils;
+using UnityEngine;
 
 namespace SoyoFramework.Framework.Runtime.Core
 {
@@ -21,7 +21,7 @@ namespace SoyoFramework.Framework.Runtime.Core
         {
             if (Inited)
             {
-                "Architecture已经初始化".LogError();
+                Debug.LogError("Architecture已经初始化");
                 return;
             }
 
@@ -54,7 +54,7 @@ namespace SoyoFramework.Framework.Runtime.Core
             // 防止重复Deinit
             if (!Inited)
             {
-                "Architecture没有初始化，无法Deinit".LogError();
+                Debug.LogError("Architecture未初始化，无法Deinit");
                 return;
             }
 

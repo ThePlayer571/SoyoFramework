@@ -1,6 +1,6 @@
 using System;
 using Cysharp.Threading.Tasks;
-using SoyoFramework.Framework.Runtime.LogKit;
+using SoyoFramework.Framework.Runtime.Utils.LogKit;
 using SoyoFramework.OptionalKits.ProcedureKit.Runtime.DataClasses;
 using UnityEngine;
 

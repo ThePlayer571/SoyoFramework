@@ -1,7 +1,7 @@
-using SoyoFramework.Framework.Runtime.Utils;
+using SoyoFramework.Framework.Runtime.Core.CoreUtils;
 using UnityEngine;
 
-namespace SoyoFramework.Scripts.ToolKits.Others
+namespace SoyoFramework.Framework.Runtime.Utils.UnityListener
 {
     public class OnTriggerExit2DListener : MonoBehaviour
     {

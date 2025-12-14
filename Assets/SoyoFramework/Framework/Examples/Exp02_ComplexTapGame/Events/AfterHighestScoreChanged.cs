@@ -1,3 +1,4 @@
+using SoyoFramework.Framework.Runtime.Core.CoreUtils;
 using SoyoFramework.Framework.Runtime.Utils;
 
 namespace SoyoFramework.Framework.Examples.Exp02_ComplexTapGame.Events

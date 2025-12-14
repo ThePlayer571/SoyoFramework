@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using SoyoFramework.Framework.Runtime.LogKit;
+using SoyoFramework.Framework.Runtime.Utils.LogKit;
 
 namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.DataClasses
 {

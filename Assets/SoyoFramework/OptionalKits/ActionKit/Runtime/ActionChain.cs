@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
-using SoyoFramework.Framework.Runtime.LogKit;
+using SoyoFramework.Framework.Runtime.Utils.LogKit;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
