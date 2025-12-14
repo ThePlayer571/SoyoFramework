@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Cysharp.Threading.Tasks;
 using SoyoFramework.Framework.Runtime.LogKit;
 using SoyoFramework.Framework.Runtime.Utils;
@@ -70,7 +69,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
                         $"进行了不允许的流程切换，已阻断：{leaveFrom} -> {changeTo}".LogError();
                         return;
                     case ProcedureCheckMode.Warning:
-                        $" 进行了不允许的流程切换：{leaveFrom} -> {changeTo}".LogWarning();
+                        $"进行了不允许的流程切换：{leaveFrom} -> {changeTo}".LogWarning();
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
