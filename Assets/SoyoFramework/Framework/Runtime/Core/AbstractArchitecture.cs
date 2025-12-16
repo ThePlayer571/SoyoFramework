@@ -10,6 +10,7 @@ namespace SoyoFramework.Framework.Runtime.Core
         #region 可用字段
 
         public bool Inited { get; private set; } = false;
+        public static IArchitecture Instance { get; private set; }
         private readonly SimpleIOCContainer _container = new();
         private readonly TypeEventSystem _eventSystem = new();
 
@@ -24,6 +25,9 @@ namespace SoyoFramework.Framework.Runtime.Core
                 Debug.LogError("Architecture已经初始化");
                 return;
             }
+
+            // 单例支持
+            Instance = this;
 
             // 注册初始层级信息
             OnInit();
@@ -77,6 +81,9 @@ namespace SoyoFramework.Framework.Runtime.Core
             {
                 ArchitectureHelper.DefaultArchitecture = null;
             }
+
+            // 单例支持
+            Instance = null;
         }
 
         protected abstract void OnInit();
@@ -177,12 +184,18 @@ namespace SoyoFramework.Framework.Runtime.Core
 
         public void SendCommand(ICommand command)
         {
+#if UNITY_EDITOR
+            CommandProfiler.CommandSendHook.OnSend(command);
+#endif
             command.AttachedArchitecture = this;
             command.Execute();
         }
 
         public TResult SendCommand<TResult>(ICommand<TResult> command)
         {
+#if UNITY_EDITOR
+            CommandProfiler.CommandSendHook.OnSend(command);
+#endif
             command.AttachedArchitecture = this;
             return command.Execute();
         }
