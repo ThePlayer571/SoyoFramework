@@ -1,3 +1,4 @@
+using SoyoFramework.Framework.Runtime.Core.CoreUtils;
 using SoyoFramework.Framework.Runtime.Utils.LogKit;
 using UnityEngine;
 
@@ -19,7 +20,8 @@ namespace SoyoFramework.Framework.Runtime.Core.Layers
             }
         }
 
-        public virtual bool CanExecute() => true;
+        [Experimental]
+        protected virtual bool CanExecute() => true;
 
         IArchitecture ICanAttachToArchitecture.AttachedArchitecture { get; set; }
     }
@@ -41,7 +43,8 @@ namespace SoyoFramework.Framework.Runtime.Core.Layers
             }
         }
 
-        public virtual bool CanExecute() => true;
+        [Experimental]
+        protected virtual bool CanExecute() => true;
 
         IArchitecture ICanAttachToArchitecture.AttachedArchitecture { get; set; }
     }

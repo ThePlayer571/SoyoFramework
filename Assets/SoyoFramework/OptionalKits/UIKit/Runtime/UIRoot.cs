@@ -1,22 +1,11 @@
 using UnityEngine;
 
-namespace SoyoFramework.Scripts.ToolKits.UIKit
+namespace SoyoFramework.OptionalKits.UIKit.Runtime
 {
     public class UIRoot : MonoBehaviour
     {
-        internal static UIRoot Instance { get; private set; }
-
-        private void Awake()
-        {
-            Instance = this;
-        }
-
-        public RectTransform Common;
-        public RectTransform PopUI;
-        public RectTransform Transition;
         public Camera UICamera;
-        public Canvas UICanvas;
-
+        public Canvas Canvas;
         [SerializeField] internal UIManager UIManager;
     }
 }

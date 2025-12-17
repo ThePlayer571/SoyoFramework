@@ -3,26 +3,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
-namespace SoyoFramework.Scripts.ToolKits.UIKit
+namespace SoyoFramework.OptionalKits.UIKit.Runtime
 {
+    [CreateAssetMenu(fileName = "UISettings", menuName = "SoyoFramework/UIKit/UISettings", order = 1)]
     public class UISettings : ScriptableObject
     {
-        public List<UIPanelConfig> PanelConfigs;
+        public List<UIPageConfig> PageConfigs;
         public RenderMode CanvasRenderMode = RenderMode.ScreenSpaceOverlay;
     }
 
     [Serializable]
-    public class UIPanelConfig
+    public class UIPageConfig
     {
-        public string PanelName;
+        public string PageName;
         public AssetReference PrefabReference;
-        public UIPanelLayer Layer;
-    }
-
-    public enum UIPanelLayer
-    {
-        Common = 0,
-        PopUI = 1,
-        Transition = 2
+        public int PanelOrder;
     }
 }

@@ -1,203 +1,176 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Cysharp.Threading.Tasks;
-using SoyoFramework.Framework.Runtime.Core.CoreUtils;
 using SoyoFramework.Framework.Runtime.Utils.FluentAPI;
 using SoyoFramework.Framework.Runtime.Utils.LogKit;
+using SoyoFramework.OptionalKits.UIKit.Runtime.Pages;
 using UnityEngine;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
-namespace SoyoFramework.Scripts.ToolKits.UIKit
+namespace SoyoFramework.OptionalKits.UIKit.Runtime
 {
     internal class UIManager : MonoBehaviour
     {
-        #region 生命周期
-
-        public static UIManager Instance { get; private set; }
-
-        public void Init(UISettings uiSettings)
+        // 初始化
+        public void Init(UIRoot uiRoot, UISettings uiSettings)
         {
+            UIRoot = uiRoot;
             Instance = this;
-            UIRoot.Instance.UICanvas.renderMode = uiSettings.CanvasRenderMode;
+
+            // RenderMode
+            uiRoot.Canvas.renderMode = uiSettings.CanvasRenderMode;
             if (uiSettings.CanvasRenderMode == RenderMode.ScreenSpaceCamera)
             {
-                UIRoot.Instance.UICamera.SetActive(true);
+                uiRoot.UICamera.SetActive(true);
             }
 
-            foreach (var config in uiSettings.PanelConfigs)
+            // Page信息存储
+            foreach (var config in uiSettings.PageConfigs)
             {
-                _panelConfigs.Add(config.PanelName, config);
+                _pageConfigs.Add(config.PageName, config);
+            }
+        }
+
+        private Dictionary<string, UIPageConfig> _pageConfigs = new();
+        private Dictionary<string, ActiveUIPageMetaData> _activeUIPageMetaData = new();
+
+        #region Page api
+
+        public async UniTask<T> OpenPageAsync<T>(string pageName) where T : UIPage
+        {
+            if (_activeUIPageMetaData.ContainsKey(pageName))
+            {
+                $"UIPage: {pageName} 已经打开".LogError();
+                return null;
             }
 
-            StackInit();
+            if (!_pageConfigs.TryGetValue(pageName, out var pageConfig))
+            {
+                $"UIPage: 找不到 {pageName} 的配置信息".LogError();
+                return null;
+            }
+
+            var handle = pageConfig.PrefabReference.InstantiateAsync(UIRoot.Canvas.transform);
+            await handle.ToUniTask();
+
+            var pageInstance = handle.Result.GetComponent<UIPage>();
+            if (pageInstance == null)
+            {
+                $"UIPage: {pageName} 的预制体上没有挂载UIPage组件".LogError();
+                handle.Release();
+                return null;
+            }
+
+            // 调整层级，保证PanelOrder高的在上层
+            SetPageSiblingByPanelOrder(pageInstance.transform, pageConfig.PanelOrder, UIRoot.Canvas.transform,
+                _activeUIPageMetaData);
+
+            // 通过所有检查，开始初始化
+            pageInstance.Init();
+
+            // 记录数据
+            var metaData = new ActiveUIPageMetaData
+            {
+                PageInstance = pageInstance,
+                PanelConfig = pageConfig,
+                Handle = handle
+            };
+            _activeUIPageMetaData.Add(pageName, metaData);
+
+            return pageInstance as T;
+        }
+
+        public void ClosePage(string pageName)
+        {
+            // 移除记录
+            if (!_activeUIPageMetaData.Remove(pageName, out var metaData))
+            {
+                $"UIPage: {pageName} 未打开".LogWarning();
+                return;
+            }
+
+            metaData.PageInstance.Close();
+
+            // 释放资源
+            metaData.Handle.Release();
+        }
+
+        public T GetPage<T>(string pageName) where T : UIPage
+        {
+            if (!_activeUIPageMetaData.TryGetValue(pageName, out var metaData))
+            {
+                $"UIPage: {pageName} 未打开".LogWarning();
+                return null;
+            }
+
+            return metaData.PageInstance as T;
         }
 
         #endregion
 
-        // 变量
-        private Dictionary<string, UIPanelConfig> _panelConfigs = new();
-        private Dictionary<string, ActiveUIPanelMetaData> _activeUIPanelMetaData = new();
+        #region 其他数据读取
 
-        private EasyEvent<IUIPanel> OnCloseUIPanelBeforeEvent = new();
+        public static UIManager Instance { get; private set; }
+        public UIRoot UIRoot { get; private set; }
 
+        #endregion
 
-        private class ActiveUIPanelMetaData
+        /// <summary>
+        /// 正在打开的UIPage的数据
+        /// </summary>
+        private class ActiveUIPageMetaData
         {
-            public IUIMainPanel Instance;
-            public UIPanelConfig PanelConfig;
+            public UIPage PageInstance;
+            public UIPageConfig PanelConfig;
             public AsyncOperationHandle<GameObject> Handle;
         }
 
-        #region 常规api
-
-        public async UniTask<T> OpenPanelAsync<T>(string panelName, object initData) where T : class, IUIMainPanel
+        /// <summary>
+        /// 调整UIPage的层级，使PanelOrder高的页面在上层
+        /// </summary>
+        /// <param name="pageTransform">新开UIPage的Transform</param>
+        /// <param name="panelOrder">新UIPage的PanelOrder</param>
+        /// <param name="parent">Canvas.transform</param>
+        /// <param name="activeMetaData">当前激活页面信息</param>
+        private static void SetPageSiblingByPanelOrder(Transform pageTransform, int panelOrder, Transform parent,
+            Dictionary<string, ActiveUIPageMetaData> activeMetaData)
         {
-            if (_activeUIPanelMetaData.ContainsKey(panelName))
+            int highestLowerOrderSiblingIndex = -1;
+            int maxPanelOrderBelowCurrent = int.MinValue;
+
+            // 查找插入位置: 找到所有比当前PanelOrder小的子节点中最大siblingIndex
+            for (int i = 0; i < parent.childCount; i++)
             {
-                $"UIPanel:{panelName}已经打开，无法再次打开".LogError();
-                return null;
-            }
-
-            if (!_panelConfigs.ContainsKey(panelName))
-            {
-                $"找不对对应的配置信息: {panelName}".LogError();
-                return null;
-            }
-
-            // 加载数据
-            var config = _panelConfigs[panelName];
-            var handle = config.PrefabReference.LoadAssetAsync<GameObject>();
-            var metaData = new ActiveUIPanelMetaData()
-            {
-                PanelConfig = config,
-                Handle = handle
-            };
-            _activeUIPanelMetaData.Add(panelName, metaData);
-
-            await handle.ToUniTask();
-
-            // 实例化
-            var instanceGO = handle.Result.Instantiate();
-            var instance = instanceGO.GetComponent<IUIMainPanel>();
-
-            var layer = config.Layer switch
-            {
-                UIPanelLayer.Common => UIRoot.Instance.Common,
-                UIPanelLayer.PopUI => UIRoot.Instance.PopUI,
-                UIPanelLayer.Transition => UIRoot.Instance.Transition,
-                _ => throw new ArgumentOutOfRangeException()
-            };
-            instanceGO.transform.SetParent(layer, false);
-            instance.Init(initData);
-
-            metaData.Instance = instance;
-            return instance as T;
-        }
-
-        public void ClosePanel(string panelName)
-        {
-            if (!_activeUIPanelMetaData.TryGetValue(panelName, out var metaData))
-            {
-                $"指定的UIPanel未打开: {panelName}".LogWarning();
-                return;
-            }
-
-            OnCloseUIPanelBeforeEvent.Trigger(metaData.Instance);
-
-            metaData.Instance.Close();
-            metaData.Handle.Release();
-            _activeUIPanelMetaData.Remove(panelName);
-        }
-
-        public T GetPanel<T>(string panelName) where T : class, IUIMainPanel
-        {
-            if (!_activeUIPanelMetaData.TryGetValue(panelName, out var metaData))
-            {
-                $"指定的UIPanel未打开: {panelName}".LogWarning();
-                return null;
-            }
-
-            var panel = metaData.Instance;
-            return panel as T;
-        }
-
-        #endregion
-
-        #region 堆栈
-
-        private List<IStackablePanel> _panelStack = new();
-
-        private void StackInit()
-        {
-            OnCloseUIPanelBeforeEvent.Register(panel =>
-            {
-                if (panel is IStackablePanel stackPanel && _panelStack.Contains(stackPanel))
+                Transform child = parent.GetChild(i);
+                UIPage childPage = child.GetComponent<UIPage>();
+                if (childPage != null)
                 {
-                    StackRemove(stackPanel);
+                    foreach (var pair in activeMetaData)
+                    {
+                        if (pair.Value.PageInstance == childPage)
+                        {
+                            int childPanelOrder = pair.Value.PanelConfig.PanelOrder;
+                            if (childPanelOrder <= panelOrder && childPanelOrder > maxPanelOrderBelowCurrent)
+                            {
+                                maxPanelOrderBelowCurrent = childPanelOrder;
+                                highestLowerOrderSiblingIndex = i;
+                            }
+
+                            break;
+                        }
+                    }
                 }
-            }).UnRegisterWhenGameObjectDestroyed(this);
-        }
-
-        public void StackPush(IStackablePanel panel)
-        {
-            if (_panelStack.Contains(panel))
-            {
-                $"UIStack中已经存在该UIPanel".LogError();
-                return;
             }
 
-            _panelStack.Add(panel);
-            panel.OnPushed();
-        }
-
-        public void StackRemove(IStackablePanel panel)
-        {
-            if (!_panelStack.Contains(panel))
+            if (highestLowerOrderSiblingIndex == -1)
             {
-                // $"UIStack中不存在该UIPanel".LogError();
-                return;
+                // 没有比它PanelOrder小的，放到最前面（最底层）
+                pageTransform.SetSiblingIndex(0);
             }
-
-            _panelStack.Remove(panel);
-            if ((panel as UnityEngine.Object) != null) panel.OnPopped();
-        }
-
-        public IStackablePanel StackPop()
-        {
-            if (_panelStack.Count == 0)
+            else
             {
-                $"UIStack为空".LogError();
-                return null;
-            }
-
-            var popped = _panelStack.Pop();
-            if ((popped as UnityEngine.Object) != null) popped.OnPopped();
-            return popped;
-        }
-
-        public IStackablePanel StackPeek()
-        {
-            if (_panelStack.Count == 0)
-            {
-                $"UIStack为空".LogError();
-                return null;
-            }
-
-            return _panelStack.Last();
-        }
-
-        public void StackClear()
-        {
-            while (_panelStack.Count > 0)
-            {
-                var popped = _panelStack.Pop();
-                if ((popped as UnityEngine.Object) != null) popped.OnPopped();
+                // 插在所有比它小的层的后面
+                pageTransform.SetSiblingIndex(highestLowerOrderSiblingIndex + 1);
             }
         }
-
-        public int StackCount => _panelStack.Count;
-
-        #endregion
     }
 }

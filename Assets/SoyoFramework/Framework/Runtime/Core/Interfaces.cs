@@ -83,7 +83,6 @@ namespace SoyoFramework.Framework.Runtime.Core
         ICanSendEvent, ICanSendCommand
     {
         void Execute();
-        bool CanExecute();
     }
 
     public interface ICommand<out TResult> :
@@ -92,6 +91,5 @@ namespace SoyoFramework.Framework.Runtime.Core
         ICanSendEvent, ICanSendCommand
     {
         TResult Execute();
-        bool CanExecute();
     }
 }
