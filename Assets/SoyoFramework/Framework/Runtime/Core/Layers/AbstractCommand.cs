@@ -1,3 +1,6 @@
+using SoyoFramework.Framework.Runtime.Utils.LogKit;
+using UnityEngine;
+
 namespace SoyoFramework.Framework.Runtime.Core.Layers
 {
     public abstract class AbstractCommand : ICommand
@@ -6,8 +9,17 @@ namespace SoyoFramework.Framework.Runtime.Core.Layers
 
         void ICommand.Execute()
         {
-            OnExecute();
+            if (CanExecute())
+            {
+                OnExecute();
+            }
+            else
+            {
+                Debug.LogError($"Command执行失败：{GetType().FullName}");
+            }
         }
+
+        public virtual bool CanExecute() => true;
 
         IArchitecture ICanAttachToArchitecture.AttachedArchitecture { get; set; }
     }
@@ -18,8 +30,18 @@ namespace SoyoFramework.Framework.Runtime.Core.Layers
 
         TResult ICommand<TResult>.Execute()
         {
-            return OnExecute();
+            if (CanExecute())
+            {
+                return OnExecute();
+            }
+            else
+            {
+                Debug.LogError($"Command执行失败：{GetType().FullName}");
+                return default;
+            }
         }
+
+        public virtual bool CanExecute() => true;
 
         IArchitecture ICanAttachToArchitecture.AttachedArchitecture { get; set; }
     }

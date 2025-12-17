@@ -15,7 +15,6 @@ namespace SoyoFramework.Framework.Runtime.Core.CoreUtils
     {
         new T Value { get; set; }
         void SetValueWithoutTrigger(T value);
-        IUnRegister RegisterBefore(Func<T, T> onBeforeValueChanged);
     }
 
     [Serializable]
@@ -35,20 +34,10 @@ namespace SoyoFramework.Framework.Runtime.Core.CoreUtils
             get => _value;
             set
             {
-                T newValue = value;
-                // 通过 _valueChangeEvent 的 RegisterBefore 机制处理新值
-                if (_valueChangeEvent != null)
+                if (!Equals(_value, value))
                 {
-                    foreach (var beforeProcess in _valueChangeEvent.BeforeProcessList)
-                    {
-                        newValue = beforeProcess(newValue);
-                    }
-                }
-
-                if (!Equals(_value, newValue))
-                {
-                    _value = newValue;
-                    _valueChangeEvent.Trigger(_value, useBeforeProcess: false);
+                    _value = value;
+                    _valueChangeEvent.Trigger(_value);
                 }
             }
         }
@@ -90,10 +79,6 @@ namespace SoyoFramework.Framework.Runtime.Core.CoreUtils
             _value = value;
         }
 
-        public IUnRegister RegisterBefore(Func<T, T> onBeforeValueChanged)
-        {
-            return _valueChangeEvent.RegisterBefore(onBeforeValueChanged);
-        }
 
         private class ActionUnRegister : IUnRegister
         {
