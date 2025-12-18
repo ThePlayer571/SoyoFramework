@@ -3,37 +3,40 @@ using UnityEngine;
 
 namespace SoyoFramework.Framework.Runtime.Core.CoreUtils
 {
-    public partial class EasyEvent
+    public partial class EasyEvent<T1, T2>
     {
-        private Action _onEvent;
+        private Action<T1, T2> _onEvent;
 
-        public IUnRegister Register(Action onEvent)
+        public IUnRegister Register(Action<T1, T2> onEvent)
         {
             _onEvent += onEvent;
             return new CustomUnRegister(() => UnRegister(onEvent));
         }
 
-        public void UnRegister(Action onEvent)
+        public void UnRegister(Action<T1, T2> onEvent)
         {
             _onEvent -= onEvent;
         }
 
-        public void Trigger()
+        public void Trigger(in T1 arg1, in T2 arg2)
         {
-            _onEvent?.Invoke();
+            _onEvent?.Invoke(arg1, arg2);
         }
     }
 
     [Serializable]
-    public partial class EasyEvent
+    public partial class EasyEvent<T1, T2>
     {
 #if UNITY_EDITOR
+        [SerializeField] private T1 _serializedValue1;
+        [SerializeField] private T2 _serializedValue2;
+
         /// <summary>
         /// 供 Editor PropertyDrawer 调用的触发方法
         /// </summary>
         internal void EditorTrigger()
         {
-            Trigger();
+            Trigger(_serializedValue1, _serializedValue2);
         }
 #endif
     }

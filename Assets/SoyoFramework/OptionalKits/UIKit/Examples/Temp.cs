@@ -7,10 +7,15 @@ using UnityEngine;
 
 namespace SoyoFramework.OptionalKits.UIKit.Examples
 {
-    [ExecuteAlways]
     public class Temp : MonoBehaviour
     {
-        public BindableProperty<A> t;
+        [SerializeField] public EasyEvent<A> e;
+
+        private void Awake()
+        {
+            // e.Register((x, y, z) => $"Event Triggered with value: {x};{y};{z}".LogInfo());
+            e.Register(x => $"Event Triggered with value: {x}".LogInfo());
+        }
     }
 
     [Serializable]
@@ -18,5 +23,10 @@ namespace SoyoFramework.OptionalKits.UIKit.Examples
     {
         public int a;
         public int b;
+
+        public override string ToString()
+        {
+            return $"{a},{b}";
+        }
     }
 }
