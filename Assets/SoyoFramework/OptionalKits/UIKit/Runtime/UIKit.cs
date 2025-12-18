@@ -42,6 +42,11 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime
             return await UIManager.Instance.OpenPageAsync<T>(pageName);
         }
 
+        public static async UniTask OpenPageAsync(string pageName)
+        {
+            await UIManager.Instance.OpenPageAsync<UIPage>(pageName);
+        }
+
         public static T GetPage<T>(string pageName) where T : UIPage
         {
             return UIManager.Instance.GetPage<T>(pageName);

@@ -10,25 +10,7 @@ namespace SoyoFramework.OptionalKits.UIKit.Examples
         protected override void OnInit()
         {
             var intContext = Host.GetContext<IntContext>();
-            $"Hello, World!: {intContext.Value.Value}".LogInfo();
-            Host.SubmitCommand(new HelloWorldCommand());
-
-            var item1 = new StackItem()
-                .WithOnPushed(() => { $"HelloWorldView: Item 1 Pushed".LogInfo(); })
-                .WithOnPopped(() => { $"HelloWorldView: Item 1 Popped".LogInfo(); });
-
-            var item2 = new StackItem()
-                .WithOnPushed(() => { $"HelloWorldView: Item 2 Pushed".LogInfo(); })
-                .WithOnPopped(() => { $"HelloWorldView: Item 2 Popped".LogInfo(); });
-
-            var stackModule = Host.GetModule<StackModule>();
-            stackModule.TryPush(item1);
-            stackModule.TryPush(item2);
-            stackModule.TryPush(item1);
-
-            stackModule.Pop();
-            stackModule.Pop();
-            stackModule.Pop();
+            intContext.Value.Register(v => $"new Val: {v}".LogInfo());
         }
 
         protected override void OnClose()

@@ -1,4 +1,5 @@
 using System;
+using SoyoFramework.Framework.Runtime.Utils.LogKit;
 using UnityEngine;
 
 namespace SoyoFramework.Framework.Runtime.Core.CoreUtils
@@ -20,13 +21,19 @@ namespace SoyoFramework.Framework.Runtime.Core.CoreUtils
     [Serializable]
     public partial class BindableProperty<T> : IBindableProperty<T>
     {
-        private EasyEvent<T> _valueChangeEvent = new();
+        private EasyEvent<T> _valueChangeEvent;
         private T _value;
 
-        public BindableProperty(T initialValue = default)
+        public BindableProperty(T initialValue)
         {
+            _valueChangeEvent = new EasyEvent<T>();
             _value = initialValue;
-            _serializedValue = initialValue;
+        }
+
+        public BindableProperty()
+        {
+            _valueChangeEvent = new EasyEvent<T>();
+            _value = default;
         }
 
         public T Value

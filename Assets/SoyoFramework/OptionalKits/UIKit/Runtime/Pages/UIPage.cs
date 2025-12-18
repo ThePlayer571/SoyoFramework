@@ -8,6 +8,7 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime.Pages
     public interface IUIViewHost
     {
         T GetContext<T>() where T : class, IUIContext;
+        IReadOnlyCollection<IUIContext> AllContexts { get; }
         T GetModule<T>() where T : UIModule;
         void SubmitCommand(ICommand command);
         TResult SubmitCommand<TResult>(ICommand<TResult> command);
@@ -42,8 +43,7 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime.Pages
         protected abstract void OnClose();
 
         #endregion
-
-
+        
         private readonly Dictionary<Type, IUIContext> _contexts = new();
         private readonly List<UIModule> _modules = new();
 
@@ -89,6 +89,8 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime.Pages
             _contexts.TryGetValue(typeof(T), out var ctx);
             return ctx as T;
         }
+
+        public IReadOnlyCollection<IUIContext> AllContexts => _contexts.Values;
 
         public T GetModule<T>() where T : UIModule
         {
