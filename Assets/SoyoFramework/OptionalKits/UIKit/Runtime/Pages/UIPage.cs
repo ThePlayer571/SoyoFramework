@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using SoyoFramework.Framework.Runtime.Core;
+using SoyoFramework.Framework.Runtime.Core.CoreUtils;
 using UnityEngine;
 
 namespace SoyoFramework.OptionalKits.UIKit.Runtime.Pages
@@ -8,7 +9,6 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime.Pages
     public interface IUIViewHost
     {
         T GetContext<T>() where T : class, IUIContext;
-        IReadOnlyCollection<IUIContext> AllContexts { get; }
         T GetModule<T>() where T : UIModule;
         void SubmitCommand(ICommand command);
         TResult SubmitCommand<TResult>(ICommand<TResult> command);
@@ -16,6 +16,8 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime.Pages
 
     public abstract class UIPage : MonoBehaviour, IUIViewHost
     {
+        private readonly SimpleIOCContainer _iocContainer = new();
+
         #region Editor
 
         [SerializeField] private List<UIView> _views = new();
@@ -29,24 +31,21 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime.Pages
         /// </summary>
         protected abstract void Configure();
 
+
         protected void RegisterContext<T>(T context) where T : class, IUIContext
         {
-            _contexts[typeof(T)] = context;
+            _iocContainer.Register<T>(context);
         }
 
-        protected void RegisterModule(UIModule module)
+        protected void RegisterModule<T>(T module) where T : UIModule
         {
-            _modules.Add(module);
+            _iocContainer.Register<T>(module);
         }
 
         protected abstract void OnInit();
         protected abstract void OnClose();
 
         #endregion
-        
-        private readonly Dictionary<Type, IUIContext> _contexts = new();
-        private readonly List<UIModule> _modules = new();
-
 
         #region Lifecycle
 
@@ -86,21 +85,13 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime.Pages
 
         public T GetContext<T>() where T : class, IUIContext
         {
-            _contexts.TryGetValue(typeof(T), out var ctx);
-            return ctx as T;
+            return _iocContainer.Get<T>();
         }
 
-        public IReadOnlyCollection<IUIContext> AllContexts => _contexts.Values;
 
         public T GetModule<T>() where T : UIModule
         {
-            foreach (var module in _modules)
-            {
-                if (module is T typed)
-                    return typed;
-            }
-
-            return null;
+            return _iocContainer.Get<T>();
         }
 
         public abstract void SubmitCommand(ICommand command);

@@ -166,18 +166,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a03c9906d7d4a7d8b215050df5ceedd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  list:
-  - rid: 8156222748013887493
-  - rid: 8156222748013887493
-  t: 0
-  references:
-    version: 2
-    RefIds:
-    - rid: 8156222748013887493
-      type: {class: ClassA, ns: SoyoFramework.OptionalKits.UIKit.Examples, asm: SoyoFramework.UIKit.Examples}
-      data:
-        x: 2
-        y: 3
+  t:
+    _serializedValue:
+      a: 1
+      b: 2
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

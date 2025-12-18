@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Cysharp.Threading.Tasks;
 using SoyoFramework.OptionalKits.UIKit.Runtime.Pages;
 using UnityEngine;
@@ -29,7 +30,19 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime.Tests
                 UIKit.Init(UISettings);
                 var uiPage = await UIKit.OpenPageAsync<UIPage>(OpenPageName);
 
-                RegisteredContexts = uiPage.AllContexts.ToList();
+                // 利用反射获取UIPage的IOCContainer
+                var iocField = typeof(UIPage).GetField("_iocContainer", BindingFlags.NonPublic | BindingFlags.Instance);
+                var iocContainer = iocField?.GetValue(uiPage);
+                if (iocContainer != null)
+                {
+                    var getAllMethod = iocContainer.GetType().GetMethod("GetAll").MakeGenericMethod(typeof(IUIContext));
+                    var result = getAllMethod.Invoke(iocContainer, null) as IEnumerable<IUIContext>;
+                    RegisteredContexts = result?.ToList();
+                }
+                else
+                {
+                    RegisteredContexts = new List<IUIContext>();
+                }
             });
         }
     }
