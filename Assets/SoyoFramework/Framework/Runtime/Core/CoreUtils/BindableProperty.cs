@@ -1,4 +1,5 @@
 using System;
+using Cysharp.Threading.Tasks;
 using SoyoFramework.Framework.Runtime.Utils.LogKit;
 using UnityEngine;
 
@@ -119,7 +120,8 @@ namespace SoyoFramework.Framework.Runtime.Core.CoreUtils
 
         public void OnAfterDeserialize()
         {
-            this.Value = _serializedValue;
+            // 事件会在CustomPropertyDrawer中触发
+            _value = _serializedValue;
         }
     }
 }
