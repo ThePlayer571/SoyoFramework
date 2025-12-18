@@ -5,6 +5,5 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime.Utils
     [Experimental]
     public class ViewHelper
     {
-        
     }
 }

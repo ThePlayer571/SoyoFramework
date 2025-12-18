@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: UISettings
   m_EditorClassIdentifier: 
   PageConfigs:
-  - PageName: TestPage
+  - PageName: GamePage
     PrefabReference:
-      m_AssetGUID: 7a7cb71555da617478bb4cd35ca8ee65
+      m_AssetGUID: 82db31f1d3ae50444a0aff0aeb0448c5
       m_SubObjectName: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0

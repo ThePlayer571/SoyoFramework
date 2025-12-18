@@ -17,8 +17,8 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: 77a2984a7fb83d54b940fb33cff175a9
   m_SerializeEntries:
-  - m_GUID: 7a7cb71555da617478bb4cd35ca8ee65
-    m_Address: TestPage
+  - m_GUID: 82db31f1d3ae50444a0aff0aeb0448c5
+    m_Address: Assets/SoyoFramework/OptionalKits/UIKit/Examples/TapGamePage.prefab
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
