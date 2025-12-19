@@ -1,12 +1,14 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using DG.Tweening;
 using UnityEngine;
+
+#if DOTWEEN_EXISTS
+using DG.Tweening;
+#endif
 
 namespace SoyoFramework.OptionalKits.ActionKit.Runtime
 {
-    // todo 添加DOTween支持
     public interface IActionChain
     {
         /// <summary>
@@ -93,13 +95,14 @@ namespace SoyoFramework.OptionalKits.ActionKit.Runtime
         /// <param name="mono"></param>
         /// <returns>ActionChain执行的异步任务</returns>
         UniTask ExecuteWithAsync(MonoBehaviour mono);
-        
-        
-        // /// 执行DOTween语句，并等待其完成
-        // /// </summary>
-        // /// <param name="tweenFunc"></param>
-        // /// <returns></returns>
-        // IActionChain DOTween(Func<Tween> tweenFunc);
-        // /// <summary>
+
+#if DOTWEEN_EXISTS
+        /// 执行DOTween语句，并等待其完成
+        /// <summary>
+        /// <param name="tweenFunc"></param>
+        /// <returns></returns>
+        /// </summary>
+        IActionChain DOTween(Func<Tween> tweenFunc);
+#endif
     }
 }

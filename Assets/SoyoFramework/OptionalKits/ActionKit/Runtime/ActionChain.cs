@@ -2,10 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using DG.Tweening;
 using SoyoFramework.Framework.Runtime.Utils.LogKit;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+
+#if DOTWEEN_EXISTS
+using DG.Tweening;
+#endif
 
 namespace SoyoFramework.OptionalKits.ActionKit.Runtime
 {
@@ -191,17 +194,20 @@ namespace SoyoFramework.OptionalKits.ActionKit.Runtime
         {
             Start(token).Forget();
         }
-        // public IActionChain DOTween(Func<Tween> tweenFunc)
-        // {
-        //     _actions.Add(async (token) =>
-        //     {
-        //         var tween = tweenFunc?.Invoke();
-        //         if (tween != null && tween.IsActive())
-        //         {
-        //             await tween.AsyncWaitForCompletion().AsUniTask().AttachExternalCancellation(token);
-        //         }
-        //     });
-        //     return this;
-        // }
+
+#if DOTWEEN_EXISTS
+        public IActionChain DOTween(Func<Tween> tweenFunc)
+        {
+            _actions.Add(async (token) =>
+            {
+                var tween = tweenFunc?.Invoke();
+                if (tween != null && tween.IsActive())
+                {
+                    await tween.AsyncWaitForCompletion().AsUniTask().AttachExternalCancellation(token);
+                }
+            });
+            return this;
+        }
+#endif
     }
 }
