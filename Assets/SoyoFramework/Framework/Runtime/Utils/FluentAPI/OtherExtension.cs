@@ -197,4 +197,22 @@ namespace SoyoFramework.Framework.Runtime.Utils.FluentAPI
             }
         }
     }
+
+    public static class Collider2DExtensions
+    {
+        public static bool IsInLayerMask(this Collider2D self, LayerMask layerMask)
+        {
+            return LayerMaskUtility.IsInLayerMask(self.gameObject.layer, layerMask);
+        }
+
+        public static bool IsInLayerMask(this Collider2D self, params string[] layerNames)
+        {
+            return self.IsInLayerMask(LayerMask.GetMask(layerNames));
+        }
+
+        public static bool IsInLayerMask(this Collider2D self, int layerMask)
+        {
+            return self.IsInLayerMask((LayerMask)layerMask);
+        }
+    }
 }

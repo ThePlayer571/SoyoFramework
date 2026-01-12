@@ -1,6 +1,9 @@
 using System;
+using System.Threading;
 using Cysharp.Threading.Tasks;
+using SoyoFramework.Framework.Runtime.Core.CoreUtils;
 using SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core;
+using SoyoFramework.OptionalKits.ProcedureKit.Runtime.DataClasses;
 
 namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime
 {
@@ -12,10 +15,46 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime
             procedureManager.AddAwait(task);
         }
 
-        public static void AddAwait<T, TProcedureId, TTagId>
-            (this UniTask<T> task, IProcedureManager<TProcedureId, TTagId> procedureManager)
+        /// <summary>
+        /// 返回一个UniTask，在指定阶段流程切换到指定流程时完成
+        /// </summary>
+        public static UniTask WaitUntilProcedure<TProcedureId, TTagId>(
+            this IProcedureManager<TProcedureId, TTagId> manager,
+            TProcedureId targetProcedure, 
+            ProcedureChangeStage targetStage,
+            CancellationToken cancellationToken = default)
         {
-            procedureManager.AddAwait(task.AsUniTask());
+            var tcs = new UniTaskCompletionSource();
+
+            // 如果已经在目标流程和阶段，直接完成
+            if (targetStage == ProcedureChangeStage.EnterEarly && manager.CurrentProcedure != null &&
+                manager.CurrentProcedure.Equals(targetProcedure))
+            {
+                tcs.TrySetResult();
+                return tcs.Task;
+            }
+
+            IUnRegister unRegister = null;
+            unRegister = manager.OnProcedureChange.Register((procedureId, changeStage) =>
+            {
+                if (changeStage.Equals(targetStage) && procedureId.Equals(targetProcedure))
+                {
+                    unRegister.UnRegister();
+                    tcs.TrySetResult();
+                }
+            });
+
+            // 支持取消
+            if (cancellationToken != default)
+            {
+                cancellationToken.Register(() =>
+                {
+                    unRegister?.UnRegister();
+                    tcs.TrySetCanceled();
+                });
+            }
+
+            return tcs.Task;
         }
     }
 }

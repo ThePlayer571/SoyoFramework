@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2488886977637013792}
   - component: {fileID: 4070883126201574538}
   - component: {fileID: 7100356771597742959}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: EventSystem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_FirstSelected: {fileID: 0}
-  m_sendNavigationEvents: 1
+  m_sendNavigationEvents: 0
   m_DragThreshold: 10
 --- !u!114 &7100356771597742959
 MonoBehaviour:
@@ -91,7 +91,7 @@ GameObject:
   - component: {fileID: 5781371866267078638}
   - component: {fileID: 1008222582617455115}
   - component: {fileID: 6286969409761238632}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -126,8 +126,8 @@ Canvas:
   m_GameObject: {fileID: 3211995648948378454}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
-  m_Camera: {fileID: 0}
+  m_RenderMode: 1
+  m_Camera: {fileID: 153210421342949140}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
@@ -152,12 +152,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 0.5
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -191,7 +191,7 @@ GameObject:
   - component: {fileID: 4211390609287090998}
   - component: {fileID: 153210421342949140}
   - component: {fileID: 3469487682511621435}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: UICamera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -244,10 +244,10 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
+  near clip plane: -10
   far clip plane: 1000
   field of view: 60
-  orthographic: 0
+  orthographic: 1
   orthographic size: 5
   m_Depth: 0
   m_CullingMask:
@@ -318,7 +318,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9053327349409797706}
   - component: {fileID: 155084460058226509}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: UIManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -362,7 +362,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8423676926545805808}
   - component: {fileID: 7076930308054335687}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: UIRoot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -400,6 +400,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1cff3254f668432d8e709ee63d65c3d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  UICamera: {fileID: 153210421342949140}
-  Canvas: {fileID: 5781371866267078638}
+  <UICamera>k__BackingField: {fileID: 153210421342949140}
+  <Canvas>k__BackingField: {fileID: 5781371866267078638}
   UIManager: {fileID: 155084460058226509}

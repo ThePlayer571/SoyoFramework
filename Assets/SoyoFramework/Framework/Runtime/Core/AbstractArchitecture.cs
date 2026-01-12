@@ -1,6 +1,6 @@
 using System;
 using SoyoFramework.Framework.Runtime.Core.CoreUtils;
-using SoyoFramework.Framework.Runtime.Utils;
+using SoyoFramework.Framework.Runtime.Core.Layers;
 using UnityEngine;
 
 namespace SoyoFramework.Framework.Runtime.Core
@@ -10,6 +10,7 @@ namespace SoyoFramework.Framework.Runtime.Core
         #region 可用字段
 
         public bool Inited { get; private set; } = false;
+
         public static IArchitecture Instance { get; private set; }
         private readonly SimpleIOCContainer _container = new();
         private readonly TypeEventSystem _eventSystem = new();
@@ -93,6 +94,24 @@ namespace SoyoFramework.Framework.Runtime.Core
 
         #region 接口实现
 
+        public void RegisterModule<T>(T module) where T : class, IModule
+        {
+            module.AttachedArchitecture = this;
+            _container.Register<T>(module);
+
+            // 如果是在Architecture初始化后注册的Module，直接初始化
+            if (Inited)
+            {
+                module.PreInit();
+                module.Init();
+            }
+        }
+
+        public T GetModule<T>() where T : class, IModule
+        {
+            return _container.Get<T>();
+        }
+
         public void RegisterModel<T>(T model) where T : class, IModel
         {
             model.AttachedArchitecture = this;
@@ -164,7 +183,7 @@ namespace SoyoFramework.Framework.Runtime.Core
             return _container.Get<T>();
         }
 
-        public void RegisterViewController<T>(T viewController) where T : class, IViewController
+        public void RegisterVController<T>(T viewController) where T : class, IVController
         {
             viewController.AttachedArchitecture = this;
             _container.Register<T>(viewController);
@@ -177,7 +196,7 @@ namespace SoyoFramework.Framework.Runtime.Core
             }
         }
 
-        public T GetViewController<T>() where T : class, IViewController
+        public T GetVController<T>() where T : class, IVController
         {
             return _container.Get<T>();
         }
@@ -186,18 +205,76 @@ namespace SoyoFramework.Framework.Runtime.Core
         {
 #if UNITY_EDITOR
             CommandProfiler.CommandSendHook.OnSend(command);
+            if (TEMP_EditorPara.AllCommandIgnoreCanExecuteCheck)
+            {
+                command.AttachedArchitecture = this;
+                command.Execute(true);
+                return;
+            }
 #endif
             command.AttachedArchitecture = this;
             command.Execute();
         }
 
-        public TResult SendCommand<TResult>(ICommand<TResult> command)
+        public void SendCommand<TResult>(ICommand<TResult> command, out TResult result)
         {
 #if UNITY_EDITOR
             CommandProfiler.CommandSendHook.OnSend(command);
+            if (TEMP_EditorPara.AllCommandIgnoreCanExecuteCheck)
+            {
+                command.AttachedArchitecture = this;
+                result = command.Execute(true);
+                return;
+            }
 #endif
             command.AttachedArchitecture = this;
-            return command.Execute();
+            result = command.Execute();
+        }
+
+        public CanExecuteResult TrySendCommand(ICommand command)
+        {
+#if UNITY_EDITOR
+            CommandProfiler.CommandSendHook.OnSend(command);
+            if (TEMP_EditorPara.AllCommandIgnoreCanExecuteCheck)
+            {
+                command.AttachedArchitecture = this;
+                command.Execute(true);
+                return CanExecuteResult.Success;
+            }
+#endif
+            command.AttachedArchitecture = this;
+            var canExecuteResult = command.CanExecute();
+            if (canExecuteResult.CanExecute)
+            {
+                command.Execute(true);
+            }
+
+            return canExecuteResult;
+        }
+
+        public CanExecuteResult TrySendCommand<TResult>(ICommand<TResult> command, out TResult result)
+        {
+#if UNITY_EDITOR
+            CommandProfiler.CommandSendHook.OnSend(command);
+            if (TEMP_EditorPara.AllCommandIgnoreCanExecuteCheck)
+            {
+                command.AttachedArchitecture = this;
+                result = command.Execute(true);
+                return CanExecuteResult.Success;
+            }
+#endif
+            command.AttachedArchitecture = this;
+            var canExecute = command.CanExecute();
+            if (canExecute.CanExecute)
+            {
+                result = command.Execute(true);
+            }
+            else
+            {
+                result = default;
+            }
+
+            return canExecute;
         }
 
         #endregion

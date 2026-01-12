@@ -1,41 +1,48 @@
+using System.Reflection;
 using SoyoFramework.Framework.Runtime.Core.CoreUtils;
+using SoyoFramework.Framework.Runtime.Utils.LogKit;
 using UnityEditor;
 using UnityEngine;
-using System.Reflection;
 
 namespace SoyoFramework.Framework.Editor
 {
     [CustomPropertyDrawer(typeof(BindableProperty<>), true)]
     public class BindablePropertyDrawer : PropertyDrawer
     {
+        private const float Spacing = 2f;
+
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             EditorGUI.BeginProperty(position, label, property);
 
-            // 获取 _serializedValue 字段
-            SerializedProperty serializedValueProperty = property.FindPropertyRelative("_serializedValue");
+            var serializedValue = property.FindPropertyRelative("_serializedValue");
 
-            if (serializedValueProperty != null)
+            if (serializedValue == null)
             {
-                EditorGUI.BeginChangeCheck();
-                EditorGUI.PropertyField(position, serializedValueProperty, new GUIContent(label.text), true);
-                if (EditorGUI.EndChangeCheck())
-                {
-                    // 用反射将 _serializedValue 同步 到 Value（事件会触发）
-                    object obj = property.GetValue();
-                    if (obj != null)
-                    {
-                        var valueProp = obj.GetType().GetProperty("Value");
-                        if (valueProp != null && valueProp.CanWrite)
-                        {
-                            valueProp.SetValue(obj, serializedValueProperty.GetGenericValue());
-                        }
-                    }
-                }
+                EditorGUI.LabelField(position, label.text, "无法找到 _serializedValue");
+                EditorGUI.EndProperty();
+                return;
+            }
+
+            EditorGUI.BeginChangeCheck();
+
+            // 根据类型选择绘制方式
+            if (serializedValue.hasVisibleChildren)
+            {
+                DrawExpandableProperty(position, serializedValue, label);
             }
             else
             {
-                EditorGUI.LabelField(position, label.text, "无法找到 _serializedValue");
+                EditorGUI.PropertyField(position, serializedValue, label, true);
+            }
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                // 应用修改
+                property.serializedObject.ApplyModifiedProperties();
+
+                // 同步值并触发事件
+                SyncAndTrigger(property);
             }
 
             EditorGUI.EndProperty();
@@ -43,70 +50,167 @@ namespace SoyoFramework.Framework.Editor
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            SerializedProperty serializedValueProperty = property.FindPropertyRelative("_serializedValue");
-            if (serializedValueProperty != null)
-            {
-                return EditorGUI.GetPropertyHeight(serializedValueProperty, label, true);
-            }
-            return EditorGUIUtility.singleLineHeight;
-        }
-    }
+            var serializedValue = property.FindPropertyRelative("_serializedValue");
 
-    // ------- 工具扩展，便于通用取对象与泛型字段 --------
-    public static class SerializedPropertyExtensions
-    {
-        // 获取目标实例对象
-        public static object GetValue(this SerializedProperty property)
-        {
-            if (property == null) return null;
-            object obj = property.serializedObject.targetObject;
-            string[] path = property.propertyPath.Replace(".Array.data[", "[").Split('.');
-            foreach (var pathItem in path)
+            if (serializedValue == null)
             {
-                if (pathItem.Contains("["))
+                return EditorGUIUtility.singleLineHeight;
+            }
+
+            if (serializedValue.hasVisibleChildren)
+            {
+                return GetExpandablePropertyHeight(serializedValue);
+            }
+
+            return EditorGUI.GetPropertyHeight(serializedValue, label, true);
+        }
+
+        #region 绘制方法
+
+        private void DrawExpandableProperty(Rect position, SerializedProperty property, GUIContent label)
+        {
+            float y = position.y;
+
+            // Foldout
+            var foldoutRect = new Rect(position.x, y, position.width, EditorGUIUtility.singleLineHeight);
+            property.isExpanded = EditorGUI.Foldout(foldoutRect, property.isExpanded, label, true);
+
+            if (!property.isExpanded) return;
+
+            y += EditorGUIUtility.singleLineHeight + Spacing;
+            EditorGUI.indentLevel++;
+
+            // 绘制子字段
+            foreach (var child in IterateVisibleChildren(property))
+            {
+                float h = EditorGUI.GetPropertyHeight(child, true);
+                var rect = new Rect(position.x, y, position.width, h);
+                EditorGUI.PropertyField(rect, child, true);
+                y += h + Spacing;
+            }
+
+            EditorGUI.indentLevel--;
+        }
+
+        private float GetExpandablePropertyHeight(SerializedProperty property)
+        {
+            float height = EditorGUIUtility.singleLineHeight;
+
+            if (property.isExpanded)
+            {
+                foreach (var child in IterateVisibleChildren(property))
                 {
-                    string fieldName = pathItem.Substring(0, pathItem.IndexOf("["));
-                    int index = int.Parse(pathItem.Substring(pathItem.IndexOf("[")).Replace("[", "").Replace("]", ""));
-                    obj = GetFieldOrProperty(obj, fieldName);
-                    if (obj is System.Collections.IList list) obj = list[index];
+                    height += EditorGUI.GetPropertyHeight(child, true) + Spacing;
+                }
+            }
+
+            return height;
+        }
+
+        #endregion
+
+        #region 核心逻辑
+
+        private void SyncAndTrigger(SerializedProperty property)
+        {
+            object target = GetTargetObject(property);
+            if (target == null) return;
+
+            var type = target.GetType();
+            var flags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance;
+
+            // 获取 _serializedValue
+            var serializedField = type.GetField("_serializedValue", flags);
+            if (serializedField == null) return;
+
+            object newValue = serializedField.GetValue(target);
+
+            // 调用 SetValueWithoutTrigger
+            var setMethod = type.GetMethod("SetValueWithoutTrigger", flags);
+            setMethod?.Invoke(target, new[] { newValue });
+
+            // 调用 ForceTrigger
+            var triggerMethod = type.GetMethod("ForceTrigger", flags);
+            triggerMethod?.Invoke(target, null);
+        }
+
+        #endregion
+
+        #region 工具方法
+
+        private static object GetTargetObject(SerializedProperty property)
+        {
+            object obj = property.serializedObject.targetObject;
+            string path = property.propertyPath.Replace(".Array.data[", "[");
+
+            foreach (string element in path.Split('.'))
+            {
+                if (obj == null) return null;
+
+                if (element.Contains("["))
+                {
+                    int bracketIndex = element.IndexOf("[");
+                    string fieldName = element.Substring(0, bracketIndex);
+                    int index = int.Parse(element.Substring(bracketIndex + 1).TrimEnd(']'));
+
+                    obj = GetFieldValue(obj, fieldName);
+
+                    if (obj is System.Collections.IList list && index < list.Count)
+                    {
+                        obj = list[index];
+                    }
+                    else
+                    {
+                        return null;
+                    }
                 }
                 else
                 {
-                    obj = GetFieldOrProperty(obj, pathItem);
+                    obj = GetFieldValue(obj, element);
                 }
-                if (obj == null) break;
             }
+
             return obj;
         }
 
-        private static object GetFieldOrProperty(object obj, string name)
+        private static object GetFieldValue(object obj, string fieldName)
         {
             if (obj == null) return null;
+
             var type = obj.GetType();
-            var field = type.GetField(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-            if (field != null) return field.GetValue(obj);
-            var prop = type.GetProperty(name, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
-            if (prop != null && prop.CanRead) return prop.GetValue(obj, null);
+            var flags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance;
+
+            while (type != null)
+            {
+                var field = type.GetField(fieldName, flags);
+                if (field != null) return field.GetValue(obj);
+
+                var prop = type.GetProperty(fieldName, flags);
+                if (prop != null && prop.CanRead) return prop.GetValue(obj);
+
+                type = type.BaseType;
+            }
+
             return null;
         }
 
-        // 自动适配泛型类型、支持int/float/Vector3等
-        public static object GetGenericValue(this SerializedProperty prop)
+        private static System.Collections.Generic.IEnumerable<SerializedProperty> IterateVisibleChildren(
+            SerializedProperty property)
         {
-            switch (prop.propertyType)
+            var current = property.Copy();
+            var end = property.Copy();
+            end.NextVisible(false);
+
+            if (current.NextVisible(true))
             {
-                case SerializedPropertyType.Integer: return prop.intValue;
-                case SerializedPropertyType.Boolean: return prop.boolValue;
-                case SerializedPropertyType.Float:   return prop.floatValue;
-                case SerializedPropertyType.String:  return prop.stringValue;
-                case SerializedPropertyType.Vector2: return prop.vector2Value;
-                case SerializedPropertyType.Vector3: return prop.vector3Value;
-                case SerializedPropertyType.Color:   return prop.colorValue;
-                case SerializedPropertyType.ObjectReference: return prop.objectReferenceValue;
-                case SerializedPropertyType.Enum: return prop.enumValueIndex;
-                // 你可以继续扩展
-                default: return null;
+                do
+                {
+                    if (SerializedProperty.EqualContents(current, end)) break;
+                    yield return current.Copy();
+                } while (current.NextVisible(false));
             }
         }
+
+        #endregion
     }
 }

@@ -15,6 +15,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
         // 数据
         TProcedureId CurrentProcedure { get; }
         ProcedureCheckMode CheckMode { get; set; }
+        bool IsChangingProcedure { get; }
 
         // 标签
         bool HasTag(TProcedureId procedureId, TTagId tag);
@@ -29,8 +30,10 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
 
         // [RegisterEvent]
         // 流程订阅
-        IUnRegister RegisterProcedure(TProcedureId procedureId, ProcedureChangeStage stage,
+        IUnRegister Register(TProcedureId procedureId, ProcedureChangeStage stage,
             Action<ProcedureChangeInfo> callback);
+
+        EasyEvent<TProcedureId, ProcedureChangeStage> OnProcedureChange { get; }
 
         // [Service]
         // 延迟切换

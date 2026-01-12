@@ -35,7 +35,7 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime
 
         #region Page api
 
-        public async UniTask<T> OpenPageAsync<T>(string pageName) where T : UIPage
+        public async UniTask<T> OpenPageAsync<T>(string pageName, PageOpenSettings openSettings) where T : UIPage
         {
             if (_activeUIPageMetaData.ContainsKey(pageName))
             {
@@ -59,13 +59,18 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime
                 handle.Release();
                 return null;
             }
-
+            
             // 调整层级，保证PanelOrder高的在上层
             SetPageSiblingByPanelOrder(pageInstance.transform, pageConfig.PanelOrder, UIRoot.Canvas.transform,
                 _activeUIPageMetaData);
+            pageInstance.SetActive(false);
+
+            // 等待Canvas调整层级
+            await UniTask.Yield();
+            pageInstance.SetActive(true);
 
             // 通过所有检查，开始初始化
-            pageInstance.Init();
+            pageInstance.Init(openSettings);
 
             // 记录数据
             var metaData = new ActiveUIPageMetaData

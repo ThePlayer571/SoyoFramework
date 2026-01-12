@@ -1,4 +1,5 @@
 using SoyoFramework.Framework.Runtime.Core.CoreUtils;
+using SoyoFramework.Framework.Runtime.Utils.LogKit;
 using UnityEditor;
 using UnityEngine;
 
@@ -47,7 +48,7 @@ namespace SoyoFramework.Framework.Editor
 
         protected static object GetTargetObjectOfProperty(SerializedProperty property)
         {
-            string path = property.propertyPath.Replace(". Array. data[", "[");
+            string path = property.propertyPath.Replace(".Array.data[", "[");
             object obj = property.serializedObject.targetObject;
             string[] elements = path.Split('.');
 

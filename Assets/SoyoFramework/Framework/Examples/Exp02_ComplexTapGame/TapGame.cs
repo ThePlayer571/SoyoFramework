@@ -9,7 +9,7 @@ namespace SoyoFramework.Framework.Examples.Exp02_ComplexTapGame
         {
             this.RegisterModel<IScoreModel>(new ScoreModel());
             this.RegisterSystem<IAchievementSystem>(new AchievementSystem());
-            this.RegisterViewController(new AchievementController());
+            this.RegisterVController(new AchievementController());
         }
 
         protected override void OnDeinit()

@@ -5,7 +5,7 @@ using SoyoFramework.Framework.Runtime.Utils.LogKit;
 
 namespace SoyoFramework.Framework.Examples.Exp01_TapGame.ViewControllers
 {
-    public class AchievementController : ViewController
+    public class AchievementController : AbstractVController
     {
         protected override void OnInit()
         {

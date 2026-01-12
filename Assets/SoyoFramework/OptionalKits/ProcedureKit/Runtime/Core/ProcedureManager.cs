@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using SoyoFramework.Framework.Runtime.Core.CoreUtils;
-using SoyoFramework.Framework.Runtime.Utils;
 using SoyoFramework.Framework.Runtime.Utils.LogKit;
 using SoyoFramework.OptionalKits.ProcedureKit.Runtime.DataClasses;
 
@@ -15,26 +14,33 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
 
         public TProcedureId CurrentProcedure { get; private set; }
         public ProcedureCheckMode CheckMode { get; set; } = ProcedureCheckMode.Warning;
+        public bool IsChangingProcedure => _isChangingProcedure;
 
         #endregion
 
         #region 字段
 
-        // 事件存储
+        // callback event storage
         private readonly Dictionary<(TProcedureId, ProcedureChangeStage), EasyEvent<ProcedureChangeInfo>>
             _procedureCallbacks = new();
 
-        // 防中断设计：允许在上个流程结束前切换流程
-        private readonly Queue<(TProcedureId procedureId, ProcedureChangeInfo.ProcedureChangeParas paras)>
-            _procedureChangeQueue = new();
+        // 用于防止中断和支持排队请求
+        private class ProcedureChangeRequest
+        {
+            public TProcedureId ProcedureId;
+            public ProcedureChangeInfo.ProcedureChangeParas Paras;
+            public UniTaskCompletionSource CompletionSource;
+        }
 
+        private readonly Queue<ProcedureChangeRequest> _procedureChangeQueue = new();
         private bool _isChangingProcedure;
 
-        // 变量
+        // variables
         private ProcedureChangeInfo.ProcedureChangeParas _lastProcedureChangeParas;
         private readonly Queue<UniTask> _awaitTasks = new();
+        private readonly EasyEvent<TProcedureId, ProcedureChangeStage> _onProcedureChange = new();
 
-        // 配置信息
+        // 配置
         private ProcedureConfig<TProcedureId, TTagId> _config;
 
         #endregion
@@ -58,6 +64,40 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
 
         public async UniTask ChangeProcedure(TProcedureId procedureId, ProcedureChangeInfo.ProcedureChangeParas paras)
         {
+            var tcs = new UniTaskCompletionSource();
+
+            // 入队
+            _procedureChangeQueue.Enqueue(new ProcedureChangeRequest
+            {
+                ProcedureId = procedureId,
+                Paras = paras,
+                CompletionSource = tcs
+            });
+
+            // 如果当前已有流程在切换则等待
+            if (_isChangingProcedure)
+            {
+                await tcs.Task;
+                return;
+            }
+
+            _isChangingProcedure = true;
+
+            // 按队列顺序依次处理所有请求
+            while (_procedureChangeQueue.Count > 0)
+            {
+                var request = _procedureChangeQueue.Dequeue();
+                await ProcessProcedureChange(request.ProcedureId, request.Paras);
+                request.CompletionSource.TrySetResult();
+            }
+
+            _isChangingProcedure = false;
+        }
+
+        // 只处理实际切换，不做队列和排队
+        private async UniTask ProcessProcedureChange(TProcedureId procedureId,
+            ProcedureChangeInfo.ProcedureChangeParas paras)
+        {
             var leaveFrom = CurrentProcedure;
             var changeTo = procedureId;
 
@@ -77,46 +117,35 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
                 }
             }
 
-            // 防中断设计：若正在切换流程，则将请求入队列
-            if (_isChangingProcedure)
-            {
-                _procedureChangeQueue.Enqueue((procedureId, paras));
-                return;
-            }
-
-            // 开始切换
-            _isChangingProcedure = true;
-
-            // 离开上个流程
+            // 离开阶段
+            _onProcedureChange.Trigger(leaveFrom, ProcedureChangeStage.LeaveEarly);
             ExecuteCallbacks((leaveFrom, ProcedureChangeStage.LeaveEarly), _lastProcedureChangeParas);
             await WaitForAllTasks();
+            _onProcedureChange.Trigger(leaveFrom, ProcedureChangeStage.LeaveNormal);
             ExecuteCallbacks((leaveFrom, ProcedureChangeStage.LeaveNormal), _lastProcedureChangeParas);
             await WaitForAllTasks();
+            _onProcedureChange.Trigger(leaveFrom, ProcedureChangeStage.LeaveLate);
             ExecuteCallbacks((leaveFrom, ProcedureChangeStage.LeaveLate), _lastProcedureChangeParas);
             await WaitForAllTasks();
 
-            // 进入下个流程
+            // 切换
             CurrentProcedure = changeTo;
+
+            // 进入阶段
+            _onProcedureChange.Trigger(changeTo, ProcedureChangeStage.EnterEarly);
             ExecuteCallbacks((changeTo, ProcedureChangeStage.EnterEarly), paras);
             await WaitForAllTasks();
+            _onProcedureChange.Trigger(changeTo, ProcedureChangeStage.EnterNormal);
             ExecuteCallbacks((changeTo, ProcedureChangeStage.EnterNormal), paras);
             await WaitForAllTasks();
+            _onProcedureChange.Trigger(changeTo, ProcedureChangeStage.EnterLate);
             ExecuteCallbacks((changeTo, ProcedureChangeStage.EnterLate), paras);
             await WaitForAllTasks();
 
-            // 结束切换
             _lastProcedureChangeParas = paras;
-            _isChangingProcedure = false;
-
-            // 处理队列中的下个流程
-            if (_procedureChangeQueue.Count > 0)
-            {
-                var (nextProcedure, nextParas) = _procedureChangeQueue.Dequeue();
-                ChangeProcedure(nextProcedure, nextParas).Forget();
-            }
         }
 
-        public IUnRegister RegisterProcedure(TProcedureId procedureId, ProcedureChangeStage stage,
+        public IUnRegister Register(TProcedureId procedureId, ProcedureChangeStage stage,
             Action<ProcedureChangeInfo> callback)
         {
             var trigger = (procedureId, stage);
@@ -128,6 +157,8 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
 
             return easyEvent.Register(callback);
         }
+
+        public EasyEvent<TProcedureId, ProcedureChangeStage> OnProcedureChange => _onProcedureChange;
 
         public void AddAwait(UniTask task)
         {
@@ -145,7 +176,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
                 return metaData.Tags.Contains(tag);
             }
 
-            "未找到ProcedureId {procedureId} 的配置数据，无法检查标签。".LogError();
+            $"未找到ProcedureId {procedureId} 的配置数据，无法检查标签。".LogError();
             return false;
         }
 
@@ -156,7 +187,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
                 return metaData.Tags;
             }
 
-            "未找到ProcedureId {procedureId} 的配置数据，无法获取标签。".LogError();
+            $"未找到ProcedureId {procedureId} 的配置数据，无法获取标签。".LogError();
             return Array.Empty<TTagId>();
         }
 
@@ -189,7 +220,6 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
             }
 
             var allowedPrevious = mataData.AllowingPreviousProcedures;
-
             return allowedPrevious.Contains(from);
         }
 
@@ -204,7 +234,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
                 }
                 catch (Exception e)
                 {
-                    e.LogError();
+                    $"[ProcedureKit] 执行流程回调发生异常: {e}".LogError();
                 }
             }
         }

@@ -22,6 +22,12 @@ namespace SoyoFramework.Framework.Runtime.Core.CoreUtils
         {
             _onEvent?.Invoke(arg1, arg2, arg3);
         }
+
+        public IUnRegister RegisterWithInvoke(T1 arg1, T2 arg2, T3 arg3, Action<T1, T2, T3> onEvent)
+        {
+            onEvent?.Invoke(arg1, arg2, arg3);
+            return Register(onEvent);
+        }
     }
 
     [Serializable]

@@ -43,10 +43,15 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime.Modules
             return _stack.Remove(item);
         }
 
-        public void Clear()
+        public void PopAll()
         {
-            _stack.Clear();
+            while (_stack.Count > 0)
+            {
+                Pop();
+            }
         }
+        
+        public int Count => _stack.Count;
     }
 
     public interface IStackItem

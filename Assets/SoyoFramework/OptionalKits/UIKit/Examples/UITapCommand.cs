@@ -1,20 +1,13 @@
 using SoyoFramework.Framework.Runtime.Core;
+using SoyoFramework.OptionalKits.UIKit.Runtime.Pages;
 
 namespace SoyoFramework.OptionalKits.UIKit.Examples
 {
-    public class UITapCommand : ICommand
+    public class UITapCommand : UICommand
     {
-        public IArchitecture AttachedArchitecture { get; set; }
-        public void Execute()
-        {
-        }
     }
-    
-    public class UIPauseCommand : ICommand
+
+    public class UIPauseCommand : UICommand
     {
-        public IArchitecture AttachedArchitecture { get; set; }
-        public void Execute()
-        {
-        }
     }
 }

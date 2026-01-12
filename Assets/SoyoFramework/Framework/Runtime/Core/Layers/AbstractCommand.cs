@@ -8,20 +8,30 @@ namespace SoyoFramework.Framework.Runtime.Core.Layers
     {
         protected abstract void OnExecute();
 
-        void ICommand.Execute()
+        void ICommand.Execute(bool ignoreCanExecuteCheck)
         {
-            if (CanExecute())
+            if (ignoreCanExecuteCheck)
+            {
+                OnExecute();
+                return;
+            }
+
+            var canExecuteResult = CanExecute();
+
+            if (canExecuteResult.CanExecute)
             {
                 OnExecute();
             }
             else
             {
-                Debug.LogError($"Command执行失败：{GetType().FullName}");
+                Debug.LogError($"Command执行失败：{GetType().FullName}, 原因：{canExecuteResult.FailMessage}");
             }
         }
 
-        [Experimental]
-        protected virtual bool CanExecute() => true;
+        public virtual CanExecuteResult CanExecute()
+        {
+            return CanExecuteResult.Success;
+        }
 
         IArchitecture ICanAttachToArchitecture.AttachedArchitecture { get; set; }
     }
@@ -30,21 +40,29 @@ namespace SoyoFramework.Framework.Runtime.Core.Layers
     {
         protected abstract TResult OnExecute();
 
-        TResult ICommand<TResult>.Execute()
+        TResult ICommand<TResult>.Execute(bool ignoreCanExecuteCheck)
         {
-            if (CanExecute())
+            if (ignoreCanExecuteCheck)
+            {
+                return OnExecute();
+            }
+
+            var canExecuteResult = CanExecute();
+            if (canExecuteResult.CanExecute)
             {
                 return OnExecute();
             }
             else
             {
-                Debug.LogError($"Command执行失败：{GetType().FullName}");
+                Debug.LogError($"Command执行失败：{GetType().FullName}， 原因：{canExecuteResult.FailMessage}");
                 return default;
             }
         }
 
-        [Experimental]
-        protected virtual bool CanExecute() => true;
+        public virtual CanExecuteResult CanExecute()
+        {
+            return CanExecuteResult.Success;
+        }
 
         IArchitecture ICanAttachToArchitecture.AttachedArchitecture { get; set; }
     }

@@ -37,19 +37,27 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime
 
         #region Page 生命周期
 
-        public static async UniTask<T> OpenPageAsync<T>(string pageName) where T : UIPage
+        public static async UniTask<T> OpenPageAsync<T>(string pageName, PageOpenSettings openSettings = null)
+            where T : UIPage
         {
-            return await UIManager.Instance.OpenPageAsync<T>(pageName);
+            openSettings ??= new PageOpenSettings();
+            return await UIManager.Instance.OpenPageAsync<T>(pageName, openSettings);
         }
 
-        public static async UniTask OpenPageAsync(string pageName)
+        public static async UniTask OpenPageAsync(string pageName, PageOpenSettings openSettings = null)
         {
-            await UIManager.Instance.OpenPageAsync<UIPage>(pageName);
+            openSettings ??= new PageOpenSettings();
+            await UIManager.Instance.OpenPageAsync<UIPage>(pageName, openSettings);
         }
 
         public static T GetPage<T>(string pageName) where T : UIPage
         {
             return UIManager.Instance.GetPage<T>(pageName);
+        }
+
+        public static UIPage GetPage(string pageName)
+        {
+            return UIManager.Instance.GetPage<UIPage>(pageName);
         }
 
         public static void ClosePage(string pageName)
@@ -66,6 +74,8 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime
             var data = camera.GetUniversalAdditionalCameraData();
             data.cameraStack.Add(UIManager.Instance.UIRoot.UICamera);
         }
+        
+        public static UIRoot UIRoot => UIManager.Instance.UIRoot;
 
         #endregion
     }

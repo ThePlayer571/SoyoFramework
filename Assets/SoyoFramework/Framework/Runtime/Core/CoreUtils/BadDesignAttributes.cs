@@ -5,6 +5,7 @@ namespace SoyoFramework.Framework.Runtime.Core.CoreUtils
     /// <summary>
     /// 标记设计缺陷
     /// </summary>
+    [AttributeUsage(AttributeTargets.All, AllowMultiple = true)]
     public class BadDesignAttribute : Attribute
     {
     }

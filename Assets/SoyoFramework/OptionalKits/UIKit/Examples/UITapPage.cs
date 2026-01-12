@@ -23,7 +23,7 @@ namespace SoyoFramework.OptionalKits.UIKit.Examples
         {
         }
 
-        public override void SubmitCommand(ICommand command)
+        protected override void HandleUICommand(UICommand command)
         {
             switch (command)
             {
@@ -35,11 +35,6 @@ namespace SoyoFramework.OptionalKits.UIKit.Examples
                     context.IsPaused.Value = !context.IsPaused.Value;
                     break;
             }
-        }
-
-        public override TResult SubmitCommand<TResult>(ICommand<TResult> command)
-        {
-            return default;
         }
     }
 

@@ -114,6 +114,7 @@ namespace SoyoFramework.Framework.Runtime.Utils.FSMKit
         }
 
         public IState<TStateId> CurrentState => _currentState;
+        public TStateId CurrentStateId => CurrentState.StateId;
         public IState<TStateId> PreviousState => _previousState;
 
         public IState<TStateId> GetState(TStateId stateId)

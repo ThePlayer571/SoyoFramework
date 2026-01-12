@@ -12,6 +12,10 @@ namespace SoyoFramework.Framework.Runtime.Core
         void Deinit();
         bool Inited { get; }
 
+        // Module层（超集）
+        void RegisterModule<T>(T module) where T : class, IModule;
+        T GetModule<T>() where T : class, IModule;
+        
         // Model层
         void RegisterModel<T>(T model) where T : class, IModel;
         T GetModel<T>() where T : class, IModel;
@@ -21,8 +25,8 @@ namespace SoyoFramework.Framework.Runtime.Core
         T GetSystem<T>() where T : class, ISystem;
 
         // ViewController层
-        void RegisterViewController<T>(T viewController) where T : class, IViewController;
-        T GetViewController<T>() where T : class, IViewController;
+        void RegisterVController<T>(T viewController) where T : class, IVController;
+        T GetVController<T>() where T : class, IVController;
 
         // Tool支持
         void RegisterTool<T>(T tool) where T : class, ITool;
@@ -35,11 +39,13 @@ namespace SoyoFramework.Framework.Runtime.Core
 
         // Command
         void SendCommand(ICommand command);
-        TResult SendCommand<TResult>(ICommand<TResult> command);
+        void SendCommand<TResult>(ICommand<TResult> command, out TResult result);
+        CanExecuteResult TrySendCommand(ICommand command);
+        CanExecuteResult TrySendCommand<TResult>(ICommand<TResult> command, out TResult result);
     }
 
     /// <summary>
-    /// 所有能被注册到Architecture的模块的基接口。
+    /// 基接口：能被注册到Architecture中
     /// </summary>
     public interface IModule :
         ICanAttachToArchitecture, ICanInitByArchitecture
@@ -48,15 +54,12 @@ namespace SoyoFramework.Framework.Runtime.Core
 
 
     public interface IModel :
-        IModule,
-        ICanSendEvent
+        IModule, IModelRule
     {
     }
 
     public interface ISystem :
-        IModule,
-        ICanGetModel,
-        ICanRegisterEvent, ICanSendEvent
+        IModule, ISystemRule
     {
     }
 
@@ -66,30 +69,37 @@ namespace SoyoFramework.Framework.Runtime.Core
     }
 
     public interface IMonoVController :
-        ICanRelyOnArchitecture,
-        ICanGetModel,
-        ICanRegisterEvent, ICanSendCommand
+        IViewControllerRule
     {
     }
 
-    public interface IViewController :
-        IMonoVController, IModule
+    public interface IVController :
+        IModule, IViewControllerRule
     {
     }
+
 
     public interface ICommand :
-        ICanAttachToArchitecture,
-        ICanGetModel,
-        ICanSendEvent, ICanSendCommand
+        ICanAttachToArchitecture, ICommandRule
     {
-        void Execute();
+        /// <summary>
+        /// 执行Command的逻辑，推荐只能通过Architecture来调用
+        /// </summary>
+        /// <param name="ignoreCanExecuteCheck">执行时不自动调用CanExecute检查，通常为了性能而开启</param>
+        protected internal void Execute(bool ignoreCanExecuteCheck = false);
+
+        CanExecuteResult CanExecute();
     }
 
     public interface ICommand<out TResult> :
-        ICanAttachToArchitecture,
-        ICanGetModel,
-        ICanSendEvent, ICanSendCommand
+        ICanAttachToArchitecture, ICommandRule
     {
-        TResult Execute();
+        /// <summary>
+        /// 执行Command的逻辑
+        /// </summary>
+        /// <param name="ignoreCanExecuteCheck">执行时不自动调用CanExecute检查，通常为了性能而开启</param>
+        protected internal TResult Execute(bool ignoreCanExecuteCheck = false);
+
+        CanExecuteResult CanExecute();
     }
 }

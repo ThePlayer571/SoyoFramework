@@ -17,6 +17,7 @@ namespace SoyoFramework.Framework.Runtime.Core.CoreUtils
     {
         new T Value { get; set; }
         void SetValueWithoutTrigger(T value);
+        void ForceTrigger();
     }
 
     [Serializable]
@@ -87,6 +88,10 @@ namespace SoyoFramework.Framework.Runtime.Core.CoreUtils
             _value = value;
         }
 
+        public void ForceTrigger()
+        {
+            _valueChangeEvent?.Trigger(_value);
+        }
 
         private class ActionUnRegister : IUnRegister
         {
@@ -120,7 +125,7 @@ namespace SoyoFramework.Framework.Runtime.Core.CoreUtils
 
         public void OnAfterDeserialize()
         {
-            // 事件会在CustomPropertyDrawer中触发
+            // 事件会在CustomPropertyDrawer里触发
             _value = _serializedValue;
         }
     }

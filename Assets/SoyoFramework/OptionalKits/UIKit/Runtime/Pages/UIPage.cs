@@ -1,36 +1,44 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using SoyoFramework.Framework.Runtime.Core;
 using SoyoFramework.Framework.Runtime.Core.CoreUtils;
+using SoyoFramework.Framework.Runtime.Core.Layers;
+using SoyoFramework.Framework.Runtime.Utils;
+using SoyoFramework.Framework.Runtime.Utils.LogKit;
+using SoyoFramework.OptionalKits.UIKit.Runtime.Utils;
 using UnityEngine;
 
 namespace SoyoFramework.OptionalKits.UIKit.Runtime.Pages
 {
-    public interface IUIViewHost
+    public interface IUIViewHost : IGameObject
     {
         T GetContext<T>() where T : class, IUIContext;
         T GetModule<T>() where T : UIModule;
         void SubmitCommand(ICommand command);
-        TResult SubmitCommand<TResult>(ICommand<TResult> command);
+        void SubmitCommand<TResult>(ICommand<TResult> command, out TResult result);
     }
 
-    public abstract class UIPage : MonoBehaviour, IUIViewHost
+    public abstract class UIPage : MonoVController, IUIViewHost
     {
+        // Editor
+        [SerializeField] internal List<UIView> _views = new();
+
+        // 变量
         private readonly SimpleIOCContainer _iocContainer = new();
+        private List<IUIPageLogic> _pageLogics = new();
 
-        #region Editor
-
-        [SerializeField] private List<UIView> _views = new();
-
-        #endregion
 
         #region Protected 子类可用
 
+        // 生命周期
         /// <summary>
         /// 注册Context和Module
         /// </summary>
         protected abstract void Configure();
 
+        protected abstract void OnInit();
+        protected abstract void OnClose();
 
         protected void RegisterContext<T>(T context) where T : class, IUIContext
         {
@@ -42,28 +50,46 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime.Pages
             _iocContainer.Register<T>(module);
         }
 
-        protected abstract void OnInit();
-        protected abstract void OnClose();
+        protected void RegisterLogic(IUIPageLogic pageLogic)
+        {
+            _pageLogics.Add(pageLogic);
+        }
+
+        protected abstract void HandleUICommand(UICommand command);
 
         #endregion
 
-        #region Lifecycle
+        #region 生命周期
 
         /// <summary>
         /// 初始化的入口，给外部用
         /// </summary>
-        internal void Init()
+        internal void Init(PageOpenSettings openSettings)
         {
             // 注册Context和Module
             Configure();
 
             // 初始化
-            OnInit();
+            if (!openSettings.NotCallOnInit)
+            {
+                OnInit();
+                foreach (var uiPageLogic in _pageLogics)
+                {
+                    uiPageLogic.OnInit();
+                }
+            }
 
             // 初始化View
             foreach (var view in _views)
             {
-                view.Init(this);
+                try
+                {
+                    view.Init(this);
+                }
+                catch (Exception e)
+                {
+                    $"UIView: {view.GetType().Name} 初始化出错，异常信息：{e}".LogError();
+                }
             }
         }
 
@@ -72,11 +98,22 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime.Pages
             // 关闭View
             foreach (var view in _views)
             {
-                view.Close();
+                try
+                {
+                    view.Close();
+                }
+                catch (Exception e)
+                {
+                    $"UIView: {view.GetType().Name} 关闭出错，异常信息：{e}".LogError();
+                }
             }
 
             // 关闭
             OnClose();
+            foreach (var uiPageLogic in _pageLogics)
+            {
+                uiPageLogic.OnClose();
+            }
         }
 
         #endregion
@@ -94,9 +131,30 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime.Pages
             return _iocContainer.Get<T>();
         }
 
-        public abstract void SubmitCommand(ICommand command);
+        public void SubmitCommand(ICommand command)
+        {
+            if (command is UICommand uiCommand)
+            {
+                foreach (var uiPageLogic in _pageLogics)
+                {
+                    if (uiPageLogic.TryHandleCommand(uiCommand))
+                    {
+                        return;
+                    }
+                }
 
-        public abstract TResult SubmitCommand<TResult>(ICommand<TResult> command);
+                HandleUICommand(uiCommand);
+            }
+            else
+            {
+                this.SendCommand(command);
+            }
+        }
+
+        public void SubmitCommand<TResult>(ICommand<TResult> command, out TResult result)
+        {
+            this.SendCommand(command, out result);
+        }
 
         #endregion
     }

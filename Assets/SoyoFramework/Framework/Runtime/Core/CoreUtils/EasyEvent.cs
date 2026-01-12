@@ -1,4 +1,5 @@
 using System;
+using JetBrains.Annotations;
 using UnityEngine;
 
 namespace SoyoFramework.Framework.Runtime.Core.CoreUtils
@@ -22,12 +23,19 @@ namespace SoyoFramework.Framework.Runtime.Core.CoreUtils
         {
             _onEvent?.Invoke();
         }
+
+        public IUnRegister RegisterWithInvoke(Action onEvent)
+        {
+            onEvent?.Invoke();
+            return Register(onEvent);
+        }
     }
 
     [Serializable]
     public partial class EasyEvent
     {
 #if UNITY_EDITOR
+        [SerializeField, UsedImplicitly] private bool _dummyValue = false; // todo （看看这个是否真的需要）占位，确保Unity序列化正常
         /// <summary>
         /// 供 Editor PropertyDrawer 调用的触发方法
         /// </summary>

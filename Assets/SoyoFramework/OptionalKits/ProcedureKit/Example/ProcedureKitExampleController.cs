@@ -18,10 +18,10 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Example
             $"流程管理器创建完成，当前流程：{procedureManager.CurrentProcedure}".LogInfo();
 
             // 订阅ProcedureA的事件
-            procedureManager.RegisterProcedure(ProcedureId.ProcedureA, ProcedureChangeStage.EnterNormal,
+            procedureManager.Register(ProcedureId.ProcedureA, ProcedureChangeStage.EnterNormal,
                 _ => { "切换至ProcedureA，阶段：EnterNormal".LogInfo(); });
 
-            procedureManager.RegisterProcedure(ProcedureId.ProcedureA, ProcedureChangeStage.EnterLate,
+            procedureManager.Register(ProcedureId.ProcedureA, ProcedureChangeStage.EnterLate,
                 _ => { "切换至ProcedureA，阶段：EnterLate".LogInfo(); });
 
             await procedureManager.ChangeProcedure(ProcedureId.ProcedureA);
@@ -56,13 +56,13 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Example
         {
             IProcedureManager procedureManager = ProcedureManager.CreateInstance();
 
-            procedureManager.RegisterProcedure(ProcedureId.ProcedureA, ProcedureChangeStage.EnterEarly,
+            procedureManager.Register(ProcedureId.ProcedureA, ProcedureChangeStage.EnterEarly,
                 _ => { "ProcedureA进入阶段EnterEarly".LogInfo(); });
-            procedureManager.RegisterProcedure(ProcedureId.ProcedureA, ProcedureChangeStage.EnterNormal,
+            procedureManager.Register(ProcedureId.ProcedureA, ProcedureChangeStage.EnterNormal,
                 _ => { "ProcedureA进入阶段EnterNormal".LogInfo(); });
 
             // 在EnterEarly和EnterNormal之间添加自定义延时
-            procedureManager.RegisterProcedure(ProcedureId.ProcedureA, ProcedureChangeStage.EnterEarly, _ =>
+            procedureManager.Register(ProcedureId.ProcedureA, ProcedureChangeStage.EnterEarly, _ =>
             {
                 $"将在进入EnterNormal前等待2秒".LogInfo();
                 procedureManager.AddAwait(UniTask.Delay(TimeSpan.FromSeconds(2)));
@@ -79,10 +79,10 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Example
             IProcedureManager procedureManager = ProcedureManager.CreateInstance();
             $"默认的检查模式：{procedureManager.CheckMode}，此时不会阻断，只会提示".LogInfo();
 
-            procedureManager.RegisterProcedure(ProcedureId.ProcedureA, ProcedureChangeStage.EnterNormal,
+            procedureManager.Register(ProcedureId.ProcedureA, ProcedureChangeStage.EnterNormal,
                 _ => { "进入ProcedureA的EnterNormal阶段".LogInfo(); });
 
-            procedureManager.RegisterProcedure(ProcedureId.Entrance, ProcedureChangeStage.EnterNormal,
+            procedureManager.Register(ProcedureId.Entrance, ProcedureChangeStage.EnterNormal,
                 _ => { "进入Entrance的EnterNormal阶段".LogInfo(); });
 
             procedureManager.CheckMode = ProcedureCheckMode.ErrorAndStop;
@@ -110,7 +110,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Example
         {
             IProcedureManager procedureManager = ProcedureManager.CreateInstance();
 
-            procedureManager.RegisterProcedure(ProcedureId.ProcedureA, ProcedureChangeStage.EnterNormal, info =>
+            procedureManager.Register(ProcedureId.ProcedureA, ProcedureChangeStage.EnterNormal, info =>
             {
                 var userName = info.Paras.GetPara<string>("userName");
                 $"进入ProcedureA的EnterNormal阶段，收到参数userName：{userName}".LogInfo();

@@ -31,14 +31,13 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.DataClasses
                 catch (InvalidCastException e)
                 {
                     $"PhaseChangePara类型转换失败，Key: {key}, TargetType: {typeof(T).FullName}, Exception: {e}".LogError();
+                    return default;
                 }
                 catch (Exception e)
                 {
                     $"PhaseChangePara获取失败，Key: {key}, TargetType: {typeof(T).FullName}, Exception: {e}".LogError();
                     return default;
                 }
-
-                return default;
             }
 
             public ProcedureChangeParas(IEnumerable<(string, object)> paras)

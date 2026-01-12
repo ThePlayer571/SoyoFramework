@@ -1,3 +1,4 @@
+using SoyoFramework.Framework.Runtime.Core.CoreUtils;
 using UnityEngine;
 
 namespace SoyoFramework.Framework.Runtime.Utils.FluentAPI
@@ -14,6 +15,7 @@ namespace SoyoFramework.Framework.Runtime.Utils.FluentAPI
         {
             return UnityEngine.Object.Instantiate(selfObj, position, rotation);
         }
+
         public static T Instantiate<T>(this T selfObj, Vector2 position, Quaternion rotation)
             where T : UnityEngine.Object
         {
@@ -28,6 +30,13 @@ namespace SoyoFramework.Framework.Runtime.Utils.FluentAPI
             where T : UnityEngine.Object
         {
             return UnityEngine.Object.Instantiate(selfObj, position, rotation, parent);
+        }
+
+        [Experimental]
+        public static T Instantiate<T>(this T selfObj, Transform parent, bool worldPositionStays)
+            where T : UnityEngine.Object
+        {
+            return UnityEngine.Object.Instantiate(selfObj, parent, worldPositionStays);
         }
 
         public static T Name<T>(this T selfObj, string name) where T : UnityEngine.Object
