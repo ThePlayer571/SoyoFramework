@@ -1,7 +1,7 @@
 using System;
 using SoyoFramework.Framework.Runtime.Core.CoreUtils;
 using SoyoFramework.Framework.Runtime.Core.Layers;
-using UnityEngine;
+using SoyoFramework.Framework.Runtime.Utils.LogKit;
 
 namespace SoyoFramework.Framework.Runtime.Core
 {
@@ -14,6 +14,7 @@ namespace SoyoFramework.Framework.Runtime.Core
         public static IArchitecture Instance { get; private set; }
         private readonly SimpleIOCContainer _container = new();
         private readonly TypeEventSystem _eventSystem = new();
+        private readonly ILog _logger = new PrefixLogger("[Architecture]");
 
         #endregion
 
@@ -23,7 +24,7 @@ namespace SoyoFramework.Framework.Runtime.Core
         {
             if (Inited)
             {
-                Debug.LogError("Architecture已经初始化");
+                "Architecture已经初始化".LogError(_logger);
                 return;
             }
 
@@ -59,7 +60,7 @@ namespace SoyoFramework.Framework.Runtime.Core
             // 防止重复Deinit
             if (!Inited)
             {
-                Debug.LogError("Architecture未初始化，无法Deinit");
+                "Architecture未初始化，无法Deinit".LogError(_logger);
                 return;
             }
 
@@ -104,6 +105,25 @@ namespace SoyoFramework.Framework.Runtime.Core
             {
                 module.PreInit();
                 module.Init();
+            }
+        }
+
+        /// <summary>
+        /// 使用IOC中已注册的类型作为新类型进行注册（SuperLayer语法糖）
+        /// </summary>
+        /// <typeparam name="T">新注册的类型</typeparam>
+        /// <typeparam name="TRef">IOC中已存在的类型</typeparam>
+        protected void RegisterModuleRef<T, TRef>()
+            where T : class, IModule
+            where TRef : class, IModule
+        {
+            if (_container.Get<TRef>() is T module)
+            {
+                RegisterModule(module);
+            }
+            else
+            {
+                $"尝试将已注册的类型 {typeof(TRef)} 作为新类型 {typeof(T)} 注册时失败，原因是类型不匹配".LogError();
             }
         }
 

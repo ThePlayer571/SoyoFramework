@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using SoyoFramework.Framework.Runtime.Core.CoreUtils;
 using SoyoFramework.Framework.Runtime.Utils.LogKit;
 
@@ -21,6 +23,7 @@ namespace SoyoFramework.Framework.Runtime.Utils.FSMKit
         IState<TStateId> CurrentState { get; }
         IState<TStateId> PreviousState { get; }
         IState<TStateId> GetState(TStateId stateId);
+        IReadOnlyCollection<TStateId> GetAllStateIds();
         EasyEvent<IState<TStateId>, IState<TStateId>> OnStateChanged { get; }
     }
 
@@ -37,13 +40,13 @@ namespace SoyoFramework.Framework.Runtime.Utils.FSMKit
         {
             if (state == null)
             {
-                "尝试添加一个空状态".LogError();
+                "尝试添加一个空状态".LogError(_logger);
                 return;
             }
 
             if (!_states.TryAdd(state.StateId, state))
             {
-                $"已经包含状态: {state.StateId}，无法重复添加".LogError();
+                $"已经包含状态: {state.StateId}，无法重复添加".LogError(_logger);
                 return;
             }
 
@@ -55,7 +58,7 @@ namespace SoyoFramework.Framework.Runtime.Utils.FSMKit
         {
             if (_currentState == null)
             {
-                "FSM未开始运行".LogError();
+                "FSM未开始运行".LogError(_logger);
                 return;
             }
 
@@ -73,7 +76,7 @@ namespace SoyoFramework.Framework.Runtime.Utils.FSMKit
         {
             if (_currentState != null)
             {
-                "FSM已经在运行".LogError();
+                "FSM已经在运行".LogError(_logger);
                 return;
             }
 
@@ -84,33 +87,54 @@ namespace SoyoFramework.Framework.Runtime.Utils.FSMKit
         {
             if (_currentState == null)
             {
-                "FSM未开始运行".LogError();
+                "FSM未开始运行".LogError(_logger);
                 return;
             }
 
-            _currentState.OnUpdate();
+            try
+            {
+                _currentState.OnUpdate();
+            }
+            catch (Exception e)
+            {
+                $"状态 {_currentState.StateId} 的 OnUpdate 出现异常: {e}".LogError(_logger);
+            }
         }
 
         public void FixedUpdate()
         {
             if (_currentState == null)
             {
-                "FSM未开始运行".LogError();
+                "FSM未开始运行".LogError(_logger);
                 return;
             }
 
-            _currentState.OnFixedUpdate();
+            try
+            {
+                _currentState.OnFixedUpdate();
+            }
+            catch (Exception e)
+            {
+                $"状态 {_currentState.StateId} 的 OnFixedUpdate 出现异常: {e}".LogError(_logger);
+            }
         }
 
         public void LateUpdate()
         {
             if (_currentState == null)
             {
-                "FSM未开始运行".LogError();
+                "FSM未开始运行".LogError(_logger);
                 return;
             }
 
-            _currentState.OnLateUpdate();
+            try
+            {
+                _currentState.OnLateUpdate();
+            }
+            catch (Exception e)
+            {
+                $"状态 {_currentState.StateId} 的 OnLateUpdate 出现异常: {e}".LogError(_logger);
+            }
         }
 
         public IState<TStateId> CurrentState => _currentState;
@@ -124,8 +148,13 @@ namespace SoyoFramework.Framework.Runtime.Utils.FSMKit
                 return state;
             }
 
-            "找不到对应的状态: {stateId} ".LogError();
+            "找不到对应的状态: {stateId} ".LogError(_logger);
             return null;
+        }
+
+        public IReadOnlyCollection<TStateId> GetAllStateIds()
+        {
+            return _states.Keys;
         }
 
         public EasyEvent<IState<TStateId>, IState<TStateId>> OnStateChanged { get; } = new();
@@ -135,6 +164,7 @@ namespace SoyoFramework.Framework.Runtime.Utils.FSMKit
         private Dictionary<TStateId, IState<TStateId>> _states = new();
         private IState<TStateId> _currentState;
         private IState<TStateId> _previousState;
+        private ILog _logger = new PrefixLogger("[FSM]", LogStrategy.WarningAndError);
 
         /// <summary>
         /// 切换状态，logOnFail控制是否输出日志，返回是否切换成功
@@ -143,13 +173,13 @@ namespace SoyoFramework.Framework.Runtime.Utils.FSMKit
         {
             if (!_states.TryGetValue(newStateId, out var newState))
             {
-                if (logOnFail) $"找不到对应的状态: {newStateId} ".LogError();
+                if (logOnFail) $"找不到对应的状态: {newStateId} ".LogError(_logger);
                 return false;
             }
 
             if (newState == _currentState)
             {
-                if (logOnFail) "尝试切换到当前状态".LogError();
+                if (logOnFail) "尝试切换到当前状态".LogError(_logger);
                 return false;
             }
 

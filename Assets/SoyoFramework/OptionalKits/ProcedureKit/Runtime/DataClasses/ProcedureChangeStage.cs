@@ -2,6 +2,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.DataClasses
 {
     public enum ProcedureChangeStage
     {
+        BeforeEnter,
         EnterEarly,
         EnterNormal,
         EnterLate,

@@ -1,7 +1,7 @@
 using Cysharp.Threading.Tasks;
 using SoyoFramework.Framework.Runtime.Utils.FluentAPI;
 using SoyoFramework.Framework.Runtime.Utils.LogKit;
-using SoyoFramework.OptionalKits.UIKit.Runtime.Pages;
+using SoyoFramework.OptionalKits.UIKit.Runtime.Page;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
@@ -24,8 +24,7 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime
             _isInitialized = true;
 
             // 创建UIRoot
-            var uiRootPrefab = Resources.Load<GameObject>("UIRoot");
-            var uiRoot = uiRootPrefab.Instantiate().GetComponent<UIRoot>();
+            var uiRoot = uiSettings.UIRoot.Instantiate().GetComponent<UIRoot>();
             uiRoot.DontDestroyOnLoad();
 
             // 初始化UIManager（更多初始化内容都在UIManager内部完成）

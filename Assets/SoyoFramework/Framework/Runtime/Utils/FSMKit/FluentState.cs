@@ -5,7 +5,7 @@ namespace SoyoFramework.Framework.Runtime.Utils.FSMKit
 {
     public class FluentState<TStateId> : AbstractState<TStateId>
     {
-        internal FluentState(TStateId stateId)
+        public FluentState(TStateId stateId)
         {
             StateId = stateId;
         }
@@ -82,14 +82,16 @@ namespace SoyoFramework.Framework.Runtime.Utils.FSMKit
             self.AddState(state);
             return state;
         }
-        
+
         public static FluentState<TStateId> GetFluentState<TStateId>(this FSM<TStateId> self, TStateId stateId)
         {
             var state = self.GetState(stateId) as FluentState<TStateId>;
-            if (state == null)
-            {
-                "找不到对应的FluentState: {stateId} ".LogError();
-            }
+            return state;
+        }
+
+        public static FluentState<TStateId> GetOrAddFluentState<TStateId>(this FSM<TStateId> self, TStateId stateId)
+        {
+            var state = self.GetFluentState(stateId) ?? self.AddFluentState(stateId);
             return state;
         }
     }

@@ -39,5 +39,12 @@ namespace SoyoFramework.OptionalKits.UIKit.Editor.TestSceneCreator
         {
             Save(true);
         }
+
+#if UNITY_EDITOR
+        private void Reset()
+        {
+            _sceneTemplate = AssetDatabase.LoadAssetAtPath<SceneAsset>(Global.DefaultUITestScenePath);
+        }
+#endif
     }
 }

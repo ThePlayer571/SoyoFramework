@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SoyoFramework.Framework.Runtime.Utils.LogKit;
 
 namespace SoyoFramework.Framework.Runtime.Utils.RandomKit
 {
@@ -20,20 +21,6 @@ namespace SoyoFramework.Framework.Runtime.Utils.RandomKit
             // 使用SplitMix64算法初始化状态
             _state0 = SplitMix64(ref seed);
             _state1 = SplitMix64(ref seed);
-        }
-
-        /// <summary>
-        /// 使用时间相关种子初始化
-        /// </summary>
-        private DeterministicRandom() : this((ulong)DateTime.Now.Ticks)
-        {
-        }
-
-        /// <summary>
-        /// 使用指定种子初始化
-        /// </summary>
-        private DeterministicRandom(int seed) : this((ulong)seed)
-        {
         }
 
         /// <summary>
@@ -60,7 +47,7 @@ namespace SoyoFramework.Framework.Runtime.Utils.RandomKit
         /// </summary>
         public static DeterministicRandom Create()
         {
-            return new DeterministicRandom();
+            return new DeterministicRandom((ulong)DateTime.Now.Ticks);
         }
 
         /// <summary>
@@ -68,7 +55,7 @@ namespace SoyoFramework.Framework.Runtime.Utils.RandomKit
         /// </summary>
         public static DeterministicRandom Create(int seed)
         {
-            return new DeterministicRandom(seed);
+            return new DeterministicRandom((ulong)seed);
         }
 
         /// <summary>
@@ -255,6 +242,17 @@ namespace SoyoFramework.Framework.Runtime.Utils.RandomKit
             }
 
             return list;
+        }
+
+        /// <summary>
+        /// 通过扰动因子（如时间戳、线程ID等）扰乱当前状态
+        /// </summary>
+        public void Scramble(ulong entropy)
+        {
+            // 使用扰动因子与当前状态结合
+            ulong tmp = entropy;
+            _state0 ^= SplitMix64(ref tmp);
+            _state1 ^= SplitMix64(ref tmp);
         }
 
         #endregion

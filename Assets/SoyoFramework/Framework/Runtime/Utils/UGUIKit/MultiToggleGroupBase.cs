@@ -120,10 +120,13 @@ namespace SoyoFramework.Framework.Runtime.Utils.UGUIKit
         /// <summary>
         /// 获取所有被选中的 Toggle 的 Key
         /// </summary>
-        public IEnumerable<TKey> GetSelectedKeys()
+        public IReadOnlyList<TKey> GetSelectedKeys()
         {
+            // 将 Toggle 列表映射为 Key 并返回只读列表
             return GetSelectedToggles()
-                .Select(t => ToggleNode.GetKeyByToggle(t));
+                .Select(t => ToggleNode.GetKeyByToggle(t))
+                .ToList()
+                .AsReadOnly();
         }
 
         /// <summary>
@@ -145,9 +148,9 @@ namespace SoyoFramework.Framework.Runtime.Utils.UGUIKit
         public EasyEvent<TKey, bool> OnToggleValueChanged { get; } = new();
 
         /// <summary>
-        /// 当选中列表发生变化时触发
+        /// 当选中列表发生变化时触发（改为以 TKey 列表的版本）
         /// </summary>
-        public EasyEvent<IReadOnlyList<Toggle>> OnSelectionChanged { get; } = new();
+        public EasyEvent<IReadOnlyList<TKey>> OnSelectionChanged { get; } = new();
 
         #endregion
 
@@ -259,7 +262,7 @@ namespace SoyoFramework.Framework.Runtime.Utils.UGUIKit
                 }
 
                 OnToggleValueChanged.Trigger(ToggleNode.GetKeyByToggle(toggle), isOn);
-                OnSelectionChanged.Trigger(GetSelectedToggles());
+                OnSelectionChanged.Trigger(GetSelectedKeys());
             }
             finally
             {
@@ -319,7 +322,7 @@ namespace SoyoFramework.Framework.Runtime.Utils.UGUIKit
                 }
             }
 
-            OnSelectionChanged.Trigger(GetSelectedToggles());
+            OnSelectionChanged.Trigger(GetSelectedKeys());
         }
 
         private void SubscribeToToggleNode()

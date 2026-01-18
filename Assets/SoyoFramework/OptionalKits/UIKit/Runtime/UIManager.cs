@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using SoyoFramework.Framework.Runtime.Utils.FluentAPI;
 using SoyoFramework.Framework.Runtime.Utils.LogKit;
-using SoyoFramework.OptionalKits.UIKit.Runtime.Pages;
+using SoyoFramework.OptionalKits.UIKit.Runtime.Page;
 using UnityEngine;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
@@ -16,12 +16,14 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime
             UIRoot = uiRoot;
             Instance = this;
 
-            // RenderMode
-            uiRoot.Canvas.renderMode = uiSettings.CanvasRenderMode;
-            if (uiSettings.CanvasRenderMode == RenderMode.ScreenSpaceCamera)
+            // UICamera自动激活
+            if (UIRoot.Canvas.renderMode == RenderMode.ScreenSpaceCamera)
             {
                 uiRoot.UICamera.SetActive(true);
             }
+
+            // 创建层级容器
+            UIRoot.InitLayers(uiSettings.LayerKeys);
 
             // Page信息存储
             foreach (var config in uiSettings.PageConfigs)
@@ -32,6 +34,7 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime
 
         private Dictionary<string, UIPageConfig> _pageConfigs = new();
         private Dictionary<string, ActiveUIPageMetaData> _activeUIPageMetaData = new();
+
 
         #region Page api
 
@@ -49,7 +52,15 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime
                 return null;
             }
 
-            var handle = pageConfig.PrefabReference.InstantiateAsync(UIRoot.Canvas.transform);
+            // 检查LayerKey是否有效
+            var layerTransform = UIRoot.GetLayerTransform(pageConfig.LayerKey);
+            if (layerTransform == null)
+            {
+                $"UIPage: {pageName} 的LayerKey '{pageConfig.LayerKey}' 未注册".LogError();
+                return null;
+            }
+
+            var handle = pageConfig.PrefabReference.InstantiateAsync(layerTransform);
             await handle.ToUniTask();
 
             var pageInstance = handle.Result.GetComponent<UIPage>();
@@ -59,15 +70,6 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime
                 handle.Release();
                 return null;
             }
-            
-            // 调整层级，保证PanelOrder高的在上层
-            SetPageSiblingByPanelOrder(pageInstance.transform, pageConfig.PanelOrder, UIRoot.Canvas.transform,
-                _activeUIPageMetaData);
-            pageInstance.SetActive(false);
-
-            // 等待Canvas调整层级
-            await UniTask.Yield();
-            pageInstance.SetActive(true);
 
             // 通过所有检查，开始初始化
             pageInstance.Init(openSettings);
@@ -127,55 +129,6 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime
             public UIPage PageInstance;
             public UIPageConfig PanelConfig;
             public AsyncOperationHandle<GameObject> Handle;
-        }
-
-        /// <summary>
-        /// 调整UIPage的层级，使PanelOrder高的页面在上层
-        /// </summary>
-        /// <param name="pageTransform">新开UIPage的Transform</param>
-        /// <param name="panelOrder">新UIPage的PanelOrder</param>
-        /// <param name="parent">Canvas.transform</param>
-        /// <param name="activeMetaData">当前激活页面信息</param>
-        private static void SetPageSiblingByPanelOrder(Transform pageTransform, int panelOrder, Transform parent,
-            Dictionary<string, ActiveUIPageMetaData> activeMetaData)
-        {
-            int highestLowerOrderSiblingIndex = -1;
-            int maxPanelOrderBelowCurrent = int.MinValue;
-
-            // 查找插入位置: 找到所有比当前PanelOrder小的子节点中最大siblingIndex
-            for (int i = 0; i < parent.childCount; i++)
-            {
-                Transform child = parent.GetChild(i);
-                UIPage childPage = child.GetComponent<UIPage>();
-                if (childPage != null)
-                {
-                    foreach (var pair in activeMetaData)
-                    {
-                        if (pair.Value.PageInstance == childPage)
-                        {
-                            int childPanelOrder = pair.Value.PanelConfig.PanelOrder;
-                            if (childPanelOrder <= panelOrder && childPanelOrder > maxPanelOrderBelowCurrent)
-                            {
-                                maxPanelOrderBelowCurrent = childPanelOrder;
-                                highestLowerOrderSiblingIndex = i;
-                            }
-
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if (highestLowerOrderSiblingIndex == -1)
-            {
-                // 没有比它PanelOrder小的，放到最前面（最底层）
-                pageTransform.SetSiblingIndex(0);
-            }
-            else
-            {
-                // 插在所有比它小的层的后面
-                pageTransform.SetSiblingIndex(highestLowerOrderSiblingIndex + 1);
-            }
         }
     }
 }

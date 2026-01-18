@@ -1,7 +1,7 @@
 using System.IO;
 using System.Linq;
-using SoyoFramework.OptionalKits.UIKit.Editor.UITest;
 using SoyoFramework.OptionalKits.UIKit.Runtime;
+using SoyoFramework.OptionalKits.UIKit.Runtime.UITest;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;

@@ -35,13 +35,16 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
         private readonly Queue<ProcedureChangeRequest> _procedureChangeQueue = new();
         private bool _isChangingProcedure;
 
-        // variables
+        // 变量
         private ProcedureChangeInfo.ProcedureChangeParas _lastProcedureChangeParas;
         private readonly Queue<UniTask> _awaitTasks = new();
         private readonly EasyEvent<TProcedureId, ProcedureChangeStage> _onProcedureChange = new();
 
         // 配置
         private ProcedureConfig<TProcedureId, TTagId> _config;
+        
+        // Logger
+        protected readonly ILog Logger = new PrefixLogger("[ProcedureKit]");
 
         #endregion
 
@@ -107,10 +110,10 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
                 switch (CheckMode)
                 {
                     case ProcedureCheckMode.ErrorAndStop:
-                        $"进行了不允许的流程切换，已阻断：{leaveFrom} -> {changeTo}".LogError();
+                        $"进行了不允许的流程切换，已阻断：{leaveFrom} -> {changeTo}".LogError(Logger);
                         return;
                     case ProcedureCheckMode.Warning:
-                        $"进行了不允许的流程切换：{leaveFrom} -> {changeTo}".LogWarning();
+                        $"进行了不允许的流程切换：{leaveFrom} -> {changeTo}".LogWarning(Logger);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -132,6 +135,8 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
             CurrentProcedure = changeTo;
 
             // 进入阶段
+            _onProcedureChange.Trigger(changeTo, ProcedureChangeStage.BeforeEnter);
+            ExecuteCallbacks((changeTo, ProcedureChangeStage.BeforeEnter), paras);
             _onProcedureChange.Trigger(changeTo, ProcedureChangeStage.EnterEarly);
             ExecuteCallbacks((changeTo, ProcedureChangeStage.EnterEarly), paras);
             await WaitForAllTasks();
@@ -176,7 +181,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
                 return metaData.Tags.Contains(tag);
             }
 
-            $"未找到ProcedureId {procedureId} 的配置数据，无法检查标签。".LogError();
+            $"未找到ProcedureId {procedureId} 的配置数据，无法检查标签。".LogError(Logger);
             return false;
         }
 
@@ -187,7 +192,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
                 return metaData.Tags;
             }
 
-            $"未找到ProcedureId {procedureId} 的配置数据，无法获取标签。".LogError();
+            $"未找到ProcedureId {procedureId} 的配置数据，无法获取标签。".LogError(Logger);
             return Array.Empty<TTagId>();
         }
 
@@ -215,7 +220,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
         {
             if (!_config.MetaDatas.TryGetValue(to, out var mataData))
             {
-                $"未找到ProcedureId {to} 的配置数据".LogError();
+                $"未找到ProcedureId {to} 的配置数据".LogError(Logger);
                 return false;
             }
 
@@ -234,7 +239,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
                 }
                 catch (Exception e)
                 {
-                    $"[ProcedureKit] 执行流程回调发生异常: {e}".LogError();
+                    $"执行流程回调发生异常: {e}".LogError(Logger);
                 }
             }
         }
@@ -250,7 +255,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
                 }
                 catch (Exception e)
                 {
-                    $"[ProcedureKit] 等待任务发生异常: {e}".LogError();
+                    $"等待任务发生异常: {e}".LogError(Logger);
                 }
             }
         }

@@ -8,8 +8,20 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime
     [CreateAssetMenu(fileName = "UISettings", menuName = "SoyoFramework/UIKit/UISettings", order = 1)]
     public class UISettings : ScriptableObject
     {
-        public List<UIPageConfig> PageConfigs;
-        public RenderMode CanvasRenderMode = RenderMode.ScreenSpaceOverlay;
+        [Header("Page Configurations")] public List<UIPageConfig> PageConfigs;
+
+        [Header("Canvas Settings")] public GameObject UIRoot;
+        [Tooltip("UI排序层，在下的代表在上层")] public List<string> LayerKeys;
+
+#if UNITY_EDITOR
+        /// <summary>
+        /// 创建或重置时自动设置默认值
+        /// </summary>
+        private void Reset()
+        {
+            UIRoot = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>(Global.DefaultUIRootPath);
+        }
+#endif
     }
 
     [Serializable]
@@ -17,6 +29,6 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime
     {
         public string PageName;
         public AssetReference PrefabReference;
-        public int PanelOrder;
+        public string LayerKey;
     }
 }
