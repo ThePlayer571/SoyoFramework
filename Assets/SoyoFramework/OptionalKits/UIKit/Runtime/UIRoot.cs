@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace SoyoFramework.OptionalKits.UIKit.Runtime
 {
@@ -9,6 +10,7 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime
     {
         [field: SerializeField] [NotNull] public Camera UICamera { get; private set; }
         [field: SerializeField] [NotNull] public Canvas Canvas { get; private set; }
+        [field: SerializeField] [NotNull] public CanvasScaler CanvasScaler { get; private set; }
         [SerializeField] internal UIManager UIManager;
 
         private Dictionary<string, Transform> _layerTransforms = new();

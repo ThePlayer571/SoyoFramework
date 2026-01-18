@@ -19,5 +19,6 @@ MonoBehaviour:
       m_SubObjectName: 
       m_SubObjectType: 
       m_EditorAssetChanged: 0
-    PanelOrder: 1
-  CanvasRenderMode: 0
+    LayerKey: 
+  UIRoot: {fileID: 7236791948738447311, guid: 544bf21040a7d69428e1d69d36ce9217, type: 3}
+  LayerKeys: []

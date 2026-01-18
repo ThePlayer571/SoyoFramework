@@ -12,8 +12,17 @@ namespace SoyoFramework.OptionalKits.UIKit.Editor
             // 绘制默认编辑器
             DrawDefaultInspector();
 
-            // 验证LayerKey
             var uiSettings = (UISettings)target;
+
+            // 检查 UIRoot 是否为空
+            if (uiSettings.UIRoot == null)
+            {
+                EditorGUILayout.Space(10);
+                EditorGUILayout.HelpBox("UIRoot 未设置！这是必需的配置项。", MessageType.Error);
+                return; // UIRoot 为空时，后续验证没有意义，直接返回
+            }
+
+            // 验证LayerKey
             var layerKeys = uiSettings.LayerKeys;
             var pageConfigs = uiSettings.PageConfigs;
 
@@ -33,9 +42,9 @@ namespace SoyoFramework.OptionalKits.UIKit.Editor
                 {
                     invalidEntries.Add($"• Page '{config.PageName}':  LayerKey 为空");
                 }
-                else if (!layerKeySet.Contains(config.LayerKey))
+                else if (!layerKeySet.Contains(config. LayerKey))
                 {
-                    invalidEntries.Add($"• Page '{config.PageName}': LayerKey '{config.LayerKey}' 未在 LayerKeys 中注册");
+                    invalidEntries.Add($"• Page '{config.PageName}': LayerKey '{config. LayerKey}' 未在 LayerKeys 中注册");
                 }
             }
 
@@ -45,7 +54,7 @@ namespace SoyoFramework.OptionalKits.UIKit.Editor
                 EditorGUILayout.Space(10);
                 EditorGUILayout.HelpBox(
                     "发现以下无效的 LayerKey 配置：\n\n" + string.Join("\n", invalidEntries),
-                    MessageType.Warning
+                    MessageType. Warning
                 );
             }
         }

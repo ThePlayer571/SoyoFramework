@@ -402,4 +402,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <UICamera>k__BackingField: {fileID: 153210421342949140}
   <Canvas>k__BackingField: {fileID: 5781371866267078638}
+  <CanvasScaler>k__BackingField: {fileID: 1008222582617455115}
   UIManager: {fileID: 155084460058226509}
