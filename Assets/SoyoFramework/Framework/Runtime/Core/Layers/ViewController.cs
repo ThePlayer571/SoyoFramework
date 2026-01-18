@@ -1,4 +1,4 @@
-using SoyoFramework.Framework.Runtime.Core.CoreUtils;
+using SoyoFramework.Framework.Runtime.Utils;
 using UnityEngine;
 
 namespace SoyoFramework.Framework.Runtime.Core.Layers

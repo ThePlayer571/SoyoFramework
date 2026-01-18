@@ -1,5 +1,5 @@
 using System;
-using SoyoFramework.Framework.Runtime.Core.CoreUtils;
+using SoyoFramework.Framework.Runtime.Utils;
 
 namespace SoyoFramework.Framework.Runtime.Core.Tools
 {

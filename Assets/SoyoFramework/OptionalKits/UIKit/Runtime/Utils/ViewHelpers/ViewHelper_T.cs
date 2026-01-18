@@ -1,6 +1,4 @@
 using System;
-using SoyoFramework.Framework.Runtime.Core.CoreUtils;
-using SoyoFramework.Framework.Runtime.Utils.LogKit;
 using SoyoFramework.OptionalKits.UIKit.Runtime.Utils.ViewHelpers.Interfaces;
 
 namespace SoyoFramework.OptionalKits.UIKit.Runtime.Utils.ViewHelpers

@@ -1,6 +1,5 @@
 using SoyoFramework.Framework.Examples.Exp01_TapGame.Events;
 using SoyoFramework.Framework.Runtime.Core;
-using SoyoFramework.Framework.Runtime.Core.CoreUtils;
 using SoyoFramework.Framework.Runtime.Core.Layers;
 using SoyoFramework.Framework.Runtime.Utils;
 

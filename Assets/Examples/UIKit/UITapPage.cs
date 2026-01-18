@@ -1,5 +1,5 @@
 using System;
-using SoyoFramework.Framework.Runtime.Core.CoreUtils;
+using SoyoFramework.Framework.Runtime.Utils;
 using SoyoFramework.OptionalKits.UIKit.Runtime.Page;
 
 namespace Examples.UIKit

@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
-using SoyoFramework.Framework.Runtime.Core.CoreUtils;
+using SoyoFramework.Framework.Runtime.Utils;
 using SoyoFramework.Framework.Runtime.Utils.LogKit;
+using SoyoFramework.Framework.Runtime.Utils.LogKit.Interfaces;
 using SoyoFramework.OptionalKits.ProcedureKit.Runtime.DataClasses;
 
 namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core

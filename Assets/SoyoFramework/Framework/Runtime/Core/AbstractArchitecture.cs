@@ -1,7 +1,8 @@
 using System;
-using SoyoFramework.Framework.Runtime.Core.CoreUtils;
 using SoyoFramework.Framework.Runtime.Core.Layers;
+using SoyoFramework.Framework.Runtime.Utils;
 using SoyoFramework.Framework.Runtime.Utils.LogKit;
+using SoyoFramework.Framework.Runtime.Utils.LogKit.Interfaces;
 
 namespace SoyoFramework.Framework.Runtime.Core
 {

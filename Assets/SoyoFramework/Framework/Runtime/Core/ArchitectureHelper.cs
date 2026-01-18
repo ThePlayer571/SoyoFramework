@@ -1,4 +1,3 @@
-using SoyoFramework.Framework.Runtime.Utils.LogKit;
 using UnityEngine;
 
 namespace SoyoFramework.Framework.Runtime.Core

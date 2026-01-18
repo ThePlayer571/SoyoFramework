@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using SoyoFramework.Framework.Runtime.Utils.FluentAPI;
+using SoyoFramework.ToolKits.Runtime.FluentAPI;
 using Action = System.Action;
 
 namespace SoyoFramework.OptionalKits.UIKit.Runtime.Page.Modules

@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using SoyoFramework.Framework.Runtime.Core.CoreUtils;
+using SoyoFramework.Framework.Runtime.Utils;
 using SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core;
 using SoyoFramework.OptionalKits.ProcedureKit.Runtime.DataClasses;
 
