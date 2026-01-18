@@ -15,14 +15,4 @@ namespace SoyoFramework.Framework.Runtime.Core.Tools
             Layer = layer;
         }
     }
-
-    /// <summary>
-    /// 用于Tool，标记依赖多个层级的Tool
-    /// </summary>
-    public class SuperToolAttribute : RelyingLayerAttribute
-    {
-        public SuperToolAttribute(SoyoLayer layer, params SoyoLayer[] layers) : base(layer)
-        {
-        }
-    }
 }

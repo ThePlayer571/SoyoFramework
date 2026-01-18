@@ -1,30 +1,41 @@
 namespace SoyoFramework.Framework.Runtime.Core.Tools
 {
-    public interface IModelTool : ITool
+    public interface IModelCanGet : ITool
     {
     }
 
-    public interface ISystemTool : ITool
+    public interface ISystemCanGet : ITool
     {
     }
-    
-    public interface IViewControllerTool : ITool
+
+    public interface IViewControllerCanGet : ITool
     {
     }
 
     public static class CanGetRulesExtensions
     {
-        public static T GetTool<T>(this ISystemRule self) where T : class, IModelTool
+        public static T GetTool<T>(this ISystemRule self) where T : class, IModelCanGet
         {
             return self.RelyingArchitecture.GetTool<T>();
         }
 
-        public static T GetTool<T>(this IModelRule self) where T : class, ISystemTool
+        public static T GetTool<T>(this IModelRule self) where T : class, ISystemCanGet
         {
             return self.RelyingArchitecture.GetTool<T>();
         }
 
-        public static T GetTool<T>(this IViewControllerRule self) where T : class, IViewControllerTool
+        public static T GetTool<T>(this IViewControllerRule self) where T : class, IViewControllerCanGet
+        {
+            return self.RelyingArchitecture.GetTool<T>();
+        }
+
+
+        public static T GetTool<T>(this ICommandRule self) where T : class, ISystemCanGet
+        {
+            return self.RelyingArchitecture.GetTool<T>();
+        }
+
+        public static T GetVCTool<T>(this ICommandRule self) where T : class, IViewControllerCanGet
         {
             return self.RelyingArchitecture.GetTool<T>();
         }
