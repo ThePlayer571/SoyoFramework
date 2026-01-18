@@ -13,12 +13,8 @@ namespace SoyoFramework.Framework.Runtime.Core.Tools
     /// <para>
     /// 约定：
     /// <list type="number">
-    /// <item>
-    /// 建议同一个 Service 中各操作的抽象程度应保持一致；
-    /// </item>
-    /// <item>
-    /// 不建议 Service 存在任何状态数据。
-    /// </item>
+    /// <item>建议同一个 Service 中各操作的抽象程度应保持一致；</item>
+    /// <item>不建议 Service 存在任何状态数据。 </item>
     /// </list>
     /// </para>
     /// </summary>

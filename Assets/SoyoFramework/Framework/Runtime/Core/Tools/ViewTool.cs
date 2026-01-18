@@ -9,6 +9,11 @@ namespace SoyoFramework.Framework.Runtime.Core.Tools
     /// <para>
     /// 用于解决 ViewController 层逻辑复用的问题。
     /// </para>
+    /// <para>约定：
+    /// <list type="number">
+    /// <item>建议 ViewTool 中只包含视图层面的封装，如果有逻辑封装，建议使用 Command </item>
+    /// </list>
+    /// </para>
     /// </summary>
     public interface IViewTool :
         ITool, IViewControllerCanGet,
@@ -16,10 +21,10 @@ namespace SoyoFramework.Framework.Runtime.Core.Tools
     {
     }
 
-    public abstract class ViewTool : AbstractTool, IViewTool
+    public abstract class AbstractViewTool : AbstractTool, IViewTool
     {
     }
-    
+
     public static class CanGetViewToolExtension
     {
         public static T GetViewTool<T>(this IViewControllerRule self)
