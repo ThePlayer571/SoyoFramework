@@ -1,13 +1,12 @@
 using SoyoFramework.Framework.Examples.Exp02_ComplexTapGame.Commands;
 using SoyoFramework.Framework.Examples.Exp02_ComplexTapGame.Events;
 using SoyoFramework.Framework.Runtime.Core;
-using SoyoFramework.Framework.Runtime.Core.Layers;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace SoyoFramework.Framework.Examples.Exp02_ComplexTapGame.ViewControllers
 {
-    public class ScoreController : MonoVController
+    public class ScoreController : MonoBehaviour, IMonoVController
     {
         [SerializeField] private Button AddBtn;
         [SerializeField] private Button SubBtn;
@@ -32,5 +31,7 @@ namespace SoyoFramework.Framework.Examples.Exp02_ComplexTapGame.ViewControllers
             // 订阅 Model 变化
             this.RegisterEvent<AfterScoreChanged>(e => { ScoreText.text = e.Score.ToString(); });
         }
+
+        public IArchitecture RelyingArchitecture => TapGame.Instance;
     }
 }

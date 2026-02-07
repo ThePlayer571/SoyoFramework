@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace SoyoFramework.Framework.Examples.Exp01_TapGame.ViewControllers
 {
-    public class ScoreController : MonoVController
+    public class ScoreController : IMonoVController
     {
         [SerializeField] private Button AddBtn;
         [SerializeField] private Button SubBtn;
@@ -32,5 +32,7 @@ namespace SoyoFramework.Framework.Examples.Exp01_TapGame.ViewControllers
             // 订阅 Model 变化
             this.RegisterEvent<AfterScoreChanged>(e => { ScoreText.text = e.Score.ToString(); });
         }
+
+        public IArchitecture RelyingArchitecture => TapGame.Instance;
     }
 }

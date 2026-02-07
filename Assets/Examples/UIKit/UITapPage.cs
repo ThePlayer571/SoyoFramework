@@ -1,4 +1,5 @@
 using System;
+using SoyoFramework.Framework.Runtime.Core;
 using SoyoFramework.Framework.Runtime.Utils;
 using SoyoFramework.OptionalKits.UIKit.Runtime.Page;
 
@@ -35,6 +36,8 @@ namespace Examples.UIKit
 
             return false;
         }
+
+        public override IArchitecture RelyingArchitecture => null;
     }
 
     [Serializable]

@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using SoyoFramework.Framework.Runtime.Core;
-using SoyoFramework.Framework.Runtime.Core.Layers;
 using SoyoFramework.Framework.Runtime.Utils;
 using SoyoFramework.Framework.Runtime.Utils.LogKit;
-using SoyoFramework.OptionalKits.UIKit.Runtime.Utils;
 using SoyoFramework.ToolKits.Runtime;
 using UnityEngine;
 
@@ -18,7 +16,7 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime.Page
         void SubmitCommand<TResult>(ICommand<TResult> command, out TResult result);
     }
 
-    public abstract class UIPage : MonoVController, IUIViewHost
+    public abstract class UIPage : MonoBehaviour, IMonoVController, IUIViewHost
     {
         // Editor
         [SerializeField] internal List<UIView> _views = new();
@@ -176,8 +174,16 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime.Page
             }
             else
             {
-                // 非UICommand，发送至框架
-                this.SendCommand(command);
+                if (RelyingArchitecture != null)
+                {
+                    // 非UICommand，发送至框架
+                    this.SendCommand(command);
+                }
+                else
+                {
+                    // 无法处理的Command
+                    $"无法处理的Command: {command.GetType().Name}，原因是当前Page没有依赖Architecture".LogError();
+                }
             }
         }
 
@@ -187,5 +193,7 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime.Page
         }
 
         #endregion
+
+        public abstract IArchitecture RelyingArchitecture { get; }
     }
 }

@@ -6,8 +6,7 @@ namespace SoyoFramework.Framework.Examples.Exp01_TapGame
     {
         private void Awake()
         {
-            var architecture = new TapGame();
-            architecture.Init();
+            TapGame.Init();
         }
     }
 }

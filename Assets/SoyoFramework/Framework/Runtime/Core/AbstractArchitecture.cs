@@ -1,4 +1,5 @@
 using System;
+using SoyoFramework.Framework.Runtime.Core.DefaultSyntacticSugar;
 using SoyoFramework.Framework.Runtime.Core.Layers;
 using SoyoFramework.Framework.Runtime.Utils;
 using SoyoFramework.Framework.Runtime.Utils.LogKit;
@@ -6,76 +7,91 @@ using SoyoFramework.Framework.Runtime.Utils.LogKit.Interfaces;
 
 namespace SoyoFramework.Framework.Runtime.Core
 {
-    public abstract class AbstractArchitecture : IArchitecture
+    public abstract class Architecture<TArch> : IArchitecture
+        where TArch : Architecture<TArch>, new()
     {
         #region 可用字段
 
-        public bool Inited { get; private set; } = false;
+        public static TArch Instance => _instance;
+        public bool Inited => _inited;
 
-        public static IArchitecture Instance { get; private set; }
+        private bool _inited;
+        private static TArch _instance;
         private readonly SimpleIOCContainer _container = new();
         private readonly TypeEventSystem _eventSystem = new();
-        private readonly ILog _logger = new PrefixLogger("[Architecture]");
+        private readonly ILog _logger = new PrefixLogger($"[{typeof(TArch).Name}]");
 
         #endregion
 
         #region 生命周期
 
-        public void Init()
+        public static void Init(bool setAsDefault = true)
         {
-            if (Inited)
+            if (_instance != null)
             {
-                "Architecture已经初始化".LogError(_logger);
+                "Architecture单例已存在，无法再次Init".LogError();
                 return;
             }
 
-            // 单例支持
-            Instance = this;
+            var arch = new TArch();
+            _instance = arch;
 
             // 注册初始层级信息
-            OnInit();
+            arch.OnInit();
 
             // 初始化模块
-            foreach (var module in _container.GetAll<IModule>())
+            foreach (var module in arch._container.GetAll<IModule>())
             {
                 module.PreInit();
             }
 
-            foreach (var module in _container.GetAll<IModule>())
+            foreach (var module in arch._container.GetAll<IModule>())
             {
                 module.Init();
             }
 
-            //
-            Inited = true;
+            // 标记已初始化
+            arch._inited = true;
+
+            // 语法糖：默认Architecture实例
+            if (setAsDefault)
+            {
+                DefaultArchitecture.Instance = arch;
+            }
         }
 
-        public void Deinit()
+        public static void Deinit()
         {
-            // 防止重复Deinit
-            if (!Inited)
+            var arch = _instance;
+            
+            if (arch == null)
             {
-                "Architecture未初始化，无法Deinit".LogError(_logger);
+                "Architecture单例不存在，无法Deinit".LogError();
                 return;
             }
 
-            OnDeinit();
+            arch.OnDeinit();
 
             // 销毁模块
-            foreach (var module in _container.GetAll<IModule>())
+            foreach (var module in arch._container.GetAll<IModule>())
             {
                 module.Deinit();
             }
-            _container.Clear();
+
+            arch._container.Clear();
 
             // TypeEventSystem清理
-            _eventSystem.Clear();
+            arch._eventSystem.Clear();
 
             // 标记未初始化
-            Inited = false;
-
-            // 单例支持
-            Instance = null;
+            _instance = null;
+            
+            
+            // 语法糖：默认Architecture实例
+            if (DefaultArchitecture.Instance == arch)
+            {
+                DefaultArchitecture.Instance = null;
+            }
         }
 
         protected abstract void OnInit();

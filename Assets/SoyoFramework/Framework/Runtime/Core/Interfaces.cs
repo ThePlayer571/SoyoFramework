@@ -7,11 +7,9 @@ namespace SoyoFramework.Framework.Runtime.Core
     public interface IArchitecture
     {
         // Architecture生命周期
-        void Init();
-        void Deinit();
         bool Inited { get; }
 
-        // Module层（超集）
+        // Module（所有层级的超集）
         void RegisterModule<T>(T module) where T : class, IModule;
         T GetModule<T>() where T : class, IModule;
         
@@ -94,7 +92,7 @@ namespace SoyoFramework.Framework.Runtime.Core
         ICanAttachToArchitecture, ICommandRule
     {
         /// <summary>
-        /// 执行Command的逻辑
+        /// 执行Command的逻辑，推荐只能通过Architecture来调用
         /// </summary>
         /// <param name="ignoreCanExecuteCheck">执行时不自动调用CanExecute检查，通常为了性能而开启</param>
         protected internal TResult Execute(bool ignoreCanExecuteCheck = false);

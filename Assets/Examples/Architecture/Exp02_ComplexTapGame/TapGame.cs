@@ -3,7 +3,7 @@ using SoyoFramework.Framework.Runtime.Core;
 
 namespace SoyoFramework.Framework.Examples.Exp02_ComplexTapGame
 {
-    public class TapGame : AbstractArchitecture
+    public class TapGame : Architecture<TapGame>
     {
         protected override void OnInit()
         {
