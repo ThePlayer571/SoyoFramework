@@ -2,13 +2,12 @@ using SoyoFramework.Framework.Runtime.Utils;
 
 namespace SoyoFramework.Framework.Runtime.Core.Layers
 {
-    [Experimental]
-    public struct CanExecuteResult
+    public readonly struct CanExecuteResult
     {
         #region Core
 
-        public bool CanExecute;
-        public string FailMessage;
+        public readonly bool CanExecute;
+        public readonly string FailMessage;
 
         #endregion
 

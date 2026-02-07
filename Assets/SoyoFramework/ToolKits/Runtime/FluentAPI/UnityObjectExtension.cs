@@ -32,7 +32,6 @@ namespace SoyoFramework.ToolKits.Runtime.FluentAPI
             return UnityEngine.Object.Instantiate(selfObj, position, rotation, parent);
         }
 
-        [Experimental]
         public static T Instantiate<T>(this T selfObj, Transform parent, bool worldPositionStays)
             where T : UnityEngine.Object
         {
