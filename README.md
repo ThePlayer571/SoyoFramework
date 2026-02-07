@@ -297,111 +297,28 @@ Tool的理解：
 
 ```
 
-
 EasyEvent, BindableProperty: Event
 
-
 ```
+
 
 ### ProcedureKit
 
-```
-引入Procedure机制，这是本框架的核心
+```text
 
-- Procedure机制
-	所有层级都可以有依赖于Procedure的生命周期，只能在指定区间调用（解决问题: 关卡外调用关卡Model）
-	todo 加一个IsChanging属性
+我打算为我的ProcedureKit的“切换规则配置面板”写一个节点式编辑器
 
-- 框架部分(不依赖Unity生命周期)
-[数据层]
-Model IOC单例。负责数据增删改查，发送数据变更信息
-[逻辑层]
-System IOC单例。分担数据层面的逻辑
-[超巨层]
-Service 每个Service是一个类，功能单一，无状态。负责多个Model的数据操作，作为某个操作的唯一入口。全局可调用。Service禁止操作View
+ProcedureKit是游戏流程管理工具，可以设置硬性切换规则让游戏流程切换更严谨。
+切换规则的信息非常少，只包括“阶段A能切换到阶段B”这种信息，我希望你写一个看起来像Animator的节点式编辑器来编辑这些信息。（只包括节点和箭头）
+这个编辑器的终极目标是代替旧版的编辑器（ProcedureKitEditorWindow.DrawRegion2_AllowedPreviousProcedures），生成ProcedureKitConfigSO的AllowedPreviousProcedures信息
+为了存储节点位置信息，你可能需要对ProcedureKitConfigSO进行一些改动，这是允许的。
 
-层级可以不符合规范(为了方便写代码)，但必须使用HasBetterArch标记不符合规范的层级
-支持MonoSystem MonoModel MonoService，自动注册，用MonoBehavior的生命周期
+你需要做的步骤：
+1. 确认清楚需求和UI表现效果
+2. 跟我说说实现思路，由于这个编辑器会比较大，所以我希望你能先把实现思路说清楚
+3. 开始写代码
 
-- 框架部分(依赖Unity生命周期)
-[表现层]
-Controller 接受信息，操作View。可以将自己注册到Architecture里面: 通过protected RegisterSelf功能。
-	Controller允许与View Model等层级耦合，请用[MetaLayer(Layer: View, Model)]特性标记
+如果你有不确定的点或需要的文件，请及时告诉我，请确定清楚需求后再开始写代码。
 
-- 框架外
-[表现层]
-{废除: 使用partial class更佳，没必要独立出一个脚本}PassiveView 被别人调用，提供表现变更的方法，封装程度是"方便好用"。推荐只被Controller调用
-AutoView 通过订阅Controller提供的事件，自主自动地更新View
-
-- UIKit
-	增加初始数据类
-	移除SubPanel的设定
-	添加类PanelAgent，这是一个组件，使用组合。用于管理Stack、Show状态等，方便使用
-
-- SaveKit
-	enum路径生成
-	enum->filePathStr: 允许默认转换或自定义转换
-		默认：填入另一个string，作为路径。可以选择在文件末尾添加当前时间
-		自定义：允许自己写代码设置
-	UI面板管理：默认使用AA包，需要配置好路径，自动生成字符串常量方便代码编写
-
-- Proxy机制
-所有层级通过Proxy获取，为了Procedure严谨
-Proxy可以隐式转换为层级对象，方便使用
-Proxy提供方法：UniTask WaitForValid: Proxy可以存空引用(Controller未注册时/受Procedure约束时)
-
-EasyEvent/BindableProperty是客观的数据变化
-EventSystem是具体事件行为的发生
-
-
-- 随笔
-原则上禁用所有单例
-文档要写：框架+允许违反框架的点和需要做的标注
-命名规则：
-	TEMP_用于临时结构
-	[HasBetterArch]
-	Node 纯引用类
-想要做的：
-	给BetterToggle, MultiGroup这些组件给上自定义的图标
-	统一的调试窗口，显示框架内当前所有Model, System, Controller，还能自定义发送Service，还能显示Procedure切换信息，当前Procedure
-	ActionKit提供class UpdateHelper，允许提供OnEnter, OnExit, OnUpdate函数，提供开关，打开后先Enter，再一直Update
 
 ```
-
-```
-你是一个熟悉 Unity 编辑器扩展和 asmdef 的 Unity 工程师。
-
-我已经在 Runtime 程序集中实现了一个 Command 统计系统，核心数据结构如下（无需修改）：
-
-- internal static class CommandSendHook
-  - internal static bool Enabled
-
-- internal static class CommandStatsStore
-  - internal static IReadOnlyDictionary<System.Type, CommandStat> Stats
-
-- internal sealed class CommandStat
-  - int TotalCount
-  - int PeakPerSecond
-
-统计逻辑已经在 Runtime 的 SendCommand 中完成。
-
-现在请你只生成「Editor 端代码」，要求：
-
-1. 使用 EditorWindow 实现一个窗口，例如 `CommandAnalyzerWindow`
-2. 窗口中可以：
-   - 勾选是否启用 Command Profiling（控制 CommandSendHook.Enabled）
-   - 显示一个表格，按 Command Type 显示：
-     - 类型名
-     - TotalCount
-     - PeakPerSecond
-   - 支持按 TotalCount 或 PeakPerSecond 排序
-   - 提供一个 Reset 按钮（调用 CommandStatsStore.Reset）
-3. Editor 代码放在 Editor 程序集，假设已通过 InternalsVisibleTo 访问 Runtime 的 internal 成员
-4. 不要修改 Runtime 代码
-5. 不需要复杂 UI，使用 IMGUI（EditorGUILayout）即可
-6. 代码应清晰、可读、可直接用于 Unity 项目
-
-请直接输出完整可用的 C# Editor 代码。
-
-```
-
