@@ -21,7 +21,7 @@ namespace SoyoFramework.Framework.Runtime.Core
 
         #region 生命周期
 
-        public void Init(bool setAsDefault = true)
+        public void Init()
         {
             if (Inited)
             {
@@ -48,12 +48,6 @@ namespace SoyoFramework.Framework.Runtime.Core
 
             //
             Inited = true;
-
-            // ArchitectureHelper支持
-            if (setAsDefault)
-            {
-                ArchitectureHelper.DefaultArchitecture = this;
-            }
         }
 
         public void Deinit()
@@ -72,18 +66,13 @@ namespace SoyoFramework.Framework.Runtime.Core
             {
                 module.Deinit();
             }
+            _container.Clear();
 
             // TypeEventSystem清理
             _eventSystem.Clear();
 
             // 标记未初始化
             Inited = false;
-
-            // ArchitectureHelper支持
-            if (ArchitectureHelper.DefaultArchitecture == this)
-            {
-                ArchitectureHelper.DefaultArchitecture = null;
-            }
 
             // 单例支持
             Instance = null;

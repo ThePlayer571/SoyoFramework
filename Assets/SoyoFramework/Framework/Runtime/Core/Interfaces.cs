@@ -7,7 +7,7 @@ namespace SoyoFramework.Framework.Runtime.Core
     public interface IArchitecture
     {
         // Architecture生命周期
-        void Init(bool setAsDefault = true);
+        void Init();
         void Deinit();
         bool Inited { get; }
 
