@@ -22,7 +22,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
         #region 字段
 
         // callback event storage
-        private readonly Dictionary<(TProcedureId, ProcedureChangeStage), EasyEvent<ProcedureChangeInfo>>
+        private readonly Dictionary<(TProcedureId, ProcedureChangeStage), Action<ProcedureChangeInfo>>
             _procedureCallbacks = new();
 
         // 用于防止中断和支持排队请求
@@ -43,7 +43,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
 
         // 配置
         private ProcedureConfig<TProcedureId, TTagId> _config;
-        
+
         // Logger
         protected readonly ILog Logger = new PrefixLogger("[ProcedureKit]");
 
@@ -122,6 +122,9 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
             }
 
             // 离开阶段
+            _onProcedureChange.Trigger(leaveFrom, ProcedureChangeStage.BeforeLeave);
+            ExecuteCallbacks((leaveFrom, ProcedureChangeStage.BeforeLeave), _lastProcedureChangeParas);
+            await WaitForAllTasks();
             _onProcedureChange.Trigger(leaveFrom, ProcedureChangeStage.LeaveEarly);
             ExecuteCallbacks((leaveFrom, ProcedureChangeStage.LeaveEarly), _lastProcedureChangeParas);
             await WaitForAllTasks();
@@ -131,6 +134,9 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
             _onProcedureChange.Trigger(leaveFrom, ProcedureChangeStage.LeaveLate);
             ExecuteCallbacks((leaveFrom, ProcedureChangeStage.LeaveLate), _lastProcedureChangeParas);
             await WaitForAllTasks();
+            _onProcedureChange.Trigger(leaveFrom, ProcedureChangeStage.AfterLeave);
+            ExecuteCallbacks((leaveFrom, ProcedureChangeStage.AfterLeave), _lastProcedureChangeParas);
+            await WaitForAllTasks();
 
             // 切换
             CurrentProcedure = changeTo;
@@ -138,6 +144,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
             // 进入阶段
             _onProcedureChange.Trigger(changeTo, ProcedureChangeStage.BeforeEnter);
             ExecuteCallbacks((changeTo, ProcedureChangeStage.BeforeEnter), paras);
+            await WaitForAllTasks();
             _onProcedureChange.Trigger(changeTo, ProcedureChangeStage.EnterEarly);
             ExecuteCallbacks((changeTo, ProcedureChangeStage.EnterEarly), paras);
             await WaitForAllTasks();
@@ -147,6 +154,9 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
             _onProcedureChange.Trigger(changeTo, ProcedureChangeStage.EnterLate);
             ExecuteCallbacks((changeTo, ProcedureChangeStage.EnterLate), paras);
             await WaitForAllTasks();
+            _onProcedureChange.Trigger(changeTo, ProcedureChangeStage.AfterEnter);
+            ExecuteCallbacks((changeTo, ProcedureChangeStage.AfterEnter), paras);
+            await WaitForAllTasks();
 
             _lastProcedureChangeParas = paras;
         }
@@ -155,13 +165,12 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
             Action<ProcedureChangeInfo> callback)
         {
             var trigger = (procedureId, stage);
-            if (!_procedureCallbacks.TryGetValue(trigger, out var easyEvent))
-            {
-                easyEvent = new EasyEvent<ProcedureChangeInfo>();
-                _procedureCallbacks[trigger] = easyEvent;
-            }
 
-            return easyEvent.Register(callback);
+            _procedureCallbacks.TryAdd(trigger, null);
+            _procedureCallbacks[trigger] += callback;
+
+            // 返回IUnRegister句柄，用于后期移除回调
+            return new CustomUnRegister(() => { _procedureCallbacks[trigger] -= callback; });
         }
 
         public EasyEvent<TProcedureId, ProcedureChangeStage> OnProcedureChange => _onProcedureChange;
@@ -232,17 +241,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
         private void ExecuteCallbacks((TProcedureId, ProcedureChangeStage) trigger,
             ProcedureChangeInfo.ProcedureChangeParas changeParas)
         {
-            if (_procedureCallbacks.TryGetValue(trigger, out var easyEvent))
-            {
-                try
-                {
-                    easyEvent.Trigger(new ProcedureChangeInfo { Paras = changeParas });
-                }
-                catch (Exception e)
-                {
-                    $"执行流程回调发生异常: {e}".LogError(Logger);
-                }
-            }
+            // todo 这里需要把每个函数分别执行，并try catch，如果出错，仅仅是发出Log，而并非抛出错误
         }
 
         private async UniTask WaitForAllTasks()

@@ -6,9 +6,12 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.DataClasses
         EnterEarly,
         EnterNormal,
         EnterLate,
+        AfterEnter,
+        BeforeLeave,
         LeaveEarly,
         LeaveNormal,
-        LeaveLate
+        LeaveLate,
+        AfterLeave,
     }
 
     public static class ProcedureChangeStageExtension
@@ -18,7 +21,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.DataClasses
             return self is ProcedureChangeStage.EnterEarly or ProcedureChangeStage.EnterNormal
                 or ProcedureChangeStage.EnterLate;
         }
-        
+
         public static bool IsLeave(this ProcedureChangeStage self)
         {
             return self is ProcedureChangeStage.LeaveEarly or ProcedureChangeStage.LeaveNormal
