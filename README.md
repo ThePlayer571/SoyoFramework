@@ -306,12 +306,19 @@ EasyEvent, BindableProperty: Event
 
 ```text
 
-我打算为我的ProcedureKit的“切换规则配置面板”写一个节点式编辑器
+我打算为我的ProcedureKit的“切换规则配置面板”写一个基于xNode的节点式编辑器
 
 ProcedureKit是游戏流程管理工具，可以设置硬性切换规则让游戏流程切换更严谨。
-切换规则的信息非常少，只包括“阶段A能切换到阶段B”这种信息，我希望你写一个看起来像Animator的节点式编辑器来编辑这些信息。（只包括节点和箭头）
-这个编辑器的终极目标是代替旧版的编辑器（ProcedureKitEditorWindow.DrawRegion2_AllowedPreviousProcedures），生成ProcedureKitConfigSO的AllowedPreviousProcedures信息
-为了存储节点位置信息，你可能需要对ProcedureKitConfigSO进行一些改动，这是允许的。
+切换规则的信息非常少，只包括“阶段A能切换到阶段B”这种信息，xNode的基础类我已经全部写好。
+xNode的配置界面是独立于原本的编辑器的，你需要新写一个编辑器完成
+
+我希望你做如下工作：
+1. 完成ProcedureChangeRuleGraphEditor，包括以下步骤
+在左上角添加一个面板，包括以下：
+[field] ProcedureKitConfigSO （赋值/存储在graph中）
+(如果ProcedureKitConfigSO有值，显示以下内容，否则不显示)
+[Button] 创建/销毁节点 以同步SO文件 （按下后读取SO文件的Procedures，遍历Node，根据EnumValue，销毁和新建节点，节点位置是(0,0,0)即可）
+[Button] 写入SO文件 （将节点图的设置写入SO文件）
 
 你需要做的步骤：
 1. 确认清楚需求和UI表现效果

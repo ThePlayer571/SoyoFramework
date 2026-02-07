@@ -12,11 +12,10 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor.Window
             // 顶部提示 - 不依赖xNode，只是文字提示
             EditorGUILayout.BeginVertical(EditorStyles.helpBox);
             EditorGUILayout.HelpBox(
-                "💡 提示：可以使用 xNode 可视化编辑器来配置切换规则（可选）\n" +
-                "菜单路径：SoyoFramework > Procedure XNode Graph", 
+                "💡 提示：如果你导入了xNode，可以使用节点编辑器来可视化编辑 Allowed Previous，详情见Readme文档",
                 MessageType.Info);
-            EditorGUILayout. EndVertical();
-            
+            EditorGUILayout.EndVertical();
+
             EditorGUILayout.Space(10);
 
             // 原有的列表编辑界面（保持不变）
@@ -27,7 +26,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor.Window
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
                 // 标题行
-                EditorGUILayout. BeginHorizontal();
+                EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.LabelField($"[{proc.EnumValue}] {proc.Name}", EditorStyles.boldLabel,
                     GUILayout.Width(180));
                 EditorGUILayout.LabelField("← Allowed Previous:", GUILayout.Width(120));
@@ -45,11 +44,12 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor.Window
                     if (prevProc != null)
                     {
                         EditorGUILayout.BeginHorizontal(EditorStyles.toolbar, GUILayout.Width(140));
-                        EditorGUILayout.LabelField($"[{prevProc. EnumValue}] {prevProc.Name}", GUILayout.Width(110));
+                        EditorGUILayout.LabelField($"[{prevProc.EnumValue}] {prevProc.Name}", GUILayout.Width(110));
                         if (GUILayout.Button("×", GUILayout.Width(18)))
                         {
                             toRemove.Add(prevEnumValue);
                         }
+
                         EditorGUILayout.EndHorizontal();
                     }
                 }
@@ -82,7 +82,8 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor.Window
             var menu = new GenericMenu();
             foreach (var proc in _procedures)
             {
-                if (! targetProc.AllowedPreviousEnumValues.Contains(proc.EnumValue))
+                if (!targetProc.AllowedPreviousEnumValues.Contains(proc.EnumValue) &&
+                    proc.EnumValue != targetProc.EnumValue)
                 {
                     int enumValue = proc.EnumValue;
                     menu.AddItem(new GUIContent($"[{proc.EnumValue}] {proc.Name}"), false,
@@ -91,7 +92,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor.Window
             }
 
             if (menu.GetItemCount() == 0)
-                menu. AddDisabledItem(new GUIContent("(No more procedures to add)"));
+                menu.AddDisabledItem(new GUIContent("(No more procedures to add)"));
 
             menu.ShowAsContext();
         }

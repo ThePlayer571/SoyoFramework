@@ -20,16 +20,16 @@ MonoBehaviour:
   Procedures:
   - Name: Entrance
     EnumValue: 0
-    TagEnumValues: 00000000
+    TagEnumValues: 
     AllowedPreviousEnumValues: 
   - Name: ProcedureA
     EnumValue: 1
     TagEnumValues: 01000000
-    AllowedPreviousEnumValues: 00000000
-  - Name: ProcedureB
-    EnumValue: 100
+    AllowedPreviousEnumValues: 0000000065000000
+  - Name: NewProcedure
+    EnumValue: 101
     TagEnumValues: 
-    AllowedPreviousEnumValues: 0000000064000000
+    AllowedPreviousEnumValues: 01000000
   GeneratePath: Assets/SoyoFramework/OptionalKits/ProcedureKit/Example
   Namespace: SoyoFramework.OptionalKits.ProcedureKit.Example
   ProcedureIdEnumName: ProcedureId

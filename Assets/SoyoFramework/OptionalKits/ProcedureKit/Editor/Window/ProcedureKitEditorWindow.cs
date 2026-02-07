@@ -38,7 +38,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor.Window
         private HashSet<string> _invalidTagNames = new HashSet<string>();
 
         // EditorPrefs 键名
-        private const string ConfigPathPrefKey = "ProcedureKitEditor_ConfigPath";
+        public const string ConfigPathPrefKey = "ProcedureKitEditor_ConfigPath";
 
         // C# 标识符验证正则：以字母或下划线开头，后面可以是字母、数字或下划线
         private static readonly Regex ValidIdentifierRegex =

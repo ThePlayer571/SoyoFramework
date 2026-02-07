@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.DataClasses
+namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
 {
     [CreateAssetMenu(fileName = "ProcedureKitConfig", menuName = "SoyoFramework/ProcedureKit/Config")]
     public class ProcedureKitConfigSO : ScriptableObject
@@ -11,16 +11,16 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.DataClasses
         public class ProcedureEntry
         {
             public string Name;
-            public int EnumValue; // 用户指定的 enum int 值
-            public List<int> TagEnumValues = new(); // 选中的Tag的EnumValue（不再是index）
-            public List<int> AllowedPreviousEnumValues = new(); // AllowedPreviousProcedures的EnumValue
+            public int EnumValue;
+            public List<int> TagEnumValues = new();
+            public List<int> AllowedPreviousEnumValues = new();
         }
 
         [Serializable]
         public class TagEntry
         {
             public string Name;
-            public int EnumValue; // 用户指定的 enum int 值
+            public int EnumValue;
         }
 
         [Header("Procedure Data")] public List<TagEntry> Tags = new();

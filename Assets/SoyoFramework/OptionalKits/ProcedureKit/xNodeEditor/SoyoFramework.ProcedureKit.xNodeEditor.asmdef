@@ -1,0 +1,28 @@
+{
+    "name": "SoyoFramework.ProcedureKit.xNodeEditor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:b8e24fd1eb19b4226afebb2810e3c19b",
+        "GUID:002c1bbed08fa44d282ef34fd5edb138",
+        "GUID:3843d7bddc8442c40a954d00ef600673",
+        "GUID:58c1b14f353fc1c4382ad940a680c0bb",
+        "GUID:607fe3f2153d2f84994345a41a436c07"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.github.siccity.xnode",
+            "expression": "",
+            "define": "XNODE_SUPPORT"
+        }
+    ],
+    "noEngineReferences": false
+}
