@@ -241,7 +241,38 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
         private void ExecuteCallbacks((TProcedureId, ProcedureChangeStage) trigger,
             ProcedureChangeInfo.ProcedureChangeParas changeParas)
         {
-            // todo 这里需要把每个函数分别执行，并try catch，如果出错，仅仅是发出Log，而并非抛出错误
+            // 检查是否有注册的回调
+            if (!_procedureCallbacks.TryGetValue(trigger, out var callback))
+            {
+                return;
+            }
+
+            if (callback == null)
+            {
+                return;
+            }
+
+            // 创建 ProcedureChangeInfo 对象
+            var procedureChangeInfo = new ProcedureChangeInfo
+            {
+                Paras = changeParas
+            };
+
+            // 获取所有委托并分别执行
+            var delegates = callback.GetInvocationList();
+
+            foreach (var del in delegates)
+            {
+                try
+                {
+                    var action = del as Action<ProcedureChangeInfo>;
+                    action?.Invoke(procedureChangeInfo);
+                }
+                catch (Exception e)
+                {
+                    $"执行流程回调函数时发生异常 [Procedure: {trigger.Item1}, Stage: {trigger.Item2}]: {e}".LogError(Logger);
+                }
+            }
         }
 
         private async UniTask WaitForAllTasks()
