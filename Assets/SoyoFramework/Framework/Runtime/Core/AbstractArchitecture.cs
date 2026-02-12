@@ -12,7 +12,20 @@ namespace SoyoFramework.Framework.Runtime.Core
     {
         #region 可用字段
 
-        public static TArch Instance => _instance;
+        public static TArch Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    // 语法糖：如果访问Architecture实例时尚未Init，则自动Init
+                    Init();
+                }
+
+                return _instance;
+            }
+        }
+
         public bool Inited => _inited;
 
         private bool _inited;
@@ -63,7 +76,7 @@ namespace SoyoFramework.Framework.Runtime.Core
         public static void Deinit()
         {
             var arch = _instance;
-            
+
             if (arch == null)
             {
                 "Architecture单例不存在，无法Deinit".LogError();
@@ -85,8 +98,8 @@ namespace SoyoFramework.Framework.Runtime.Core
 
             // 标记未初始化
             _instance = null;
-            
-            
+
+
             // 语法糖：默认Architecture实例
             if (DefaultArchitecture.Instance == arch)
             {
