@@ -105,6 +105,12 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime.Page
             // 初始化View
             foreach (var view in _views)
             {
+                if (view == null)
+                {
+                    "UIPage: {name} 的Views列表中有空值，请移除".LogError();
+                    continue;
+                }
+
                 try
                 {
                     view.Init(this);

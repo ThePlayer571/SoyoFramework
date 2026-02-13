@@ -13,11 +13,20 @@ namespace SoyoFramework.OptionalKits.UIKit.Editor
 
             UIPage page = (UIPage)target;
 
-            if (GUILayout.Button("扫描所有View并添加", GUILayout.Height(40)))
+            if (GUILayout.Button("移除空值 & 扫描所有View并添加", GUILayout.Height(40)))
             {
+                var viewList = page._views;
+                // 移除空值
+                for (int i = viewList.Count - 1; i >= 0; i--)
+                {
+                    if (viewList[i] == null)
+                    {
+                        viewList.RemoveAt(i);
+                    }
+                }
+                
                 // 扫描所有子对象的UIView
                 var views = page.GetComponentsInChildren<UIView>(true);
-                var viewList = page._views;
                 int added = 0;
                 foreach (var view in views)
                 {
@@ -27,6 +36,7 @@ namespace SoyoFramework.OptionalKits.UIKit.Editor
                         added++;
                     }
                 }
+
                 if (added > 0)
                 {
                     EditorUtility.SetDirty(page);
