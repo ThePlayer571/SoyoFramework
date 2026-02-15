@@ -1,4 +1,5 @@
 using System;
+using SoyoFramework.Framework.Runtime.Utils.UnRegisters;
 using UnityEngine;
 
 namespace SoyoFramework.Framework.Runtime.Utils
@@ -108,6 +109,12 @@ namespace SoyoFramework.Framework.Runtime.Utils
                     _onUnRegister?.Invoke();
                     _isUnregistered = true;
                 }
+            }
+
+            public IUnRegister Combine(IUnRegister other)
+            {
+                _onUnRegister += other.UnRegister;
+                return this;
             }
         }
     }

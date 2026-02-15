@@ -24,7 +24,7 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime.UITest
         // 调试区域
         [Header("调试区域")] [SerializeReference] List<IUIContext> RegisteredContexts;
 
-        private void Start()
+        private void Awake()
         {
             UniTask.Void(async () =>
             {

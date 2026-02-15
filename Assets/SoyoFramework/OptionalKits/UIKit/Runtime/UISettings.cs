@@ -28,7 +28,7 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime
     public class UIPageConfig
     {
         public string PageName;
-        public AssetReference PrefabReference;
+        public AssetReferenceGameObject PrefabReference;
         public string LayerKey;
     }
 }

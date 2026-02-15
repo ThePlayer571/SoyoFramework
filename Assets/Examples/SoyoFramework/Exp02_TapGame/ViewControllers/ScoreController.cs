@@ -4,6 +4,7 @@ using Examples.SoyoFramework.Exp02_TapGame.ViewModels;
 using SoyoFramework.Framework.Runtime.Core;
 using SoyoFramework.Framework.Runtime.Core.Tools;
 using SoyoFramework.Framework.Runtime.Utils;
+using SoyoFramework.Framework.Runtime.Utils.UnRegisters;
 using UnityEngine;
 using UnityEngine.UI;
 

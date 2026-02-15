@@ -2,7 +2,8 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime.Page
 {
     public interface IUIPageLogic
     {
-        bool TryHandleCommand(UICommand command);
+        bool HandleUICommand(UICommand command);
+        bool HandleUICommand<TResult>(UICommand<TResult> command, out TResult result);
         void OnInit();
         void OnClose();
     }
@@ -16,7 +17,8 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime.Page
         
         protected IUIViewHost Host { get; }
         
-        public abstract bool TryHandleCommand(UICommand command);
+        public abstract bool HandleUICommand(UICommand command);
+        public abstract bool HandleUICommand<TResult>(UICommand<TResult> command, out TResult result);
         public abstract void OnInit();
         public abstract void OnClose();
     }

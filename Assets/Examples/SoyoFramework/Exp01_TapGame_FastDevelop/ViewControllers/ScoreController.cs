@@ -3,6 +3,7 @@ using Examples.SoyoFramework.Exp01_TapGame_FastDevelop.Models;
 using SoyoFramework.Framework.Runtime.Core;
 using SoyoFramework.Framework.Runtime.Core.DefaultSyntacticSugar;
 using SoyoFramework.Framework.Runtime.Utils;
+using SoyoFramework.Framework.Runtime.Utils.UnRegisters;
 using UnityEngine;
 using UnityEngine.UI;
 

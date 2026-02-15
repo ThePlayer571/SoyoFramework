@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using SoyoFramework.Framework.Runtime.Utils.LogKit;
+using SoyoFramework.Framework.Runtime.Utils.LogKit.Interfaces;
 using SoyoFramework.OptionalKits.UIKit.Runtime.Page;
 using SoyoFramework.ToolKits.Runtime.FluentAPI;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace SoyoFramework.OptionalKits.UIKit.Runtime
@@ -34,6 +36,7 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime
 
         private Dictionary<string, UIPageConfig> _pageConfigs = new();
         private Dictionary<string, ActiveUIPageMetaData> _activeUIPageMetaData = new();
+        private ILog _logger = new PrefixLogger("[UIManager]");
 
 
         #region Page api
@@ -42,13 +45,13 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime
         {
             if (_activeUIPageMetaData.ContainsKey(pageName))
             {
-                $"UIPage: {pageName} 已经打开".LogError();
+                $"UIPage: {pageName} 已经打开".LogError(_logger);
                 return null;
             }
 
             if (!_pageConfigs.TryGetValue(pageName, out var pageConfig))
             {
-                $"UIPage: 找不到 {pageName} 的配置信息".LogError();
+                $"UIPage: 找不到 {pageName} 的配置信息".LogError(_logger);
                 return null;
             }
 
@@ -56,17 +59,29 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime
             var layerTransform = UIRoot.GetLayerTransform(pageConfig.LayerKey);
             if (layerTransform == null)
             {
-                $"UIPage: {pageName} 的LayerKey '{pageConfig.LayerKey}' 未注册".LogError();
+                $"UIPage: {pageName} 的LayerKey '{pageConfig.LayerKey}' 未注册".LogError(_logger);
                 return null;
             }
 
-            var handle = pageConfig.PrefabReference.InstantiateAsync(layerTransform);
+            if (!pageConfig.PrefabReference.RuntimeKeyIsValid())
+            {
+                $"UIPage: {pageName} 的PrefabReference未设置或Key无效".LogError(_logger);
+                return null;
+            }
+
+            var handle = Addressables.InstantiateAsync(pageConfig.PrefabReference, layerTransform);
             await handle.ToUniTask();
+
+            if (handle.Status != AsyncOperationStatus.Succeeded || handle.Result == null)
+            {
+                $"UIPage: {pageName} 的预制体实例化失败".LogError(_logger);
+                return null;
+            }
 
             var pageInstance = handle.Result.GetComponent<UIPage>();
             if (pageInstance == null)
             {
-                $"UIPage: {pageName} 的预制体上没有挂载UIPage组件".LogError();
+                $"UIPage: {pageName} 的预制体上没有挂载UIPage组件".LogError(_logger);
                 handle.Release();
                 return null;
             }
@@ -88,10 +103,9 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime
 
         public void ClosePage(string pageName)
         {
-            // 移除记录
+            // 检查是否打开
             if (!_activeUIPageMetaData.Remove(pageName, out var metaData))
             {
-                $"UIPage: {pageName} 未打开".LogWarning();
                 return;
             }
 
@@ -105,7 +119,6 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime
         {
             if (!_activeUIPageMetaData.TryGetValue(pageName, out var metaData))
             {
-                $"UIPage: {pageName} 未打开".LogWarning();
                 return null;
             }
 

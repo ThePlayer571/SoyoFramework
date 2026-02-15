@@ -80,6 +80,11 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime.Page
         /// <returns>处理是否成功</returns>
         protected abstract bool HandleUICommand(UICommand command);
 
+        /// <summary>
+        /// 处理View发送的UICommand
+        /// </summary>
+        protected abstract bool HandleUICommand<TResult>(UICommand<TResult> command, out TResult result);
+
         #endregion
 
         #region 生命周期
@@ -167,16 +172,18 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime.Page
                 // 通过注册的Logic处理
                 foreach (var uiPageLogic in _pageLogics)
                 {
-                    if (uiPageLogic.TryHandleCommand(uiCommand))
+                    if (uiPageLogic.HandleUICommand(uiCommand))
                     {
                         return;
                     }
                 }
 
-                if (!HandleUICommand(uiCommand))
+                if (HandleUICommand(uiCommand))
                 {
-                    $"未处理的UICommand: {uiCommand.GetType().Name}".LogError();
+                    return;
                 }
+
+                $"未处理的UICommand: {uiCommand.GetType().Name}".LogError();
             }
             else
             {
@@ -184,18 +191,45 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime.Page
                 {
                     // 非UICommand，发送至框架
                     this.SendCommand(command);
+                    return;
                 }
-                else
-                {
-                    // 无法处理的Command
-                    $"无法处理的Command: {command.GetType().Name}，原因是当前Page没有依赖Architecture".LogError();
-                }
+
+                $"无法处理的Command: {command.GetType().Name}，原因是当前Page没有依赖Architecture".LogError();
             }
         }
 
         public void SubmitCommand<TResult>(ICommand<TResult> command, out TResult result)
         {
-            this.SendCommand(command, out result);
+            if (command is UICommand<TResult> uiCommand)
+            {
+                // 通过注册的Logic处理
+                foreach (var uiPageLogic in _pageLogics)
+                {
+                    if (uiPageLogic.HandleUICommand(uiCommand, out result))
+                    {
+                        return;
+                    }
+                }
+
+                if (HandleUICommand(uiCommand, out result))
+                {
+                    return;
+                }
+
+                $"未处理的UICommand<{typeof(TResult).Name}>: {uiCommand.GetType().Name}".LogError();
+            }
+            else
+            {
+                if (RelyingArchitecture != null)
+                {
+                    // 非UICommand，发送至框架
+                    this.SendCommand(command, out result);
+                    return;
+                }
+
+                $"无法处理的Command<{typeof(TResult).Name}>: {command.GetType().Name}，原因是当前Page没有依赖Architecture".LogError();
+                result = default;
+            }
         }
 
         #endregion
