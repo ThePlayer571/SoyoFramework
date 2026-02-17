@@ -2,8 +2,7 @@
     "name": "SoyoFramework.Example.Exp01",
     "rootNamespace": "",
     "references": [
-        "GUID:58c1b14f353fc1c4382ad940a680c0bb",
-        "GUID:f51ebe6a0ceec4240a699833d6309b23"
+        "GUID:58c1b14f353fc1c4382ad940a680c0bb"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
