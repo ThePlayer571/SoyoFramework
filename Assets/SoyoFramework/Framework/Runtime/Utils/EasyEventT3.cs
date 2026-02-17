@@ -35,16 +35,16 @@ namespace SoyoFramework.Framework.Runtime.Utils
     public partial class EasyEvent<T1, T2, T3>
     {
 #if UNITY_EDITOR
-        [SerializeField] private T1 _serializedValue1;
-        [SerializeField] private T2 _serializedValue2;
-        [SerializeField] private T3 _serializedValue3;
+        [SerializeField] private T1 _arg1;
+        [SerializeField] private T2 _arg2;
+        [SerializeField] private T3 _arg3;
 
         /// <summary>
         /// 供 Editor PropertyDrawer 调用的触发方法
         /// </summary>
         internal void EditorTrigger()
         {
-            Trigger(_serializedValue1, _serializedValue2, _serializedValue3);
+            Trigger(_arg1, _arg2, _arg3);
         }
 #endif
     }
