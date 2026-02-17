@@ -110,12 +110,6 @@ namespace SoyoFramework.Framework.Runtime.Utils
                     _isUnregistered = true;
                 }
             }
-
-            public IUnRegister Combine(IUnRegister other)
-            {
-                _onUnRegister += other.UnRegister;
-                return this;
-            }
         }
     }
 

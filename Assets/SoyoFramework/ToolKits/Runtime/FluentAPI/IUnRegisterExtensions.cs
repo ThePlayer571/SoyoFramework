@@ -24,7 +24,7 @@ namespace SoyoFramework.ToolKits.Runtime.FluentAPI
         {
             component?.gameObject.GetOrAddComponent<OnDestroyListener>().onDestroy.Register(self.UnRegister);
         }
-        
+
         // ====================== Action ======================
         public static IUnRegister Register(this Action handler, Action<Action> add, Action<Action> remove)
         {
@@ -38,19 +38,22 @@ namespace SoyoFramework.ToolKits.Runtime.FluentAPI
             return new CustomUnRegister(() => remove(handler));
         }
 
-        public static IUnRegister Register<T1, T2>(this Action<T1, T2> handler, Action<Action<T1, T2>> add, Action<Action<T1, T2>> remove)
+        public static IUnRegister Register<T1, T2>(this Action<T1, T2> handler, Action<Action<T1, T2>> add,
+            Action<Action<T1, T2>> remove)
         {
             add(handler);
             return new CustomUnRegister(() => remove(handler));
         }
 
-        public static IUnRegister Register<T1, T2, T3>(this Action<T1, T2, T3> handler, Action<Action<T1, T2, T3>> add, Action<Action<T1, T2, T3>> remove)
+        public static IUnRegister Register<T1, T2, T3>(this Action<T1, T2, T3> handler, Action<Action<T1, T2, T3>> add,
+            Action<Action<T1, T2, T3>> remove)
         {
             add(handler);
             return new CustomUnRegister(() => remove(handler));
         }
 
-        public static IUnRegister Register<T1, T2, T3, T4>(this Action<T1, T2, T3, T4> handler, Action<Action<T1, T2, T3, T4>> add, Action<Action<T1, T2, T3, T4>> remove)
+        public static IUnRegister Register<T1, T2, T3, T4>(this Action<T1, T2, T3, T4> handler,
+            Action<Action<T1, T2, T3, T4>> add, Action<Action<T1, T2, T3, T4>> remove)
         {
             add(handler);
             return new CustomUnRegister(() => remove(handler));
@@ -63,22 +66,28 @@ namespace SoyoFramework.ToolKits.Runtime.FluentAPI
             unityEvent.AddListener(call);
             return new CustomUnRegister(() => unityEvent.RemoveListener(call));
         }
+
         public static IUnRegister Register<T0>(this UnityEvent<T0> unityEvent, UnityAction<T0> call)
         {
             unityEvent.AddListener(call);
             return new CustomUnRegister(() => unityEvent.RemoveListener(call));
         }
+
         public static IUnRegister Register<T0, T1>(this UnityEvent<T0, T1> unityEvent, UnityAction<T0, T1> call)
         {
             unityEvent.AddListener(call);
             return new CustomUnRegister(() => unityEvent.RemoveListener(call));
         }
-        public static IUnRegister Register<T0, T1, T2>(this UnityEvent<T0, T1, T2> unityEvent, UnityAction<T0, T1, T2> call)
+
+        public static IUnRegister Register<T0, T1, T2>(this UnityEvent<T0, T1, T2> unityEvent,
+            UnityAction<T0, T1, T2> call)
         {
             unityEvent.AddListener(call);
             return new CustomUnRegister(() => unityEvent.RemoveListener(call));
         }
-        public static IUnRegister Register<T0, T1, T2, T3>(this UnityEvent<T0, T1, T2, T3> unityEvent, UnityAction<T0, T1, T2, T3> call)
+
+        public static IUnRegister Register<T0, T1, T2, T3>(this UnityEvent<T0, T1, T2, T3> unityEvent,
+            UnityAction<T0, T1, T2, T3> call)
         {
             unityEvent.AddListener(call);
             return new CustomUnRegister(() => unityEvent.RemoveListener(call));

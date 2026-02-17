@@ -33,18 +33,5 @@ namespace SoyoFramework.Framework.Runtime.Utils.UnRegisters
                 }
             }
         }
-
-        public IUnRegister Combine(IUnRegister other)
-        {
-            return CombineInternal(other);
-        }
-
-        private CustomUnRegister CombineInternal(IUnRegister other)
-        {
-            if (other == null) return this;
-
-            _onUnRegister += other.UnRegister;
-            return this;
-        }
     }
 }
