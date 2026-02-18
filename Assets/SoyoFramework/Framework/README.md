@@ -62,7 +62,7 @@ graph TD
 
 > 允许在Model里提供Action(或者用框架内置的EasyEvent/BindableProperty)，认为这是SendEvent的语法糖。
 
-> 不过存在*不允许订阅事件*的层级能获取Model，此处只能靠自觉约束。
+> 不过存在*不允许订阅事件但能获取Model*的层级，此处只能靠自觉约束不订阅事件。
 
 ##### 逻辑层
 
