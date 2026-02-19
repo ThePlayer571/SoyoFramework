@@ -1,5 +1,4 @@
 using System;
-using SoyoFramework.Framework.Runtime.Utils;
 using UnityEngine;
 
 namespace SoyoFramework.OptionalKits.StyledElementKit.Runtime
@@ -22,7 +21,7 @@ namespace SoyoFramework.OptionalKits.StyledElementKit.Runtime
     public class StyledElementHelper<TStyle> : StyledElementHelperBase<TStyle>
         where TStyle : ElementStyle
     {
-        public sealed override TStyle Style
+        public override TStyle Style
         {
             get => _style;
             set
@@ -39,7 +38,7 @@ namespace SoyoFramework.OptionalKits.StyledElementKit.Runtime
         {
         }
 
-        public void Update()
+        public virtual void Update()
         {
             OnUpdate(Style);
         }
@@ -49,7 +48,7 @@ namespace SoyoFramework.OptionalKits.StyledElementKit.Runtime
     public class StyledElementHelper<TStyle, T> : StyledElementHelperBase<TStyle>
         where TStyle : ElementStyle
     {
-        public sealed override TStyle Style
+        public override TStyle Style
         {
             get => _style;
             set
@@ -66,7 +65,7 @@ namespace SoyoFramework.OptionalKits.StyledElementKit.Runtime
         {
         }
 
-        public void Update(in T para)
+        public virtual void Update(in T para)
         {
             OnUpdate(Style, para);
         }
