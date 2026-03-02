@@ -1,3 +1,5 @@
+#if XNODE_SUPPORT
+
 using System.Linq;
 using SoyoFramework.OptionalKits.ProcedureKit.xNodeEditor.Nodes;
 using UnityEngine;
@@ -24,7 +26,10 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.xNodeEditor.Editor
                     graph.AttachedConfig.Procedures.FirstOrDefault(x => x.EnumValue == node.EnumValue)?.Name ?? "Null";
             }
 
-            GUILayout.Label($"{node.EnumValue} {procedureName}", NodeEditorResources.styles.nodeHeader, GUILayout.Height(30));
+            GUILayout.Label($"{node.EnumValue} {procedureName}", NodeEditorResources.styles.nodeHeader,
+                GUILayout.Height(30));
         }
     }
 }
+
+#endif

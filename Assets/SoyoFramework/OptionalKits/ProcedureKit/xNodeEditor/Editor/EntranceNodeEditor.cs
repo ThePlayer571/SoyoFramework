@@ -1,3 +1,5 @@
+#if XNODE_SUPPORT
+
 using SoyoFramework.OptionalKits.ProcedureKit.xNodeEditor.Nodes;
 using UnityEngine;
 using XNodeEditor;
@@ -13,3 +15,5 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.xNodeEditor.Editor
         }
     }
 }
+
+#endif

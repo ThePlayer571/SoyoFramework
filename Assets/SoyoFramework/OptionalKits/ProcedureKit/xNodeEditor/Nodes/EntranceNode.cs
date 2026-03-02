@@ -1,3 +1,5 @@
+#if XNODE_SUPPORT
+
 using UnityEngine;
 using XNode;
 
@@ -10,3 +12,5 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.xNodeEditor.Nodes
         private int next;
     }
 }
+
+#endif

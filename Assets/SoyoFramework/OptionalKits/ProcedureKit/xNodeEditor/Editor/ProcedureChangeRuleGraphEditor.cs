@@ -1,3 +1,5 @@
+#if XNODE_SUPPORT
+
 using System;
 using SoyoFramework.Framework.Runtime.Utils.LogKit;
 using SoyoFramework.OptionalKits.ProcedureKit.Editor;
@@ -40,7 +42,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.xNodeEditor.Editor
                     }
                 }
             }
-            
+
             // 如果有配置，读取并同步节点
             if (Graph.AttachedConfig != null)
             {
@@ -143,3 +145,4 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.xNodeEditor.Editor
         }
     }
 }
+#endif
