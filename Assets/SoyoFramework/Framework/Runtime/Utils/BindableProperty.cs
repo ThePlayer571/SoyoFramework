@@ -17,6 +17,7 @@ namespace SoyoFramework.Framework.Runtime.Utils
         new T Value { get; set; }
         void SetValueWithoutTrigger(T value);
         void ForceTrigger();
+        void UnRegisterAll();
     }
 
     [Serializable]
@@ -90,6 +91,11 @@ namespace SoyoFramework.Framework.Runtime.Utils
         public void ForceTrigger()
         {
             _valueChangeEvent?.Trigger(_value);
+        }
+
+        public void UnRegisterAll()
+        {
+            _valueChangeEvent.UnRegisterAll();
         }
 
         private class ActionUnRegister : IUnRegister
