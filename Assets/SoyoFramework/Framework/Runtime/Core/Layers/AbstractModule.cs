@@ -2,32 +2,39 @@ namespace SoyoFramework.Framework.Runtime.Core.Layers
 {
     public abstract class AbstractModule : IModule
     {
-        IArchitecture ICanAttachToArchitecture.AttachedArchitecture { get; set; }
+        #region 接口实现
 
-        public bool PreInitialized { get; private set; }
-        public bool Initialized { get; private set; }
+        IArchitecture ICanAttachToArchitecture.AttachedArchitecture { get; set; }
+        bool ICanInitByArchitecture.PreInitialized => _preInitialized;
+        bool ICanInitByArchitecture.Initialized => _initialized;
 
         void ICanInitByArchitecture.Init()
         {
-            if (!PreInitialized)
+            if (!_preInitialized)
             {
                 ((ICanInitByArchitecture)this).PreInit();
             }
 
             OnInit();
-            Initialized = true;
+            _initialized = true;
         }
 
         void ICanInitByArchitecture.PreInit()
         {
             OnPreInit();
-            PreInitialized = true;
+            _preInitialized = true;
         }
 
         void ICanInitByArchitecture.Deinit()
         {
             OnDeinit();
         }
+
+        #endregion
+
+        private bool _preInitialized;
+        private bool _initialized;
+
 
         protected virtual void OnPreInit()
         {
