@@ -20,6 +20,11 @@ namespace SoyoFramework.Framework.Runtime.Utils
             _onEvent -= onEvent;
         }
 
+        public void UnRegisterAll()
+        {
+            _onEvent = null;
+        }
+
         public void Trigger()
         {
             _onEvent?.Invoke();

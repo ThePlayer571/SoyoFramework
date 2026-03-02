@@ -14,20 +14,26 @@ namespace SoyoFramework.Framework.Runtime.Utils
             return new CustomUnRegister(() => UnRegister(onEvent));
         }
 
-        public IUnRegister RegisterWithInvoke(T arg, Action<T> onEvent)
-        {
-            onEvent?.Invoke(arg);
-            return Register(onEvent);
-        }
 
         public void UnRegister(Action<T> onEvent)
         {
             _onEvent -= onEvent;
         }
 
+        public void UnRegisterAll()
+        {
+            _onEvent = null;
+        }
+
         public void Trigger(in T arg)
         {
             _onEvent?.Invoke(arg);
+        }
+
+        public IUnRegister RegisterWithInvoke(T arg, Action<T> onEvent)
+        {
+            onEvent?.Invoke(arg);
+            return Register(onEvent);
         }
     }
 
