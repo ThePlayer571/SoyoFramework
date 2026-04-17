@@ -15,29 +15,7 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime.Utils.ViewHelpers
 
         #region Log支持
 
-        protected ILog Logger { get; } = new ViewHelperLogger();
-
-        private class ViewHelperLogger : ILog
-        {
-            public LogStrategy LogStrategy { get; set; } = LogStrategy.All;
-
-            public void LogInfo(object message)
-            {
-                if (LogStrategy == LogStrategy.All)
-                    UnityEngine.Debug.Log("[ViewHelper] " + message);
-            }
-
-            public void LogWarning(object message)
-            {
-                if (LogStrategy is LogStrategy.All or LogStrategy.WarningAndError)
-                    UnityEngine.Debug.LogWarning("[ViewHelper] " + message);
-            }
-
-            public void LogError(object message)
-            {
-                UnityEngine.Debug.LogError("[ViewHelper] " + message);
-            }
-        }
+        protected ILog Logger { get; } = new PrefixLogger("ViewHelper", LogStrategy.All);
 
         #endregion
     }

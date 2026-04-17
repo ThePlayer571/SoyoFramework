@@ -14,7 +14,8 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime.Utils.ViewHelpers
         {
             if (_onShowAsync == null)
             {
-                Logger.LogError("调用ShowAsync失败，原因是未设置onShowAsync回调");
+                Logger.LogInfo("调用ShowAsync失败，原因是未设置onShowAsync回调，自动回退到ShowInstantly");
+                ShowInstantly(data);
                 return;
             }
 
@@ -60,7 +61,8 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime.Utils.ViewHelpers
         {
             if (_onHideAsync == null)
             {
-                Logger.LogError("调用HideAsync失败，原因是未设置onHideAsync回调");
+                Logger.LogInfo("调用HideAsync失败，原因是未设置onHideAsync回调，自动回退到HideInstantly");
+                HideInstantly(data);
                 return;
             }
 
