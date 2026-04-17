@@ -70,5 +70,38 @@ namespace SoyoFramework.ToolKits.Runtime
                 }
             }
         }
+
+
+        /// <summary>
+        /// 开启一个FixedUpdate任务，在FixedUpdate生命周期调用onUpdate回调
+        /// </summary>
+        /// <param name="onUpdate"></param>
+        /// <param name="externalToken"></param>
+        /// <returns></returns>
+        public static UpdateHandle StartFixed(Action onUpdate, CancellationToken externalToken = default)
+        {
+            var internalCts = new CancellationTokenSource();
+            var linkedCts = externalToken != CancellationToken.None
+                ? CancellationTokenSource.CreateLinkedTokenSource(internalCts.Token, externalToken)
+                : internalCts;
+
+            Loop().Forget();
+            return new UpdateHandle(internalCts);
+
+            async UniTaskVoid Loop()
+            {
+                try
+                {
+                    while (!linkedCts.IsCancellationRequested)
+                    {
+                        onUpdate?.Invoke();
+                        await UniTask.Yield(PlayerLoopTiming.FixedUpdate, linkedCts.Token);
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                }
+            }
+        }
     }
 }
