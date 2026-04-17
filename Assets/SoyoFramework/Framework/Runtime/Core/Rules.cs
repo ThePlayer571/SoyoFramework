@@ -95,7 +95,7 @@ namespace SoyoFramework.Framework.Runtime.Core
     }
 
     #endregion
-    
+
     #region Extensions
 
     public static class CanGetModelExtension
@@ -106,17 +106,17 @@ namespace SoyoFramework.Framework.Runtime.Core
 
     public static class CanRegisterEventExtension
     {
-        public static IUnRegister RegisterEvent<T>(this ICanRegisterEvent self, Action<T> onEvent) where T : IEvent =>
-            self.RelyingArchitecture.RegisterEvent<T>(onEvent);
+        public static IUnRegister RegisterEvent<T>(this ICanRegisterEvent self, Action<T> onEvent)
+            => self.RelyingArchitecture.RegisterEvent<T>(onEvent);
     }
 
     public static class CanSendEventExtension
     {
-        public static void SendEvent<T>(this ICanSendEvent self) where T : IEvent, new() =>
-            self.RelyingArchitecture.SendEvent<T>();
+        public static void SendEvent<T>(this ICanSendEvent self) where T : new()
+            => self.RelyingArchitecture.SendEvent<T>();
 
-        public static void SendEvent<T>(this ICanSendEvent self, T e) where T : IEvent =>
-            self.RelyingArchitecture.SendEvent<T>(e);
+        public static void SendEvent<T>(this ICanSendEvent self, T e)
+            => self.RelyingArchitecture.SendEvent<T>(e);
     }
 
     public static class CanSendCommandExtension

@@ -1,10 +1,7 @@
-using System;
-using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using Examples.UIKitExample.Scripts.MainGame;
 using Examples.UIKitExample.Scripts.SettingsPanel;
 using SoyoFramework.Framework.Runtime.Core;
-using SoyoFramework.Framework.Runtime.Utils.LogKit;
 using SoyoFramework.OptionalKits.UIKit.Runtime.Page;
 using SoyoFramework.ToolKits.Runtime.FluentAPI;
 using Random = UnityEngine.Random;

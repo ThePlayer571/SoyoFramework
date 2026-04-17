@@ -13,7 +13,7 @@ namespace SoyoFramework.Framework.Runtime.Core
         // Module（所有层级的超集）
         void RegisterModule<T>(T module) where T : class, IModule;
         T GetModule<T>() where T : class, IModule;
-        
+
         // Model层
         void RegisterModel<T>(T model) where T : class, IModel;
         T GetModel<T>() where T : class, IModel;
@@ -31,9 +31,9 @@ namespace SoyoFramework.Framework.Runtime.Core
         T GetTool<T>() where T : class, ITool;
 
         // Event
-        IUnRegister RegisterEvent<T>(Action<T> onEvent) where T : IEvent;
-        void SendEvent<T>() where T : IEvent, new();
-        void SendEvent<T>(in T e) where T : IEvent;
+        IUnRegister RegisterEvent<T>(Action<T> onEvent);
+        void SendEvent<T>() where T : new();
+        void SendEvent<T>(in T e);
 
         // Command
         void SendCommand(ICommand command);

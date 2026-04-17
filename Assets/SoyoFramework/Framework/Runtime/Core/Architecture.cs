@@ -166,17 +166,17 @@ namespace SoyoFramework.Framework.Runtime.Core
             return GetModule<T>();
         }
 
-        public IUnRegister RegisterEvent<T>(Action<T> onEvent) where T : IEvent
+        public IUnRegister RegisterEvent<T>(Action<T> onEvent)
         {
             return _eventSystem.Register<T>(onEvent);
         }
 
-        public void SendEvent<T>() where T : IEvent, new()
+        public void SendEvent<T>() where T : new()
         {
             _eventSystem.Call<T>();
         }
 
-        public void SendEvent<T>(in T e) where T : IEvent
+        public void SendEvent<T>(in T e)
         {
             _eventSystem.Call<T>(in e);
         }

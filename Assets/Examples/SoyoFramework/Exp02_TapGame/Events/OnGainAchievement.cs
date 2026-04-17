@@ -2,7 +2,7 @@ using SoyoFramework.Framework.Runtime.Utils;
 
 namespace Examples.SoyoFramework.Exp02_TapGame.Events
 {
-    public class OnGainAchievement : IEvent
+    public class OnGainAchievement
     {
         public string AchievementName { get; }
 
