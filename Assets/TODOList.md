@@ -1,0 +1,8 @@
+Dictionary库
+废除IEvent
+移除Tool层，这是没用的。不过有个特定层级能调用的东西有必要，改定义为
+SoyoUI系列显示脚本名
+Procedure添加接口：CanChangeTo(cur,next)
+AddAwait记得改
+ViewHelperAsync的async方法如果没有，会查找同步的方法
+Procedure节点编辑器
