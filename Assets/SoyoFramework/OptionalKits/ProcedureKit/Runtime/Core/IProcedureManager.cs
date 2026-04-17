@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
-using SoyoFramework.Framework.Runtime.Core;
 using SoyoFramework.Framework.Runtime.Utils;
 using SoyoFramework.Framework.Runtime.Utils.UnRegisters;
 using SoyoFramework.OptionalKits.ProcedureKit.Runtime.DataClasses;
@@ -12,9 +11,12 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
     {
         // 数据
         TProcedureId CurrentProcedure { get; }
-        ProcedureCheckMode CheckMode { get; set; }
-
         bool IsChangingProcedure { get; }
+        
+        // 切换规则
+        ProcedureCheckMode CheckMode { get; set; }
+        bool HasChangeRule(TProcedureId previous, TProcedureId next);
+        bool CurrentHasChangeRule(TProcedureId next);
 
         // 标签
         bool HasTag(TProcedureId procedureId, TTagId tag);

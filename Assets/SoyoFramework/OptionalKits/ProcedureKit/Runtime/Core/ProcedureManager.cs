@@ -181,6 +181,16 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
             _awaitTasks.Enqueue(task);
         }
 
+        public bool HasChangeRule(TProcedureId previous, TProcedureId next)
+        {
+            return CheckAllowedPreviousProcedure(previous, next);
+        }
+
+        public bool CurrentHasChangeRule(TProcedureId next)
+        {
+            return CheckAllowedPreviousProcedure(CurrentProcedure, next);
+        }
+
         #endregion
 
         #region 接口实现 - 标签
