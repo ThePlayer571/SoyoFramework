@@ -202,6 +202,12 @@ namespace SoyoFramework.Framework.Runtime.Core
             return GetModule<T>();
         }
 
+        public T InitCommand<T>(T command) where T : ICommand
+        {
+            command.AttachedArchitecture = this;
+            return command;
+        }
+
         public void SendCommand(ICommand command)
         {
 #if UNITY_EDITOR

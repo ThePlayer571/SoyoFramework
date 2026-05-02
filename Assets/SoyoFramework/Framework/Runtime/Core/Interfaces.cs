@@ -36,6 +36,7 @@ namespace SoyoFramework.Framework.Runtime.Core
         void SendEvent<T>(in T e);
 
         // Command
+        T InitCommand<T>(T command) where T : ICommand;
         void SendCommand(ICommand command);
         void SendCommand<TResult>(ICommand<TResult> command, out TResult result);
         CanExecuteResult TrySendCommand(ICommand command);

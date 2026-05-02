@@ -121,12 +121,15 @@ namespace SoyoFramework.Framework.Runtime.Core
 
     public static class CanSendCommandExtension
     {
-        public static void SendCommand(this ICanSendCommand self, ICommand command) =>
-            self.RelyingArchitecture.SendCommand(command);
+        public static T InitCommand<T>(this ICanSendCommand self, T command) where T : ICommand
+            => self.RelyingArchitecture.InitCommand(command);
 
-        public static void SendCommand<TResult>(this ICanSendCommand self, ICommand<TResult> command,
-            out TResult result) =>
-            self.RelyingArchitecture.SendCommand(command, out result);
+        public static void SendCommand(this ICanSendCommand self, ICommand command)
+            => self.RelyingArchitecture.SendCommand(command);
+
+        public static void SendCommand<TResult>
+            (this ICanSendCommand self, ICommand<TResult> command, out TResult result)
+            => self.RelyingArchitecture.SendCommand(command, out result);
 
         public static CanExecuteResult TrySendCommand(this ICanSendCommand self, ICommand command)
             => self.RelyingArchitecture.TrySendCommand(command);
