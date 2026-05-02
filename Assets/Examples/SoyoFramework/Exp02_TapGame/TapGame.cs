@@ -13,7 +13,7 @@ namespace Examples.SoyoFramework.Exp02_TapGame
             this.RegisterModel<IScoreModel>(new ScoreModel());
             this.RegisterSystem<IAchievementSystem>(new AchievementSystem());
             this.RegisterVController(new AchievementController());
-            this.RegisterTool<IScoreViewModel>(new ScoreViewModel());
+            this.RegisterSublayer<IScoreViewModel>(new ScoreViewModel());
         }
 
         protected override void OnDeinit()

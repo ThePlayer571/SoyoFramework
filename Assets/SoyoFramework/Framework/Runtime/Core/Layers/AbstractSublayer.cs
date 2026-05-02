@@ -1,6 +1,6 @@
 namespace SoyoFramework.Framework.Runtime.Core.Layers
 {
-    public class AbstractTool : AbstractModule, ITool
+    public class AbstractSublayer : AbstractModule, ISublayer
     {
     }
 }

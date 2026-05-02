@@ -1,14 +1,14 @@
 using SoyoFramework.Framework.Runtime.Core.Layers;
 
-namespace SoyoFramework.Framework.Runtime.Core.Tools
+namespace SoyoFramework.Framework.Runtime.Core.Sublayers
 {
     /// <summary>
     /// <para>
-    /// Tool 层：Service
+    /// Sublayer：Service
     /// </para>
     /// <para>
     /// 主要用于解决 System 层逻辑复用的问题，例如需要对数据进行复杂修改操作时，可通过 Service 统一处理。
-    /// 也适合封装特定操作的唯一入口。例如，若多个 Command 和 System 均需执行种植植物的操作，此时无法用 Command 封装
+    /// 也适合封装特定操作的唯一入口。例如，若多个 Command 和 System 均需执行"种植植物“的操作，此时无法用 Command 封装
     /// </para>
     /// <para>
     /// 约定：
@@ -19,12 +19,12 @@ namespace SoyoFramework.Framework.Runtime.Core.Tools
     /// </para>
     /// </summary>
     public interface IService :
-        ITool, ISystemCanGet,
+        ISublayer, ISystemCanGet,
         ICanGetModel, ICanSendEvent
     {
     }
 
-    public abstract class AbstractService : AbstractTool, IService
+    public abstract class AbstractService : AbstractSublayer, IService
     {
     }
 
@@ -33,19 +33,19 @@ namespace SoyoFramework.Framework.Runtime.Core.Tools
         public static T GetService<T>(this ISystemRule self)
             where T : class, IService
         {
-            return self.RelyingArchitecture.GetTool<T>();
+            return self.RelyingArchitecture.GetSublayer<T>();
         }
 
         public static T GetService<T>(this IService self)
             where T : class, IService
         {
-            return self.RelyingArchitecture.GetTool<T>();
+            return self.RelyingArchitecture.GetSublayer<T>();
         }
 
         public static T GetService<T>(this ICommandRule self)
             where T : class, IService
         {
-            return self.RelyingArchitecture.GetTool<T>();
+            return self.RelyingArchitecture.GetSublayer<T>();
         }
     }
 }

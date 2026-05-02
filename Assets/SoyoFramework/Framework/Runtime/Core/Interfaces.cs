@@ -26,9 +26,9 @@ namespace SoyoFramework.Framework.Runtime.Core
         void RegisterVController<T>(T viewController) where T : class, IVController;
         T GetVController<T>() where T : class, IVController;
 
-        // Tool支持
-        void RegisterTool<T>(T tool) where T : class, ITool;
-        T GetTool<T>() where T : class, ITool;
+        // Sublayer支持
+        void RegisterSublayer<T>(T sublayer) where T : class, ISublayer;
+        T GetSublayer<T>() where T : class, ISublayer;
 
         // Event
         IUnRegister RegisterEvent<T>(Action<T> onEvent);
@@ -61,7 +61,7 @@ namespace SoyoFramework.Framework.Runtime.Core
     {
     }
 
-    public interface ITool :
+    public interface ISublayer :
         IModule
     {
     }

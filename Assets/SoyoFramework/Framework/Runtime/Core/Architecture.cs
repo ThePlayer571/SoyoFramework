@@ -182,12 +182,12 @@ namespace SoyoFramework.Framework.Runtime.Core
         }
 
 
-        public void RegisterTool<T>(T tool) where T : class, ITool
+        public void RegisterSublayer<T>(T sublayer) where T : class, ISublayer
         {
-            RegisterModule(tool);
+            RegisterModule(sublayer);
         }
 
-        public T GetTool<T>() where T : class, ITool
+        public T GetSublayer<T>() where T : class, ISublayer
         {
             return GetModule<T>();
         }

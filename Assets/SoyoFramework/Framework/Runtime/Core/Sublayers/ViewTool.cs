@@ -1,10 +1,10 @@
 using SoyoFramework.Framework.Runtime.Core.Layers;
 
-namespace SoyoFramework.Framework.Runtime.Core.Tools
+namespace SoyoFramework.Framework.Runtime.Core.Sublayers
 {
     /// <summary>
     /// <para>
-    /// Tool 层：ViewTool
+    /// Sublayer：ViewTool
     /// </para>
     /// <para>
     /// 用于解决 ViewController 层逻辑复用的问题。
@@ -16,12 +16,12 @@ namespace SoyoFramework.Framework.Runtime.Core.Tools
     /// </para>
     /// </summary>
     public interface IViewTool :
-        ITool, IViewControllerCanGet,
+        ISublayer, IViewControllerCanGet,
         ICanGetModel, ICanSendCommand
     {
     }
 
-    public abstract class AbstractViewTool : AbstractTool, IViewTool
+    public abstract class AbstractViewTool : AbstractSublayer, IViewTool
     {
     }
 
@@ -30,13 +30,13 @@ namespace SoyoFramework.Framework.Runtime.Core.Tools
         public static T GetViewTool<T>(this IViewControllerRule self)
             where T : class, IViewTool
         {
-            return self.RelyingArchitecture.GetTool<T>();
+            return self.RelyingArchitecture.GetSublayer<T>();
         }
 
         public static T GetViewTool<T>(this IViewTool self)
             where T : class, IViewTool
         {
-            return self.RelyingArchitecture.GetTool<T>();
+            return self.RelyingArchitecture.GetSublayer<T>();
         }
     }
 }

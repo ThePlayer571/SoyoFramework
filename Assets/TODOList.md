@@ -1,3 +1,3 @@
 Dictionary库
-移除Tool层，这是没用的。不过有个特定层级能调用的东西有必要，改定义为SubLayer
+持久Command创建
 Procedure节点编辑器
