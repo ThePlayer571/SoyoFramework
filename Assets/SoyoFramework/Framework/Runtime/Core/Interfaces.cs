@@ -89,15 +89,13 @@ namespace SoyoFramework.Framework.Runtime.Core
         CanExecuteResult CanExecute();
     }
 
-    public interface ICommand<out TResult> :
+    public interface ICommand<out TResult> : ICommand,
         ICanAttachToArchitecture, ICommandRule
     {
         /// <summary>
         /// 执行Command的逻辑，推荐只能通过Architecture来调用
         /// </summary>
         /// <param name="ignoreCanExecuteCheck">执行时不自动调用CanExecute检查，通常为了性能而开启</param>
-        protected internal TResult Execute(bool ignoreCanExecuteCheck = false);
-
-        CanExecuteResult CanExecute();
+        protected internal new TResult Execute(bool ignoreCanExecuteCheck = false);
     }
 }

@@ -57,6 +57,11 @@ namespace SoyoFramework.Framework.Runtime.Core.Layers
             }
         }
 
+        void ICommand.Execute(bool ignoreCanExecuteCheck)
+        {
+            ((ICommand<TResult>)this).Execute(ignoreCanExecuteCheck);
+        }
+
         public virtual CanExecuteResult CanExecute()
         {
             return CanExecuteResult.Success;
