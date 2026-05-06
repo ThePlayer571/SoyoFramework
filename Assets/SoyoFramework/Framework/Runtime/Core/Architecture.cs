@@ -146,26 +146,6 @@ namespace SoyoFramework.Framework.Runtime.Core
             return module;
         }
 
-        public void RegisterModel<T>(T model) where T : class, IModel
-        {
-            RegisterModule(model);
-        }
-
-        public void RegisterSystem<T>(T system) where T : class, ISystem
-        {
-            RegisterModule(system);
-        }
-
-        public T GetModel<T>() where T : class, IModel
-        {
-            return GetModule<T>();
-        }
-
-        public T GetSystem<T>() where T : class, ISystem
-        {
-            return GetModule<T>();
-        }
-
         public IUnRegister RegisterEvent<T>(Action<T> onEvent)
         {
             return _eventSystem.Register<T>(onEvent);
@@ -181,17 +161,6 @@ namespace SoyoFramework.Framework.Runtime.Core
             _eventSystem.Call<T>(in e);
         }
 
-
-        public void RegisterSublayer<T>(T sublayer) where T : class, ISublayer
-        {
-            RegisterModule(sublayer);
-        }
-
-        public T GetSublayer<T>() where T : class, ISublayer
-        {
-            return GetModule<T>();
-        }
-
         public void RegisterVController<T>(T viewController) where T : class, IVController
         {
             RegisterModule(viewController);
@@ -200,6 +169,42 @@ namespace SoyoFramework.Framework.Runtime.Core
         public T GetVController<T>() where T : class, IVController
         {
             return GetModule<T>();
+        }
+
+        public void RegisterDomainRoot<T>(T domainRoot) where T : IDomainRoot
+        {
+            if (domainRoot == null)
+            {
+                $"注册失败，注册的DomainRoot不能为null: {typeof(T).Name}".LogError();
+                return;
+            }
+
+            _container.Register<T>(domainRoot);
+        }
+
+        public void UnregisterDomainRoot<T>() where T : class, IDomainRoot
+        {
+            var domainRoot = _container.Get<T>();
+            if (domainRoot == null)
+            {
+                $"尝试注销未注册的DomainRoot: {typeof(T).Name}".LogError();
+                return;
+            }
+
+            domainRoot.Deinit();
+            _container.Unregister<T>();
+        }
+
+        public T GetDomainRoot<T>() where T : class, IDomainRoot
+        {
+            var domainRoot = _container.Get<T>();
+            if (domainRoot == null)
+            {
+                $"尝试获取未注册的DomainRoot: {typeof(T).Name}".LogError();
+                return null;
+            }
+
+            return domainRoot;
         }
 
         public T InitCommand<T>(T command) where T : ICommand

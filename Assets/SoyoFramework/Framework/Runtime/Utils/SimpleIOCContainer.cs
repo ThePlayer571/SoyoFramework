@@ -15,6 +15,16 @@ namespace SoyoFramework.Framework.Runtime.Utils
             _container[key] = instance;
         }
 
+        public void Unregister<T>()
+        {
+            var key = typeof(T);
+
+            if (_container.ContainsKey(key))
+            {
+                _container.Remove(key);
+            }
+        }
+
         public T Get<T>() where T : class
         {
             var key = typeof(T);

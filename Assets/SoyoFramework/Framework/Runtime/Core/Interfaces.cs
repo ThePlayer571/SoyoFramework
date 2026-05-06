@@ -28,36 +28,6 @@ namespace SoyoFramework.Framework.Runtime.Core
         /// <returns></returns>
         T GetModule<T>() where T : class, IModule;
 
-        // Model层
-        /// <summary>
-        /// 注册一个Model。会以T为key存储在IOCContainer里
-        /// </summary>
-        /// <param name="model"></param>
-        /// <typeparam name="T"></typeparam>
-        void RegisterModel<T>(T model) where T : class, IModel;
-
-        /// <summary>
-        /// 获取一个Model。会以T为key从IOCContainer里取出
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        T GetModel<T>() where T : class, IModel;
-
-        // System层
-        /// <summary>
-        /// 注册一个System。会以T为key存储在IOCContainer里
-        /// </summary>
-        /// <param name="system"></param>
-        /// <typeparam name="T"></typeparam>
-        void RegisterSystem<T>(T system) where T : class, ISystem;
-
-        /// <summary>
-        /// 获取一个System。会以T为key从IOCContainer里取出
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        T GetSystem<T>() where T : class, ISystem;
-
         // ViewController层
         /// <summary>
         /// 注册一个ViewController。会以T为key存储在IOCContainer里
@@ -73,20 +43,10 @@ namespace SoyoFramework.Framework.Runtime.Core
         /// <returns></returns>
         T GetVController<T>() where T : class, IVController;
 
-        // Sublayer支持
-        /// <summary>
-        /// 注册一个Sublayer。会以T为key存储在IOCContainer里
-        /// </summary>
-        /// <param name="sublayer"></param>
-        /// <typeparam name="T"></typeparam>
-        void RegisterSublayer<T>(T sublayer) where T : class, ISublayer;
-
-        /// <summary>
-        /// 获取一个Sublayer。会以T为key从IOCContainer里取出
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        T GetSublayer<T>() where T : class, ISublayer;
+        // Domain
+        void RegisterDomainRoot<T>(T domainRoot) where T : IDomainRoot;
+        T GetDomainRoot<T>() where T : class, IDomainRoot;
+        void UnregisterDomainRoot<T>() where T : class, IDomainRoot;
 
         // Event
         /// <summary>
@@ -153,34 +113,20 @@ namespace SoyoFramework.Framework.Runtime.Core
     /// <summary>
     /// 基接口：能被注册到Architecture中
     /// </summary>
-    public interface IModule :
-        ICanAttachToArchitecture, ICanInitByArchitecture
+    public interface IModule : ICanInitByArchitecture
     {
     }
 
+    public interface IDomainRoot : IDomainRule
+    {
+        internal void Deinit();
+    }
 
-    public interface IModel :
-        IModule, IModelRule
+    public interface IMonoVController : IViewControllerRule
     {
     }
 
-    public interface ISystem :
-        IModule, ISystemRule
-    {
-    }
-
-    public interface ISublayer :
-        IModule
-    {
-    }
-
-    public interface IMonoVController :
-        IViewControllerRule
-    {
-    }
-
-    public interface IVController :
-        IModule, IViewControllerRule
+    public interface IVController : IModule, IViewControllerRule
     {
     }
 

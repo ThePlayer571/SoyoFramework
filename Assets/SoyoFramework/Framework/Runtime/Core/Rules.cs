@@ -43,21 +43,27 @@ namespace SoyoFramework.Framework.Runtime.Core
 
     #region 接口：基础规则
 
-    public interface ICanGetModel : ICanRelyOnArchitecture
-    {
-    }
-
-
     public interface ICanRegisterEvent : ICanRelyOnArchitecture
     {
     }
-
 
     public interface ICanSendEvent : ICanRelyOnArchitecture
     {
     }
 
     public interface ICanSendCommand : ICanRelyOnArchitecture
+    {
+    }
+
+    public interface ICanRegisterDomainRoot : ICanRelyOnArchitecture
+    {
+    }
+
+    public interface ICanGetDomainRoot : ICanRelyOnArchitecture
+    {
+    }
+
+    public interface ICanUnregisterDomainRoot : ICanRelyOnArchitecture
     {
     }
 
@@ -71,25 +77,18 @@ namespace SoyoFramework.Framework.Runtime.Core
 
     #region 接口：层级规则
 
-    public interface IModelRule :
-        ICanSendEvent
-    {
-    }
-
-    public interface ISystemRule :
-        ICanGetModel,
+    public interface IDomainRule :
         ICanRegisterEvent, ICanSendEvent
     {
     }
 
+
     public interface IViewControllerRule :
-        ICanGetModel,
         ICanRegisterEvent, ICanSendCommand
     {
     }
 
     public interface ICommandRule :
-        ICanGetModel,
         ICanSendEvent, ICanSendCommand
     {
     }
@@ -97,17 +96,6 @@ namespace SoyoFramework.Framework.Runtime.Core
     #endregion
 
     #region Extensions
-
-    public static class CanGetModelExtension
-    {
-        /// <summary>
-        /// 获取一个Model。会以T为key从IOCContainer里取出
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static T GetModel<T>(this ICanGetModel self) where T : class, IModel =>
-            self.RelyingArchitecture.GetModel<T>();
-    }
 
     public static class CanRegisterEventExtension
     {
@@ -185,6 +173,33 @@ namespace SoyoFramework.Framework.Runtime.Core
         public static CanExecuteResult TrySendCommand<TResult>(this ICanSendCommand self, ICommand<TResult> command,
             out TResult result)
             => self.RelyingArchitecture.TrySendCommand(command, out result);
+    }
+
+    public static class CanRegisterDomainRootExtension
+    {
+        public static void RegisterDomainRoot<T>(this ICanRegisterDomainRoot self, T domainRoot)
+            where T : class, IDomainRoot
+        {
+            self.RelyingArchitecture.RegisterDomainRoot(domainRoot);
+        }
+    }
+
+    public static class CanGetDomainRootExtension
+    {
+        public static T GetDomainRoot<T>(this ICanGetDomainRoot self)
+            where T : class, IDomainRoot
+        {
+            return self.RelyingArchitecture.GetDomainRoot<T>();
+        }
+    }
+
+    public static class CanUnregisterDomainRootExtension
+    {
+        public static void UnregisterDomainRoot<T>(this ICanUnregisterDomainRoot self)
+            where T : class, IDomainRoot
+        {
+            self.RelyingArchitecture.UnregisterDomainRoot<T>();
+        }
     }
 
     public static class CanGetExtension
