@@ -10,6 +10,11 @@ namespace SoyoFramework.Framework.Runtime.Core.Layers
 
         void ICanInitByArchitecture.Init()
         {
+            if (_initialized)
+            {
+                return;
+            }
+
             if (!_preInitialized)
             {
                 ((ICanInitByArchitecture)this).PreInit();
@@ -21,6 +26,11 @@ namespace SoyoFramework.Framework.Runtime.Core.Layers
 
         void ICanInitByArchitecture.PreInit()
         {
+            if (_preInitialized)
+            {
+                return;
+            }
+
             OnPreInit();
             _preInitialized = true;
         }
