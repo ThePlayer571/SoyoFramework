@@ -71,12 +71,6 @@ namespace SoyoFramework.Framework.Runtime.Core
     {
     }
 
-    [SuperLayer("获取任意层级")]
-    public interface ICanGet<T> : ICanRelyOnArchitecture
-        where T : class, IModule
-    {
-    }
-
     #endregion
 
     #region 接口：层级规则
@@ -237,20 +231,6 @@ namespace SoyoFramework.Framework.Runtime.Core
         /// <returns></returns>
         public static T GetDomainService<T>(this ICanGetDomainService self)
             where T : class, IDomainService
-        {
-            return self.RelyingArchitecture.GetModule<T>();
-        }
-    }
-
-    public static class CanGetExtension
-    {
-        /// <summary>
-        /// 无视规则强行获取Module
-        /// </summary>
-        /// <param name="self"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static T Get<T>(this ICanGet<T> self) where T : class, IModule
         {
             return self.RelyingArchitecture.GetModule<T>();
         }
