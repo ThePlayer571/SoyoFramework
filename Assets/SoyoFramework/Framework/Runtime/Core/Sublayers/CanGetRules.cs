@@ -14,16 +14,6 @@ namespace SoyoFramework.Framework.Runtime.Core.Sublayers
 
     public static class CanGetRulesExtensions
     {
-        public static T GetSublayer<T>(this ISystemRule self) where T : class, IModelCanGet
-        {
-            return self.RelyingArchitecture.GetSublayer<T>();
-        }
-
-        public static T GetSublayer<T>(this IModelRule self) where T : class, ISystemCanGet
-        {
-            return self.RelyingArchitecture.GetSublayer<T>();
-        }
-
         public static T GetSublayer<T>(this IViewControllerRule self) where T : class, IViewControllerCanGet
         {
             return self.RelyingArchitecture.GetSublayer<T>();

@@ -28,36 +28,6 @@ namespace SoyoFramework.Framework.Runtime.Core
         /// <returns></returns>
         T GetModule<T>() where T : class, IModule;
 
-        // Model层
-        /// <summary>
-        /// 注册一个Model。会以T为key存储在IOCContainer里
-        /// </summary>
-        /// <param name="model"></param>
-        /// <typeparam name="T"></typeparam>
-        void RegisterModel<T>(T model) where T : class, IModel;
-
-        /// <summary>
-        /// 获取一个Model。会以T为key从IOCContainer里取出
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        T GetModel<T>() where T : class, IModel;
-
-        // System层
-        /// <summary>
-        /// 注册一个System。会以T为key存储在IOCContainer里
-        /// </summary>
-        /// <param name="system"></param>
-        /// <typeparam name="T"></typeparam>
-        void RegisterSystem<T>(T system) where T : class, ISystem;
-
-        /// <summary>
-        /// 获取一个System。会以T为key从IOCContainer里取出
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        T GetSystem<T>() where T : class, ISystem;
-
         // ViewController层
         /// <summary>
         /// 注册一个ViewController。会以T为key存储在IOCContainer里
@@ -155,17 +125,6 @@ namespace SoyoFramework.Framework.Runtime.Core
     /// </summary>
     public interface IModule :
         ICanAttachToArchitecture, ICanInitByArchitecture
-    {
-    }
-
-
-    public interface IModel :
-        IModule, IModelRule
-    {
-    }
-
-    public interface ISystem :
-        IModule, ISystemRule
     {
     }
 

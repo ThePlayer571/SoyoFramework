@@ -13,8 +13,7 @@ namespace SoyoFramework.Framework.Runtime.Core.Sublayers
     /// </para>
     /// </summary>
     public interface IViewModel :
-        ISublayer, IViewControllerCanGet,
-        ICanGetModel
+        ISublayer, IViewControllerCanGet
     {
     }
     

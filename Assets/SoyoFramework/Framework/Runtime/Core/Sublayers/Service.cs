@@ -19,8 +19,7 @@ namespace SoyoFramework.Framework.Runtime.Core.Sublayers
     /// </para>
     /// </summary>
     public interface IService :
-        ISublayer, ISystemCanGet,
-        ICanGetModel, ICanSendEvent
+        ISublayer, ISystemCanGet, ICanSendEvent
     {
     }
 
@@ -30,11 +29,6 @@ namespace SoyoFramework.Framework.Runtime.Core.Sublayers
 
     public static class CanGetServiceExtension
     {
-        public static T GetService<T>(this ISystemRule self)
-            where T : class, IService
-        {
-            return self.RelyingArchitecture.GetSublayer<T>();
-        }
 
         public static T GetService<T>(this IService self)
             where T : class, IService

@@ -16,8 +16,7 @@ namespace SoyoFramework.Framework.Runtime.Core.Sublayers
     /// </para>
     /// </summary>
     public interface IViewTool :
-        ISublayer, IViewControllerCanGet,
-        ICanGetModel, ICanSendCommand
+        ISublayer, IViewControllerCanGet, ICanSendCommand
     {
     }
 

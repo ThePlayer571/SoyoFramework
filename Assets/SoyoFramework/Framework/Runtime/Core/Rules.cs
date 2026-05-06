@@ -43,11 +43,6 @@ namespace SoyoFramework.Framework.Runtime.Core
 
     #region 接口：基础规则
 
-    public interface ICanGetModel : ICanRelyOnArchitecture
-    {
-    }
-
-
     public interface ICanRegisterEvent : ICanRelyOnArchitecture
     {
     }
@@ -71,25 +66,12 @@ namespace SoyoFramework.Framework.Runtime.Core
 
     #region 接口：层级规则
 
-    public interface IModelRule :
-        ICanSendEvent
-    {
-    }
-
-    public interface ISystemRule :
-        ICanGetModel,
-        ICanRegisterEvent, ICanSendEvent
-    {
-    }
-
     public interface IViewControllerRule :
-        ICanGetModel,
         ICanRegisterEvent, ICanSendCommand
     {
     }
 
     public interface ICommandRule :
-        ICanGetModel,
         ICanSendEvent, ICanSendCommand
     {
     }
@@ -97,17 +79,6 @@ namespace SoyoFramework.Framework.Runtime.Core
     #endregion
 
     #region Extensions
-
-    public static class CanGetModelExtension
-    {
-        /// <summary>
-        /// 获取一个Model。会以T为key从IOCContainer里取出
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static T GetModel<T>(this ICanGetModel self) where T : class, IModel =>
-            self.RelyingArchitecture.GetModel<T>();
-    }
 
     public static class CanRegisterEventExtension
     {

@@ -146,26 +146,6 @@ namespace SoyoFramework.Framework.Runtime.Core
             return module;
         }
 
-        public void RegisterModel<T>(T model) where T : class, IModel
-        {
-            RegisterModule(model);
-        }
-
-        public void RegisterSystem<T>(T system) where T : class, ISystem
-        {
-            RegisterModule(system);
-        }
-
-        public T GetModel<T>() where T : class, IModel
-        {
-            return GetModule<T>();
-        }
-
-        public T GetSystem<T>() where T : class, ISystem
-        {
-            return GetModule<T>();
-        }
-
         public IUnRegister RegisterEvent<T>(Action<T> onEvent)
         {
             return _eventSystem.Register<T>(onEvent);
