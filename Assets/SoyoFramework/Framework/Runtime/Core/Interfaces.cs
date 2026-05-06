@@ -7,13 +7,17 @@ namespace SoyoFramework.Framework.Runtime.Core
 {
     public interface IArchitecture
     {
-        // Architecture生命周期
+        #region Architecture生命周期
+
         /// <summary>
         /// Architecture是否已完成初始化。只有初始化后的Architecture才能正常使用。通常会自动初始化，如果出现问题，尝试手动调用Architecture.Init()
         /// </summary>
         bool Inited { get; }
 
-        // Module（所有层级的超集）
+        #endregion
+
+        #region Module
+
         /// <summary>
         /// 注册一个Module。会以T为key存储在IOCContainer里
         /// </summary>
@@ -28,27 +32,34 @@ namespace SoyoFramework.Framework.Runtime.Core
         /// <returns></returns>
         T GetModule<T>() where T : class, IModule;
 
-        // ViewController层
-        /// <summary>
-        /// 注册一个ViewController。会以T为key存储在IOCContainer里
-        /// </summary>
-        /// <param name="viewController"></param>
-        /// <typeparam name="T"></typeparam>
-        void RegisterVController<T>(T viewController) where T : class, IVController;
+        #endregion
+
+        #region Domain
 
         /// <summary>
-        /// 获取一个ViewController。会以T为key从IOCContainer里取出
+        /// 注册一个DomainRoot。会以T为key存储在IOCContainer里
+        /// </summary>
+        /// <param name="domainRoot"></param>
+        /// <typeparam name="T"></typeparam>
+        void RegisterDomainRoot<T>(T domainRoot) where T : IDomainRoot;
+
+        /// <summary>
+        /// 获取一个DomainRoot。会以T为key从IOCContainer里取出
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        T GetVController<T>() where T : class, IVController;
-
-        // Domain
-        void RegisterDomainRoot<T>(T domainRoot) where T : IDomainRoot;
         T GetDomainRoot<T>() where T : class, IDomainRoot;
+
+        /// <summary>
+        /// 卸载一个DomainRoot。会以T为key从IOCContainer里移除
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
         void UnregisterDomainRoot<T>() where T : class, IDomainRoot;
 
-        // Event
+        #endregion
+
+        #region Event
+
         /// <summary>
         /// 按类型注册事件，会在事件发送时调用onEvent。返回一个IUnRegister，调用它可以取消注册
         /// </summary>
@@ -70,7 +81,10 @@ namespace SoyoFramework.Framework.Runtime.Core
         /// <typeparam name="T"></typeparam>
         void SendEvent<T>(in T e);
 
-        // Command
+        #endregion
+
+        #region Command
+
         /// <summary>
         /// 初始化一个Command。初始化后，可以直接调用CanExecute获取CanExecuteResult。想调用Command，必须通过SendCommand
         /// </summary>
@@ -108,6 +122,8 @@ namespace SoyoFramework.Framework.Runtime.Core
         /// <typeparam name="TResult"></typeparam>
         /// <returns></returns>
         CanExecuteResult TrySendCommand<TResult>(ICommand<TResult> command, out TResult result);
+
+        #endregion
     }
 
     /// <summary>
@@ -120,6 +136,10 @@ namespace SoyoFramework.Framework.Runtime.Core
     public interface IDomainRoot : IDomainRule
     {
         internal void Deinit();
+    }
+
+    public interface IDomainService : IModule, IDomainServiceRule
+    {
     }
 
     public interface IMonoVController : IViewControllerRule

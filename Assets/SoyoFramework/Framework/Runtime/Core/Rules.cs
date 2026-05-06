@@ -67,6 +67,10 @@ namespace SoyoFramework.Framework.Runtime.Core
     {
     }
 
+    public interface ICanGetDomainService : ICanRelyOnArchitecture
+    {
+    }
+
     [SuperLayer("获取任意层级")]
     public interface ICanGet<T> : ICanRelyOnArchitecture
         where T : class, IModule
@@ -89,8 +93,16 @@ namespace SoyoFramework.Framework.Runtime.Core
     }
 
     public interface ICommandRule :
-        ICanSendEvent, ICanSendCommand
+        ICanSendEvent, ICanSendCommand,
+        ICanGetDomainRoot, ICanRegisterDomainRoot, ICanUnregisterDomainRoot, 
+        ICanGetDomainService
     {
+    }
+
+    public interface IDomainServiceRule :
+        ICanSendEvent
+    {
+        
     }
 
     #endregion
@@ -177,6 +189,11 @@ namespace SoyoFramework.Framework.Runtime.Core
 
     public static class CanRegisterDomainRootExtension
     {
+        /// <summary>
+        /// 注册一个DomainRoot。会以T为key存储在IOCContainer里
+        /// </summary>
+        /// <param name="domainRoot"></param>
+        /// <typeparam name="T"></typeparam>
         public static void RegisterDomainRoot<T>(this ICanRegisterDomainRoot self, T domainRoot)
             where T : class, IDomainRoot
         {
@@ -186,6 +203,11 @@ namespace SoyoFramework.Framework.Runtime.Core
 
     public static class CanGetDomainRootExtension
     {
+        /// <summary>
+        /// 获取一个DomainRoot。会以T为key从IOCContainer里取出
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         public static T GetDomainRoot<T>(this ICanGetDomainRoot self)
             where T : class, IDomainRoot
         {
@@ -195,10 +217,28 @@ namespace SoyoFramework.Framework.Runtime.Core
 
     public static class CanUnregisterDomainRootExtension
     {
+        /// <summary>
+        /// 卸载一个DomainRoot。会以T为key从IOCContainer里移除
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
         public static void UnregisterDomainRoot<T>(this ICanUnregisterDomainRoot self)
             where T : class, IDomainRoot
         {
             self.RelyingArchitecture.UnregisterDomainRoot<T>();
+        }
+    }
+    
+    public static class CanGetDomainServiceExtension
+    {
+        /// <summary>
+        /// 获取一个DomainService。会以T为key从IOCContainer里取出
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static T GetDomainService<T>(this ICanGetDomainService self)
+            where T : class, IDomainService
+        {
+            return self.RelyingArchitecture.GetModule<T>();
         }
     }
 
