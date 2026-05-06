@@ -47,12 +47,23 @@ namespace SoyoFramework.Framework.Runtime.Core
     {
     }
 
-
     public interface ICanSendEvent : ICanRelyOnArchitecture
     {
     }
 
     public interface ICanSendCommand : ICanRelyOnArchitecture
+    {
+    }
+
+    public interface ICanRegisterDomainRoot : ICanRelyOnArchitecture
+    {
+    }
+
+    public interface ICanGetDomainRoot : ICanRelyOnArchitecture
+    {
+    }
+
+    public interface ICanUnregisterDomainRoot : ICanRelyOnArchitecture
     {
     }
 
@@ -65,6 +76,12 @@ namespace SoyoFramework.Framework.Runtime.Core
     #endregion
 
     #region 接口：层级规则
+
+    public interface IDomainRule :
+        ICanRegisterEvent, ICanSendEvent
+    {
+    }
+
 
     public interface IViewControllerRule :
         ICanRegisterEvent, ICanSendCommand
@@ -156,6 +173,33 @@ namespace SoyoFramework.Framework.Runtime.Core
         public static CanExecuteResult TrySendCommand<TResult>(this ICanSendCommand self, ICommand<TResult> command,
             out TResult result)
             => self.RelyingArchitecture.TrySendCommand(command, out result);
+    }
+
+    public static class CanRegisterDomainRootExtension
+    {
+        public static void RegisterDomainRoot<T>(this ICanRegisterDomainRoot self, T domainRoot)
+            where T : class, IDomainRoot
+        {
+            self.RelyingArchitecture.RegisterDomainRoot(domainRoot);
+        }
+    }
+
+    public static class CanGetDomainRootExtension
+    {
+        public static T GetDomainRoot<T>(this ICanGetDomainRoot self)
+            where T : class, IDomainRoot
+        {
+            return self.RelyingArchitecture.GetDomainRoot<T>();
+        }
+    }
+
+    public static class CanUnregisterDomainRootExtension
+    {
+        public static void UnregisterDomainRoot<T>(this ICanUnregisterDomainRoot self)
+            where T : class, IDomainRoot
+        {
+            self.RelyingArchitecture.UnregisterDomainRoot<T>();
+        }
     }
 
     public static class CanGetExtension
