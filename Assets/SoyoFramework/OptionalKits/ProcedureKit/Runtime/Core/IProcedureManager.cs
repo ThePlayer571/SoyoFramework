@@ -30,6 +30,8 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
 
         IUnRegister Register(TProcedureId procedureId, ProcedureChangeStage stage,
             Action<ProcedureChangeInfo> callback);
+
+        void AddAwait(UniTask task);
     }
 
     public interface IProcedureManager<TProcedureId, TTagId> : IReadonlyProcedureManager<TProcedureId, TTagId>
@@ -40,7 +42,5 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
         // 流程切换
         UniTask ChangeProcedure(TProcedureId procedureId, ProcedureChangeInfo.ProcedureChangeParas paras);
         UniTask ChangeProcedure(TProcedureId procedureId, params (string, object)[] paras);
-
-        void AddAwait(UniTask task);
     }
 }
