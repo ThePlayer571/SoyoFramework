@@ -27,6 +27,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor.Window
         private string _namespace = "Game. Procedures";
         private string _procedureIdEnumName = "ProcedureId";
         private string _procedureTagEnumName = "ProcedureTag";
+        private bool _generateProcedureManager = true;
 
         // 验证错误缓存
         private List<string> _validationErrors = new List<string>();

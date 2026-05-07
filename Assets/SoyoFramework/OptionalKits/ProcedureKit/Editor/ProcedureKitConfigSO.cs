@@ -30,6 +30,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor
         public string Namespace = "Game.Procedures";
         public string ProcedureIdEnumName = "ProcedureId";
         public string ProcedureTagEnumName = "ProcedureTag";
+        public bool GenerateProcedureManager = true;
 
         private void OnEnable()
         {

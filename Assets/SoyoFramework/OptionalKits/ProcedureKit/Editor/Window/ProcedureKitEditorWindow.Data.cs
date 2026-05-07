@@ -49,6 +49,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor.Window
             _namespace = _config.Namespace;
             _procedureIdEnumName = _config.ProcedureIdEnumName;
             _procedureTagEnumName = _config.ProcedureTagEnumName;
+            _generateProcedureManager = _config.GenerateProcedureManager;
         }
 
         private void SaveToConfig()
@@ -82,6 +83,7 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor.Window
             _config. Namespace = _namespace;
             _config.ProcedureIdEnumName = _procedureIdEnumName;
             _config. ProcedureTagEnumName = _procedureTagEnumName;
+            _config.GenerateProcedureManager = _generateProcedureManager;
 
             EditorUtility.SetDirty(_config);
             AssetDatabase.SaveAssets();

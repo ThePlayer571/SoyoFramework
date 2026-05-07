@@ -60,6 +60,14 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor.Window
             _procedureTagEnumName = EditorGUILayout.TextField(_procedureTagEnumName);
             EditorGUILayout.EndHorizontal();
 
+            EditorGUILayout.Space(5);
+
+            // 生成 ProcedureManager
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("生成 ProcedureManager", GUILayout.Width(120));
+            _generateProcedureManager = EditorGUILayout.Toggle(_generateProcedureManager);
+            EditorGUILayout.EndHorizontal();
+
             EditorGUILayout.Space(20);
 
             // 生成预览
@@ -72,7 +80,10 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor.Window
             EditorGUILayout.LabelField($"  • {_procedureIdEnumName}. cs", EditorStyles.miniLabel);
             EditorGUILayout.LabelField($"  • {_procedureTagEnumName}.cs", EditorStyles.miniLabel);
             EditorGUILayout.LabelField($"  • ProcedureConfig.cs", EditorStyles.miniLabel);
-            EditorGUILayout. LabelField($"  • ProcedureManager.cs", EditorStyles.miniLabel);
+            if (_generateProcedureManager)
+            {
+                EditorGUILayout.LabelField($"  • ProcedureManager.cs", EditorStyles.miniLabel);
+            }
             EditorGUILayout.EndVertical();
 
             EditorGUILayout.Space(20);
@@ -102,7 +113,10 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor.Window
             GenerateProcedureIdFile();
             GenerateProcedureTagFile();
             GenerateProcedureConfigFile();
-            GenerateProcedureManagerFile();
+            if (_generateProcedureManager)
+            {
+                GenerateProcedureManagerFile();
+            }
 
             // 保存当前编辑数据的副本
             var savedTags = _tags.Select(t => new TagEntry { Name = t.Name, EnumValue = t.EnumValue }).ToList();
@@ -291,3 +305,4 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Editor.Window
         }
     }
 }
+
