@@ -7,14 +7,14 @@ using SoyoFramework.OptionalKits.ProcedureKit.Runtime.DataClasses;
 
 namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
 {
-    public interface IProcedureModel<TProcedureId, TTagId>
+    public interface IReadonlyProcedureManager<TProcedureId, TTagId>
     {
         // 数据
         TProcedureId CurrentProcedure { get; }
         bool IsChangingProcedure { get; }
-        
+
         // 切换规则
-        ProcedureCheckMode CheckMode { get; set; }
+        ProcedureCheckMode CheckMode { get; }
         bool HasChangeRule(TProcedureId previous, TProcedureId next);
         bool CurrentHasChangeRule(TProcedureId next);
 
@@ -32,18 +32,15 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime.Core
             Action<ProcedureChangeInfo> callback);
     }
 
-    public interface IProcedureService<TProcedureId>
+    public interface IProcedureManager<TProcedureId, TTagId> : IReadonlyProcedureManager<TProcedureId, TTagId>
     {
+        // 切换规则
+        new ProcedureCheckMode CheckMode { get; set; }
+
         // 流程切换
         UniTask ChangeProcedure(TProcedureId procedureId, ProcedureChangeInfo.ProcedureChangeParas paras);
         UniTask ChangeProcedure(TProcedureId procedureId, params (string, object)[] paras);
 
         void AddAwait(UniTask task);
-    }
-
-    public interface IProcedureManager<TProcedureId, TTagId> :
-        IProcedureModel<TProcedureId, TTagId>,
-        IProcedureService<TProcedureId>
-    {
     }
 }

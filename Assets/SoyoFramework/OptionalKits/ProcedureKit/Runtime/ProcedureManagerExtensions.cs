@@ -10,17 +10,18 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime
 {
     public static class ProcedureManagerExtensions
     {
-        public static void AddAwait<TProcedureId>(
-            this UniTask task, IProcedureService<TProcedureId> procedureService)
+        public static void AddAwait<TProcedureId, TTag>(
+            this UniTask task,
+            IProcedureManager<TProcedureId, TTag> procedureManager)
         {
-            procedureService.AddAwait(task);
+            procedureManager.AddAwait(task);
         }
 
         /// <summary>
         /// 返回一个UniTask，在指定阶段流程切换到指定流程时完成
         /// </summary>
         public static UniTask WaitUntilProcedure<TProcedureId, TTagId>(
-            this IProcedureModel<TProcedureId, TTagId> procedureModel,
+            this IReadonlyProcedureManager<TProcedureId, TTagId> procedureManager,
             TProcedureId targetProcedure,
             ProcedureChangeStage targetStage,
             CancellationToken cancellationToken = default)
@@ -28,15 +29,15 @@ namespace SoyoFramework.OptionalKits.ProcedureKit.Runtime
             var tcs = new UniTaskCompletionSource();
 
             // 如果已经在目标流程和阶段，直接完成
-            if (targetStage == ProcedureChangeStage.EnterEarly && procedureModel.CurrentProcedure != null &&
-                procedureModel.CurrentProcedure.Equals(targetProcedure))
+            if (targetStage == ProcedureChangeStage.EnterEarly && procedureManager.CurrentProcedure != null &&
+                procedureManager.CurrentProcedure.Equals(targetProcedure))
             {
                 tcs.TrySetResult();
                 return tcs.Task;
             }
 
             IUnRegister unRegister = null;
-            unRegister = procedureModel.OnProcedureChange.Register((procedureId, changeStage) =>
+            unRegister = procedureManager.OnProcedureChange.Register((procedureId, changeStage) =>
             {
                 if (changeStage.Equals(targetStage) && procedureId.Equals(targetProcedure))
                 {
