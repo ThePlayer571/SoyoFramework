@@ -1,10 +1,10 @@
 namespace SoyoFramework.Framework.Runtime.Core.Domain
 {
-    public interface IDomainEntity<TRoot> where TRoot : IDomainRoot
+    public interface IDomainEntity
     {
     }
 
-    public abstract class DomainEntity<TRoot> : IDomainEntity<TRoot>
+    public abstract class DomainEntity<TRoot> : IDomainEntity
         where TRoot : IDomainRoot
     {
         protected DomainEntity(TRoot root)

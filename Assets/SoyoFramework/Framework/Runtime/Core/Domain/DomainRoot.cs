@@ -1,13 +1,13 @@
 namespace SoyoFramework.Framework.Runtime.Core.Domain
 {
-    public abstract class DomainRoot<TRoot> : DomainEntity<TRoot>, IDomainRoot
-        where TRoot : IDomainRoot
+    public abstract class DomainRoot : IDomainEntity, IDomainRoot
     {
-        protected DomainRoot(TRoot root) : base(root)
+        protected DomainRoot(IArchitecture arch)
         {
+            RelyingArchitecture = arch;
         }
 
-        public abstract IArchitecture RelyingArchitecture { get; }
+        public IArchitecture RelyingArchitecture { get; }
 
         void IDomainRoot.Deinit()
         {

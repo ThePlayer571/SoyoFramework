@@ -80,23 +80,23 @@ namespace SoyoFramework.Framework.Runtime.Core
     {
     }
 
-
     public interface IViewControllerRule :
-        ICanRegisterEvent, ICanSendCommand
+        ICanRegisterEvent, ICanSendCommand, ICanGetDomainRoot
     {
     }
 
     public interface ICommandRule :
         ICanSendEvent, ICanSendCommand,
-        ICanGetDomainRoot, ICanRegisterDomainRoot, ICanUnregisterDomainRoot, 
+        ICanGetDomainRoot, ICanRegisterDomainRoot, ICanUnregisterDomainRoot,
         ICanGetDomainService
     {
     }
 
     public interface IDomainServiceRule :
-        ICanSendEvent
+        ICanSendEvent,
+        ICanGetDomainService,
+        ICanGetDomainRoot, ICanRegisterDomainRoot, ICanUnregisterDomainRoot
     {
-        
     }
 
     #endregion
@@ -221,7 +221,7 @@ namespace SoyoFramework.Framework.Runtime.Core
             self.RelyingArchitecture.UnregisterDomainRoot<T>();
         }
     }
-    
+
     public static class CanGetDomainServiceExtension
     {
         /// <summary>

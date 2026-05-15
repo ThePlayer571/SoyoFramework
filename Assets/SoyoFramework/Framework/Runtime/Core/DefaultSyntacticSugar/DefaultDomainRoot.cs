@@ -2,10 +2,9 @@ using SoyoFramework.Framework.Runtime.Core.Domain;
 
 namespace SoyoFramework.Framework.Runtime.Core.DefaultSyntacticSugar
 {
-    public abstract class DefaultDomainRoot<TRoot> : DomainRoot<TRoot>, IDefaultDomainRoot
-        where TRoot : IDomainRoot
+    public abstract class DefaultDomainRoot : DomainRoot
     {
-        protected DefaultDomainRoot(TRoot root) : base(root)
+        protected DefaultDomainRoot() : base(DefaultArchitecture.Instance)
         {
         }
     }

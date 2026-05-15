@@ -34,7 +34,7 @@ namespace SoyoFramework.Framework.Runtime.Core
 
         #endregion
 
-        #region Domain
+        #region DomainRoot
 
         /// <summary>
         /// 注册一个DomainRoot。会以T为key存储在IOCContainer里

@@ -161,16 +161,6 @@ namespace SoyoFramework.Framework.Runtime.Core
             _eventSystem.Call<T>(in e);
         }
 
-        public void RegisterVController<T>(T viewController) where T : class, IVController
-        {
-            RegisterModule(viewController);
-        }
-
-        public T GetVController<T>() where T : class, IVController
-        {
-            return GetModule<T>();
-        }
-
         public void RegisterDomainRoot<T>(T domainRoot) where T : IDomainRoot
         {
             if (domainRoot == null)
@@ -287,6 +277,20 @@ namespace SoyoFramework.Framework.Runtime.Core
             }
 
             return canExecute;
+        }
+
+        #endregion
+
+        #region Protected 子类可用
+
+        protected void RegisterVController<T>(T viewController) where T : class, IVController
+        {
+            RegisterModule(viewController);
+        }
+
+        protected void RegisterDomainService<T>(T domainService) where T : class, IDomainService
+        {
+            RegisterModule(domainService);
         }
 
         #endregion
