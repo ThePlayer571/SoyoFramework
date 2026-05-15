@@ -1,6 +1,5 @@
 using System;
 using SoyoFramework.Framework.Runtime.Core.DefaultSyntacticSugar;
-using SoyoFramework.Framework.Runtime.Core.Layers;
 using SoyoFramework.Framework.Runtime.Utils;
 using SoyoFramework.Framework.Runtime.Utils.LogKit;
 using SoyoFramework.Framework.Runtime.Utils.LogKit.Interfaces;
