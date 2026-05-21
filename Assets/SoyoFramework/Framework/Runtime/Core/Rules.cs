@@ -156,9 +156,9 @@ namespace SoyoFramework.Framework.Runtime.Core
         /// <param name="command"></param>
         /// <param name="result"></param>
         /// <typeparam name="TResult"></typeparam>
-        public static void SendCommand<TResult>
-            (this ICanSendCommand self, ICommand<TResult> command, out TResult result)
-            => self.RelyingArchitecture.SendCommand(command, out result);
+        public static TResult SendCommand<TResult>(this ICanSendCommand self, ICommand<TResult> command)
+            => self.RelyingArchitecture.SendCommand(command);
+
 
         /// <summary>
         /// 尝试发送一个Command，并返回CanExecuteResult

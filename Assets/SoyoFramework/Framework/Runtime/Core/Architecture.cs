@@ -217,20 +217,20 @@ namespace SoyoFramework.Framework.Runtime.Core
             command.Execute();
         }
 
-        public void SendCommand<TResult>(ICommand<TResult> command, out TResult result)
+        public TResult SendCommand<TResult>(ICommand<TResult> command)
         {
 #if UNITY_EDITOR
             CommandProfiler.CommandSendHook.OnSend(command);
             if (TEMP_EditorPara.AllCommandIgnoreCanExecuteCheck)
             {
                 command.AttachedArchitecture = this;
-                result = command.Execute(true);
-                return;
+                return command.Execute(true);
             }
 #endif
             command.AttachedArchitecture = this;
-            result = command.Execute();
+            return command.Execute();
         }
+
 
         public CanExecuteResult TrySendCommand(ICommand command)
         {

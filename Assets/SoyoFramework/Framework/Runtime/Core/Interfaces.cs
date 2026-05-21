@@ -104,7 +104,7 @@ namespace SoyoFramework.Framework.Runtime.Core
         /// <param name="command"></param>
         /// <param name="result"></param>
         /// <typeparam name="TResult"></typeparam>
-        void SendCommand<TResult>(ICommand<TResult> command, out TResult result);
+        TResult SendCommand<TResult>(ICommand<TResult> command);
 
         /// <summary>
         /// 尝试发送一个Command，并返回CanExecuteResult

@@ -223,7 +223,7 @@ namespace SoyoFramework.OptionalKits.UIKit.Runtime.Page
                 if (RelyingArchitecture != null)
                 {
                     // 非UICommand，发送至框架
-                    this.SendCommand(command, out result);
+                    result = this.SendCommand(command);
                     return;
                 }
 
