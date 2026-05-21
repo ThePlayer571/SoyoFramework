@@ -134,7 +134,7 @@ namespace SoyoFramework.Framework.Runtime.Core
 
     public interface IDomainRoot : IDomainRule
     {
-        internal void Deinit();
+        protected internal void Deinit();
     }
 
     public interface IDomainService : IModule, IDomainServiceRule
