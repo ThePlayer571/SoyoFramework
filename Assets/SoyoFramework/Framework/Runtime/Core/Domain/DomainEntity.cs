@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace SoyoFramework.Framework.Runtime.Core.Domain
 {
     public interface IDomainEntity
@@ -12,6 +14,23 @@ namespace SoyoFramework.Framework.Runtime.Core.Domain
             Root = root;
         }
 
-        protected TRoot Root { get; private set; }
+        protected TRoot Root { get; }
+    }
+
+    public abstract class MonoDomainEntity<TRoot> : MonoBehaviour, IDomainEntity
+        where TRoot : IDomainRoot
+    {
+        protected TRoot Root
+        {
+            get
+            {
+                _root ??= GetRoot();
+                return _root;
+            }
+        }
+
+        private TRoot _root;
+
+        protected abstract TRoot GetRoot();
     }
 }

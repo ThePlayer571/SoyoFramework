@@ -1,2 +1,4 @@
 Dictionary库
 Procedure节点编辑器
+
+想要使用Domain优雅地写代码，请见：最佳实践
