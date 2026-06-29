@@ -1,5 +1,4 @@
 using System;
-using SoyoFramework.Framework.Runtime.Utils;
 using SoyoFramework.Framework.Runtime.Utils.UnRegisters;
 
 namespace SoyoFramework.Framework.Runtime.Core
@@ -85,6 +84,11 @@ namespace SoyoFramework.Framework.Runtime.Core
         #region Command
 
         /// <summary>
+        /// 是否忽略所有Command的CanExecute检查（仅Editor下生效）
+        /// </summary>
+        bool IgnoreCommandCanExecuteCheck { get; set; }
+
+        /// <summary>
         /// 初始化一个Command。初始化后，可以直接调用CanExecute获取CanExecuteResult。想调用Command，必须通过SendCommand
         /// </summary>
         /// <param name="command"></param>
@@ -102,7 +106,6 @@ namespace SoyoFramework.Framework.Runtime.Core
         /// 发送一个Command，并获取返回值
         /// </summary>
         /// <param name="command"></param>
-        /// <param name="result"></param>
         /// <typeparam name="TResult"></typeparam>
         TResult SendCommand<TResult>(ICommand<TResult> command);
 
@@ -162,8 +165,7 @@ namespace SoyoFramework.Framework.Runtime.Core
         CanExecuteResult CanExecute();
     }
 
-    public interface ICommand<out TResult> : ICommand,
-        ICanAttachToArchitecture, ICommandRule
+    public interface ICommand<out TResult> : ICommand
     {
         /// <summary>
         /// 执行Command的逻辑，推荐只能通过Architecture来调用

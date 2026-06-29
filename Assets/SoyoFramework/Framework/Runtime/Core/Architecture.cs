@@ -12,6 +12,8 @@ namespace SoyoFramework.Framework.Runtime.Core
     {
         #region 可用字段
 
+        public bool IgnoreCommandCanExecuteCheck { get; set; } = false;
+
         public static TArch Instance
         {
             get
@@ -206,7 +208,7 @@ namespace SoyoFramework.Framework.Runtime.Core
         {
 #if UNITY_EDITOR
             CommandProfiler.CommandSendHook.OnSend(command);
-            if (TEMP_EditorPara.AllCommandIgnoreCanExecuteCheck)
+            if (IgnoreCommandCanExecuteCheck)
             {
                 command.AttachedArchitecture = this;
                 command.Execute(true);
@@ -221,7 +223,7 @@ namespace SoyoFramework.Framework.Runtime.Core
         {
 #if UNITY_EDITOR
             CommandProfiler.CommandSendHook.OnSend(command);
-            if (TEMP_EditorPara.AllCommandIgnoreCanExecuteCheck)
+            if (IgnoreCommandCanExecuteCheck)
             {
                 command.AttachedArchitecture = this;
                 return command.Execute(true);
@@ -236,7 +238,7 @@ namespace SoyoFramework.Framework.Runtime.Core
         {
 #if UNITY_EDITOR
             CommandProfiler.CommandSendHook.OnSend(command);
-            if (TEMP_EditorPara.AllCommandIgnoreCanExecuteCheck)
+            if (IgnoreCommandCanExecuteCheck)
             {
                 command.AttachedArchitecture = this;
                 command.Execute(true);
@@ -257,7 +259,7 @@ namespace SoyoFramework.Framework.Runtime.Core
         {
 #if UNITY_EDITOR
             CommandProfiler.CommandSendHook.OnSend(command);
-            if (TEMP_EditorPara.AllCommandIgnoreCanExecuteCheck)
+            if (IgnoreCommandCanExecuteCheck)
             {
                 command.AttachedArchitecture = this;
                 result = command.Execute(true);
