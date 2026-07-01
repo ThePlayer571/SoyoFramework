@@ -81,7 +81,6 @@ DomainEntity 可以是一个类，也可以是 MonoBehavior。
 
 - 设计意图：
     - 处理跨 Domain 的逻辑
-    - 应该尽可能不使用
 - 职能：
     - GetDomainRoot
     - SendEvent
@@ -184,14 +183,81 @@ Command分析工具正是为解决这个问题而设计。
 
 ## 杂项
 
-### 编写 Domain 类最佳实践
+### 最佳实践
 
-1. DomainRoot 作为 DomainEntity 的持有者，只少量地处理逻辑。
-2. DomainEntity 通过 DomainEntity.Root 获取 DomainRoot 的引用。
-3. DomainEntity 可以持有其他 DomainEntity，尽可能不调用父 DomainEntity 的方法。
-4. 每个 DomainEntity 有明确的功能边界，提供可读性良好的 API，尽量不暴露内部数据结构。
-5. DomainEntity 可以作为 MonoBehavior 存在。
-6. 外部可以直接获取 DomainEntity 的引用，可读可写。
+#### 代码结构
+
+```text
+
+Assets
+├── Editor                         // 存放编辑器脚本
+└── Scripts
+    └── Backend                    // 存放纯逻辑代码
+        ├── ValueObjects             // 不可变类型
+        ├── Domains                  // DomainRoot + DomainEntity
+        ├── DomainServices           // DomainService
+        ├── Events                   // Event
+        ├── Gameplay                 // 其余逻辑类（比如配置、游戏相关算法类）
+        ├── Utils                    // 工具类
+        ├── <其他文件夹>
+        └── <游戏名称>.cs             // Architecture类的定义
+    └── Presentation               // 存放表现层代码
+        ├── Commands                 // Command
+        ├── ViewControllers          // ViewController
+        ├── Utils                    // 工具类
+        └── <其他文件夹>
+```
+
+> Backend 和 Presentation 建议分成两个程序集，因为新手很容易在 Domain 中访问 Presentation 的类。
+
+#### 编写 Event 类
+
+1. 总是使用 class，而不是 struct。
+2. 添加 After 或 Before 前缀，明示事件触发的时间点。
+    - 如果时间点不明确，使用 On 前缀。
+    - 不要使用后缀 Event。
+
+#### 编写 Domain 类
+
+> 概念上，DomainRoot 是特殊的 DomainEntity。
+
+1. DomainRoot 是与外界交互的接口，外界对 DomainRoot 进行读写。
+    - DomainRoot 提供 DomainEntity 的引用，外界可以直接读写 DomainEntity。
+    - DomainEntity 完全为了 api 美观和暗示层次结构，不要在意耦合！
+    - 一个 DomainEntity 只属于一个 DomainRoot。即便 Entity 的功能能完美适配另一个 Root，也不要让它属于另一个 Root。
+2. 同一个 DomainRoot 内部耦合。
+    - DomainEntity 通过 DomainEntity.Root 获取 DomainRoot 的引用。
+    - 同一个 Domain 中，DomainEntity 可以持有其他 DomainEntity 的引用。
+    - DomainEntity 尽量不访问父 DomainEntity。
+3. 不同 DomainRoot 之间不耦合。
+    - 禁止获取其他 DomainRoot 的引用，也禁止获取其他 DomainEntity 的引用。
+    - 如果你不得不访问其他 Domain，意味着*这两个 Domain 或许可以合并成一个*。
+    - 如果你偶尔需要执行跨 Doamin 的操作，请使用 DomainService。
+3. DomainRoot 应当保持 api 简洁。
+    - 如果逻辑复杂，功能太多，使用 EntityProperty\<T\> 或 DomainEntity\<T\> 来封装。
+    - EntityProperty\<TEntity\> 语义：我是 TEntity 的一个成员，属于 TEntity 的一部分。
+        - EntityProerty\<T\> 是一个很简单的类，推荐你去看它的实现。
+        - EntityProperty\<TEntity\> 通常是嵌套类。利用嵌套类能访问父类的私有成员的特性，封装逻辑。
+    - DomainEntity\<T\> 语义：我是该 Domain 内的一个独立的实体，拥有自己的逻辑和数据。
+        - 有明确的功能边界，提供可读性良好的 API，尽量不暴露内部数据结构。
+        - 尽量不要访问父 Entity。
+        - DomainEntity 可以作为 MonoBehavior 存在。
+4. DomainEntity 提供的事件不应被外部触发。
+
+#### 编写 DomainService 类
+
+1. DomainService 不应存在状态。
+2. 不涉及跨 Domain 的逻辑时，不应使用 DomainService。
+
+#### 编写 Command 类
+
+1. Command 尽量不负责表现层逻辑。
+2. 重写 CanExecute 方法来验证输入的合法性。
+
+#### 编写 ViewController 类
+
+1. 永远不要直接修改 Domain 层的内容，应该通过 Command 来修改。
+2. 尽量使用观察者模式，少用轮询。
 
 ### EasyEvent / BindableProperty
 
