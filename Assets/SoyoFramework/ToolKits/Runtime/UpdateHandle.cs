@@ -47,38 +47,17 @@ namespace SoyoFramework.ToolKits.Runtime
         /// <returns></returns>
         public static UpdateHandle Start(Action onUpdate, CancellationToken externalToken = default)
         {
-            var internalCts = new CancellationTokenSource();
-            var linkedCts = externalToken != CancellationToken.None
-                ? CancellationTokenSource.CreateLinkedTokenSource(internalCts.Token, externalToken)
-                : internalCts;
-
-            Loop().Forget();
-            return new UpdateHandle(internalCts);
-
-            async UniTaskVoid Loop()
-            {
-                try
-                {
-                    while (!linkedCts.IsCancellationRequested)
-                    {
-                        onUpdate?.Invoke();
-                        await UniTask.Yield(PlayerLoopTiming.Update, linkedCts.Token);
-                    }
-                }
-                catch (OperationCanceledException)
-                {
-                }
-            }
+            return Start(onUpdate, PlayerLoopTiming.Update, externalToken);
         }
 
-
         /// <summary>
-        /// 开启一个FixedUpdate任务，在FixedUpdate生命周期调用onUpdate回调
+        /// 开启一个Update任务，在指定PlayerLoopTiming生命周期调用onUpdate回调
         /// </summary>
         /// <param name="onUpdate"></param>
+        /// <param name="timing"></param>
         /// <param name="externalToken"></param>
         /// <returns></returns>
-        public static UpdateHandle StartFixed(Action onUpdate, CancellationToken externalToken = default)
+        public static UpdateHandle Start(Action onUpdate, PlayerLoopTiming timing, CancellationToken externalToken = default)
         {
             var internalCts = new CancellationTokenSource();
             var linkedCts = externalToken != CancellationToken.None
@@ -95,7 +74,7 @@ namespace SoyoFramework.ToolKits.Runtime
                     while (!linkedCts.IsCancellationRequested)
                     {
                         onUpdate?.Invoke();
-                        await UniTask.Yield(PlayerLoopTiming.FixedUpdate, linkedCts.Token);
+                        await UniTask.Yield(timing, linkedCts.Token);
                     }
                 }
                 catch (OperationCanceledException)
