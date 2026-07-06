@@ -191,7 +191,6 @@ namespace SoyoFramework.Framework.Runtime.Core
             var domainRoot = _container.Get<T>();
             if (domainRoot == null)
             {
-                $"尝试获取未注册的DomainRoot: {typeof(T).Name}".LogError();
                 return null;
             }
 
