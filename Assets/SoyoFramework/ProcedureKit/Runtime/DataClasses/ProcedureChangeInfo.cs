@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using SoyoFramework.Runtime.Utils.LogKit;
+using SoyoFramework.Utils.LogKit;
 
 namespace SoyoFramework.ProcedureKit.Runtime.DataClasses
 {

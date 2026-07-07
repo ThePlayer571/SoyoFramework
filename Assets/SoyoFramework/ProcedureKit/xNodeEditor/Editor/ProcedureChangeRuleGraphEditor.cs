@@ -3,7 +3,7 @@
 using System;
 using SoyoFramework.ProcedureKit.Editor;
 using SoyoFramework.ProcedureKit.Editor.Window;
-using SoyoFramework.Runtime.Utils.LogKit;
+using SoyoFramework.Utils.LogKit;
 using UnityEditor;
 using UnityEngine;
 using XNode;

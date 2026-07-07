@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using SoyoFramework.Runtime.Utils;
-using SoyoFramework.Runtime.Utils.LogKit;
 using SoyoFramework.SoyoUGUIKit.Runtime.ToggleNode;
+using SoyoFramework.Utils;
+using SoyoFramework.Utils.LogKit;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;

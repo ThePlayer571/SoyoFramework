@@ -1,5 +1,4 @@
-using SoyoFramework.Runtime;
-using SoyoFramework.Runtime.Utils.LogKit;
+using SoyoFramework.Utils.LogKit;
 
 namespace SoyoFramework.UIKit.Runtime.Page
 {
