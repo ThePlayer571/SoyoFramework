@@ -19,19 +19,19 @@ namespace SoyoFramework.ToolKits.Runtime
         public float ElapsedTime { get; set; }
 
         /// <summary>
-        /// 剩余时间（秒），等于 Duration - ElapsedTime
+        /// 剩余时间（秒）
         /// </summary>
         public float RemainingTime { get; set; }
 
         /// <summary>
-        /// 计时器是否已完成（ElapsedTime >= Duration）
+        /// 计时器是否已完成
         /// </summary>
         public bool IsComplete { get; }
 
         /// <summary>
-        /// 是否刚刚完成计时
-        /// 在计时结束后的第一次Update时为true，之后为false
-        /// 用于检测计时器完成的瞬间，避免重复触发逻辑
+        /// 是否刚刚完成计时。
+        /// 当你调用 Update，使计时器完成计时，该值为 true。当你再次调用 Update (此时计时早已完成)，该值变为false。
+        /// 计时未结束时始终为 false。
         /// </summary>
         public bool IsJustCompleted { get; }
 
@@ -42,7 +42,7 @@ namespace SoyoFramework.ToolKits.Runtime
         public void Update(float deltaTime);
 
         /// <summary>
-        /// 重置计时器到初始状态
+        /// 重置计时器，重新开始计时
         /// </summary>
         public void Reset();
 
