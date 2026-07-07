@@ -6,56 +6,12 @@ namespace SoyoFramework.ToolKits.Runtime.RandomKit
 {
     public sealed class DeterministicRandom
     {
-        # region 核心实现(我也看不懂的)
+        # region 核心实现
 
         // 随机算法状态
         private ulong _state0;
         private ulong _state1;
 
-        /// <summary>
-        /// 使用指定种子初始化（64位）
-        /// </summary>
-        private DeterministicRandom(ulong seed)
-        {
-            // 使用SplitMix64算法初始化状态
-            _state0 = SplitMix64(ref seed);
-            _state1 = SplitMix64(ref seed);
-        }
-
-        /// <summary>
-        /// 使用指定种子创建实例（64位）
-        /// </summary>
-        public static DeterministicRandom Create(ulong seed)
-        {
-            return new DeterministicRandom(seed);
-        }
-
-        /// <summary>
-        /// 使用指定状态创建实例
-        /// </summary>
-        public static DeterministicRandom Create(State state)
-        {
-            var random = new DeterministicRandom(0); // 临时种子
-            random._state0 = state.state0;
-            random._state1 = state.state1;
-            return random;
-        }
-
-        /// <summary>
-        /// 使用时间相关种子创建实例
-        /// </summary>
-        public static DeterministicRandom Create()
-        {
-            return new DeterministicRandom((ulong)DateTime.Now.Ticks);
-        }
-
-        /// <summary>
-        /// 使用指定种子创建实例
-        /// </summary>
-        public static DeterministicRandom Create(int seed)
-        {
-            return new DeterministicRandom((ulong)seed);
-        }
 
         /// <summary>
         /// 生成下一个随机数（0 ~ UInt64.MaxValue）
@@ -68,6 +24,45 @@ namespace SoyoFramework.ToolKits.Runtime.RandomKit
             s1 ^= s1 << 23;
             _state1 = s1 ^ s0 ^ (s1 >> 17) ^ (s0 >> 26);
             return _state1 + s0;
+        }
+
+        #endregion
+
+        #region 构造
+
+        /// <summary>
+        /// 使用指定种子初始化
+        /// </summary>
+        public DeterministicRandom(ulong seed)
+        {
+            // 使用SplitMix64算法初始化状态
+            _state0 = SplitMix64(ref seed);
+            _state1 = SplitMix64(ref seed);
+        }
+
+        /// <summary>
+        /// 使用指定种子初始化
+        /// </summary>
+        /// <param name="seed"></param>
+        public DeterministicRandom(int seed) : this((ulong)seed)
+        {
+        }
+
+        /// <summary>
+        /// 使用当前时间戳初始化
+        /// </summary>
+        public DeterministicRandom() : this((ulong)DateTime.Now.Ticks)
+        {
+        }
+
+        /// <summary>
+        /// 使用指定状态初始化
+        /// </summary>
+        /// <param name="state"></param>
+        public DeterministicRandom(State state)
+        {
+            _state0 = state.state0;
+            _state1 = state.state1;
         }
 
         #endregion
