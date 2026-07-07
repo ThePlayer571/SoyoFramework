@@ -1,41 +1,25 @@
 using System;
-using SoyoFramework.Framework.Runtime.Utils;
 using SoyoFramework.Framework.Runtime.Utils.UnRegisters;
 
 namespace SoyoFramework.Framework.Runtime.Core
 {
     #region 接口：框架依赖
 
+    /// <summary>
+    /// 依赖于框架，框架可以不知道它的存在。
+    /// </summary>
     public interface ICanRelyOnArchitecture
     {
         IArchitecture RelyingArchitecture { get; }
     }
 
+    /// <summary>
+    /// 与框架绑定，框架知道它的存在。
+    /// </summary>
     public interface ICanAttachToArchitecture : ICanRelyOnArchitecture
     {
         IArchitecture AttachedArchitecture { get; set; }
         IArchitecture ICanRelyOnArchitecture.RelyingArchitecture => AttachedArchitecture;
-    }
-
-    /// <summary>
-    /// 约定：初始化方法只能由Architecture调用
-    /// </summary>
-    public interface ICanInitByArchitecture : ICanAttachToArchitecture
-    {
-        bool PreInitialized { get; }
-        bool Initialized { get; }
-
-        /// <summary>
-        /// 类似Awake：用于内部初始化逻辑，禁止获取其他Module
-        /// </summary>
-        internal void PreInit();
-
-        /// <summary>
-        /// 类似Start：可以获取其他Module
-        /// </summary>
-        internal void Init();
-
-        internal void Deinit();
     }
 
     #endregion
@@ -66,10 +50,6 @@ namespace SoyoFramework.Framework.Runtime.Core
     {
     }
 
-    public interface ICanGetDomainService : ICanRelyOnArchitecture
-    {
-    }
-
     #endregion
 
     #region 接口：层级规则
@@ -86,14 +66,6 @@ namespace SoyoFramework.Framework.Runtime.Core
 
     public interface ICommandRule :
         ICanSendEvent, ICanSendCommand,
-        ICanGetDomainRoot, ICanRegisterDomainRoot, ICanUnregisterDomainRoot,
-        ICanGetDomainService
-    {
-    }
-
-    public interface IDomainServiceRule :
-        ICanSendEvent,
-        ICanGetDomainService,
         ICanGetDomainRoot, ICanRegisterDomainRoot, ICanUnregisterDomainRoot
     {
     }
@@ -107,6 +79,7 @@ namespace SoyoFramework.Framework.Runtime.Core
         /// <summary>
         /// 按类型注册事件，会在事件发送时调用onEvent。返回一个IUnRegister，调用它可以取消注册
         /// </summary>
+        /// <param name="self"></param>
         /// <param name="onEvent"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
@@ -126,6 +99,7 @@ namespace SoyoFramework.Framework.Runtime.Core
         /// <summary>
         /// 按类型发送事件，会调用所有注册了该类型事件的回调。
         /// </summary>
+        /// <param name="self"></param>
         /// <param name="e"></param>
         /// <typeparam name="T"></typeparam>
         public static void SendEvent<T>(this ICanSendEvent self, T e)
@@ -137,6 +111,7 @@ namespace SoyoFramework.Framework.Runtime.Core
         /// <summary>
         /// 初始化一个Command。初始化后，可以直接调用CanExecute获取CanExecuteResult。想调用Command，必须通过SendCommand
         /// </summary>
+        /// <param name="self"></param>
         /// <param name="command"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
@@ -146,6 +121,7 @@ namespace SoyoFramework.Framework.Runtime.Core
         /// <summary>
         /// 发送一个Command
         /// </summary>
+        /// <param name="self"></param>
         /// <param name="command"></param>
         public static void SendCommand(this ICanSendCommand self, ICommand command)
             => self.RelyingArchitecture.SendCommand(command);
@@ -153,8 +129,8 @@ namespace SoyoFramework.Framework.Runtime.Core
         /// <summary>
         /// 发送一个Command，并获取返回值
         /// </summary>
+        /// <param name="self"></param>
         /// <param name="command"></param>
-        /// <param name="result"></param>
         /// <typeparam name="TResult"></typeparam>
         public static TResult SendCommand<TResult>(this ICanSendCommand self, ICommand<TResult> command)
             => self.RelyingArchitecture.SendCommand(command);
@@ -163,6 +139,7 @@ namespace SoyoFramework.Framework.Runtime.Core
         /// <summary>
         /// 尝试发送一个Command，并返回CanExecuteResult
         /// </summary>
+        /// <param name="self"></param>
         /// <param name="command"></param>
         /// <returns></returns>
         public static CanExecuteResult TrySendCommand(this ICanSendCommand self, ICommand command)
@@ -171,6 +148,7 @@ namespace SoyoFramework.Framework.Runtime.Core
         /// <summary>
         /// 尝试发送一个Command，并返回CanExecuteResult和返回值
         /// </summary>
+        /// <param name="self"></param>
         /// <param name="command"></param>
         /// <param name="result"></param>
         /// <typeparam name="TResult"></typeparam>
@@ -185,6 +163,7 @@ namespace SoyoFramework.Framework.Runtime.Core
         /// <summary>
         /// 注册一个DomainRoot。会以T为key存储在IOCContainer里
         /// </summary>
+        /// <param name="self"></param>
         /// <param name="domainRoot"></param>
         /// <typeparam name="T"></typeparam>
         public static void RegisterDomainRoot<T>(this ICanRegisterDomainRoot self, T domainRoot)
@@ -218,20 +197,6 @@ namespace SoyoFramework.Framework.Runtime.Core
             where T : class, IDomainRoot
         {
             self.RelyingArchitecture.UnregisterDomainRoot<T>();
-        }
-    }
-
-    public static class CanGetDomainServiceExtension
-    {
-        /// <summary>
-        /// 获取一个DomainService。会以T为key从IOCContainer里取出
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static T GetDomainService<T>(this ICanGetDomainService self)
-            where T : class, IDomainService
-        {
-            return self.RelyingArchitecture.GetModule<T>();
         }
     }
 

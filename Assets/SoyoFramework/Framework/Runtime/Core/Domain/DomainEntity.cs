@@ -2,12 +2,7 @@ using UnityEngine;
 
 namespace SoyoFramework.Framework.Runtime.Core.Domain
 {
-    public interface IDomainEntity
-    {
-    }
-
-    public abstract class DomainEntity<TRoot> : IDomainEntity
-        where TRoot : IDomainRoot
+    public abstract class DomainEntity<TRoot> where TRoot : IDomainRoot
     {
         protected DomainEntity(TRoot root)
         {
@@ -17,7 +12,7 @@ namespace SoyoFramework.Framework.Runtime.Core.Domain
         protected TRoot Root { get; }
     }
 
-    public abstract class MonoDomainEntity<TRoot> : MonoBehaviour, IDomainEntity
+    public abstract class MonoDomainEntity<TRoot> : MonoBehaviour
         where TRoot : IDomainRoot
     {
         protected TRoot Root

@@ -10,142 +10,10 @@ namespace SoyoFramework.Framework.Runtime.Core
     public abstract class Architecture<TArch> : IArchitecture
         where TArch : Architecture<TArch>, new()
     {
-        #region 可用字段
-
-        public bool IgnoreCommandCanExecuteCheck { get; set; } = false;
-
-        public static TArch Instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    // 语法糖：如果访问Architecture实例时尚未Init，则自动Init
-                    Init();
-                }
-
-                return _instance;
-            }
-        }
-
-        public bool Inited => _inited;
-
-        private bool _inited;
-        private static TArch _instance;
-        private readonly SimpleIOCContainer _container = new();
-        private readonly TypeEventSystem _eventSystem = new();
-        private readonly ILog _logger = new PrefixLogger($"[{typeof(TArch).Name}]");
-
-        #endregion
-
-        #region 生命周期
-
-        public static void Init(bool setAsDefault = true)
-        {
-            if (_instance != null)
-            {
-                "Architecture单例已存在，无法再次Init".LogError();
-                return;
-            }
-
-            var arch = new TArch();
-            _instance = arch;
-
-            // 注册初始层级信息
-            arch.OnInit();
-
-            // 初始化模块
-            foreach (var module in arch._container.GetAll<IModule>())
-            {
-                module.PreInit();
-            }
-
-            foreach (var module in arch._container.GetAll<IModule>())
-            {
-                module.Init();
-            }
-
-            // 标记已初始化
-            arch._inited = true;
-
-            // 语法糖：默认Architecture实例
-            if (setAsDefault)
-            {
-                DefaultArchitecture.Instance = arch;
-            }
-        }
-
-        public static void Deinit()
-        {
-            var arch = _instance;
-
-            if (arch == null)
-            {
-                "Architecture单例不存在，无法Deinit".LogError();
-                return;
-            }
-
-            arch.OnDeinit();
-
-            // 销毁模块
-            foreach (var module in arch._container.GetAll<IModule>())
-            {
-                module.Deinit();
-            }
-
-            arch._container.Clear();
-
-            // TypeEventSystem清理
-            arch._eventSystem.Clear();
-
-            // 标记未初始化
-            _instance = null;
-
-
-            // 语法糖：默认Architecture实例
-            if (DefaultArchitecture.Instance == arch)
-            {
-                DefaultArchitecture.Instance = null;
-            }
-        }
-
-        protected abstract void OnInit();
-        protected abstract void OnDeinit();
-
-        #endregion
-
         #region 接口实现
 
-        public void RegisterModule<T>(T module) where T : class, IModule
-        {
-            if (module == null)
-            {
-                $"注册失败，注册的模块不能为null: {typeof(T).Name}".LogError();
-                return;
-            }
-
-            module.AttachedArchitecture = this;
-            _container.Register<T>(module);
-
-            // 如果是在Architecture初始化后注册的Module，直接初始化
-            if (Inited)
-            {
-                module.PreInit();
-                module.Init();
-            }
-        }
-
-        public T GetModule<T>() where T : class, IModule
-        {
-            var module = _container.Get<T>();
-            if (module == null)
-            {
-                $"尝试获取未注册的模块: {typeof(T).Name}".LogError();
-                return null;
-            }
-
-            return module;
-        }
+        public bool Inited => _inited;
+        public bool IgnoreCommandCanExecuteCheck { get; set; } = false;
 
         public IUnRegister RegisterEvent<T>(Action<T> onEvent)
         {
@@ -281,17 +149,94 @@ namespace SoyoFramework.Framework.Runtime.Core
 
         #endregion
 
-        #region Protected 子类可用
+        #region 静态接口
 
-        protected void RegisterVController<T>(T viewController) where T : class, IVController
+        public static TArch Instance
         {
-            RegisterModule(viewController);
+            get
+            {
+                if (_instance == null)
+                {
+                    // 语法糖：如果访问Architecture实例时尚未Init，则自动Init
+                    Init();
+                }
+
+                return _instance;
+            }
         }
 
-        protected void RegisterDomainService<T>(T domainService) where T : class, IDomainService
+        #endregion
+
+        // 静态变量
+        private static TArch _instance;
+
+        // 变量
+        private bool _inited;
+        private readonly SimpleIOCContainer _container = new();
+        private readonly TypeEventSystem _eventSystem = new();
+        private readonly ILog _logger = new PrefixLogger($"[{typeof(TArch).Name}]");
+
+        #region 生命周期
+
+        public static void Init(bool setAsDefault = true)
         {
-            RegisterModule(domainService);
+            if (_instance != null)
+            {
+                "Architecture单例已存在，无法再次Init".LogError();
+                return;
+            }
+
+            var arch = new TArch();
+            _instance = arch;
+
+            // 初始化
+            arch.OnInit();
+
+            // 标记已初始化
+            arch._inited = true;
+
+            // 语法糖：默认Architecture实例
+            if (setAsDefault)
+            {
+                DefaultArchitecture.Instance = arch;
+            }
         }
+
+        public static void Deinit()
+        {
+            var arch = _instance;
+
+            if (arch == null)
+            {
+                "Architecture单例不存在，无法Deinit".LogError();
+                return;
+            }
+
+            arch.OnDeinit();
+
+            // 销毁 DomainRoot
+            foreach (var domainRoot in arch._container.GetAll<IDomainRoot>())
+            {
+                domainRoot.Deinit();
+            }
+
+            arch._container.Clear();
+
+            // TypeEventSystem清理
+            arch._eventSystem.Clear();
+
+            // 标记未初始化
+            _instance = null;
+
+            // 语法糖：默认Architecture实例
+            if (DefaultArchitecture.Instance == arch)
+            {
+                DefaultArchitecture.Instance = null;
+            }
+        }
+
+        protected abstract void OnInit();
+        protected abstract void OnDeinit();
 
         #endregion
     }

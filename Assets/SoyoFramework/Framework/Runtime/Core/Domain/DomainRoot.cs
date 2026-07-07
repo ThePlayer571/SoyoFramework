@@ -1,6 +1,6 @@
 namespace SoyoFramework.Framework.Runtime.Core.Domain
 {
-    public abstract class DomainRoot : IDomainEntity, IDomainRoot
+    public abstract class DomainRoot : IDomainRoot
     {
         protected DomainRoot(IArchitecture arch)
         {

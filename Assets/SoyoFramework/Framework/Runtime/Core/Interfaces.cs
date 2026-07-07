@@ -14,24 +14,6 @@ namespace SoyoFramework.Framework.Runtime.Core
 
         #endregion
 
-        #region Module
-
-        /// <summary>
-        /// 注册一个Module。会以T为key存储在IOCContainer里
-        /// </summary>
-        /// <param name="module"></param>
-        /// <typeparam name="T"></typeparam>
-        void RegisterModule<T>(T module) where T : class, IModule;
-
-        /// <summary>
-        /// 获取一个Module。会以T为key从IOCContainer里取出
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        T GetModule<T>() where T : class, IModule;
-
-        #endregion
-
         #region DomainRoot
 
         /// <summary>
@@ -128,31 +110,15 @@ namespace SoyoFramework.Framework.Runtime.Core
         #endregion
     }
 
-    /// <summary>
-    /// 基接口：能被注册到Architecture中
-    /// </summary>
-    public interface IModule : ICanInitByArchitecture
-    {
-    }
-
     public interface IDomainRoot : IDomainRule
     {
         protected internal void Deinit();
-    }
-
-    public interface IDomainService : IModule, IDomainServiceRule
-    {
-    }
-
+    } 
+    
     public interface IMonoVController : IViewControllerRule
     {
     }
-
-    public interface IVController : IModule, IViewControllerRule
-    {
-    }
-
-
+    
     public interface ICommand :
         ICanAttachToArchitecture, ICommandRule
     {
