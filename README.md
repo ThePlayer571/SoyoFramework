@@ -1,3 +1,5 @@
+还在开发中，README可能不适用。
+
 # SoyoFramework
 
 本文档介绍SoyoFramework核心框架的使用，如果想了解其他部分内容，请移步[INDEX.md](./INDEX.md)。
