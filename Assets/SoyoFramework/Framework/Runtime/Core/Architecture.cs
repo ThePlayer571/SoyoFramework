@@ -1,5 +1,4 @@
 using System;
-using SoyoFramework.Framework.Runtime.Core.DefaultSyntacticSugar;
 using SoyoFramework.Framework.Runtime.Utils;
 using SoyoFramework.Framework.Runtime.Utils.LogKit;
 using SoyoFramework.Framework.Runtime.Utils.LogKit.Interfaces;
@@ -178,7 +177,7 @@ namespace SoyoFramework.Framework.Runtime.Core
 
         #region 生命周期
 
-        public static void Init(bool setAsDefault = true)
+        public static void Init(bool isGlobal = true)
         {
             if (_instance != null)
             {
@@ -195,10 +194,10 @@ namespace SoyoFramework.Framework.Runtime.Core
             // 标记已初始化
             arch._inited = true;
 
-            // 语法糖：默认Architecture实例
-            if (setAsDefault)
+            // 语法糖：GlobalArchitecture实例
+            if (isGlobal)
             {
-                DefaultArchitecture.Instance = arch;
+                GlobalArchitecture.Instance = arch;
             }
         }
 
@@ -228,10 +227,10 @@ namespace SoyoFramework.Framework.Runtime.Core
             // 标记未初始化
             _instance = null;
 
-            // 语法糖：默认Architecture实例
-            if (DefaultArchitecture.Instance == arch)
+            // 语法糖：GlobalArchitecture实例
+            if (GlobalArchitecture.Instance == arch)
             {
-                DefaultArchitecture.Instance = null;
+                GlobalArchitecture.Instance = null;
             }
         }
 

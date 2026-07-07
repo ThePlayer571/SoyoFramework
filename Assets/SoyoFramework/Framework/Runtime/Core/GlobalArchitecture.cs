@@ -1,8 +1,8 @@
 using UnityEngine;
 
-namespace SoyoFramework.Framework.Runtime.Core.DefaultSyntacticSugar
+namespace SoyoFramework.Framework.Runtime.Core
 {
-    public static class DefaultArchitecture
+    public static class GlobalArchitecture
     {
         private static IArchitecture _instance;
 
@@ -23,7 +23,7 @@ namespace SoyoFramework.Framework.Runtime.Core.DefaultSyntacticSugar
                     }
                     else
                     {
-                        Debug.LogError("在已有默认Architecture的情况下，尝试设置DefaultArchitecture，被阻断");
+                        Debug.LogError("在已有GlobalArchitecture的情况下，尝试设置GlobalArchitecture，被阻断");
                     }
                 }
             }
