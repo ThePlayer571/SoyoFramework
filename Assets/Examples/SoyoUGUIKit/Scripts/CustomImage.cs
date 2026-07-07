@@ -1,5 +1,5 @@
 using System;
-using SoyoFramework.OptionalKits.SoyoUGUIKit.Runtime.StyleKit;
+using SoyoFramework.SoyoUGUIKit.Runtime.StyleKit;
 using UnityEngine;
 using UnityEngine.UI;
 

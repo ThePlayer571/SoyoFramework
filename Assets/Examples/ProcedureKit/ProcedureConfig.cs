@@ -3,7 +3,7 @@
 
 using System. Collections.Generic;
 using System.Diagnostics. CodeAnalysis;
-using SoyoFramework.OptionalKits. ProcedureKit. Runtime. DataClasses;
+using SoyoFramework.ProcedureKit.Runtime.DataClasses;
 
 namespace SoyoFramework.OptionalKits.ProcedureKit.Example
 {

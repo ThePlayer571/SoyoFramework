@@ -1,4 +1,4 @@
-using SoyoFramework.OptionalKits.SoyoUGUIKit.Runtime.StyleKit;
+using SoyoFramework.SoyoUGUIKit.Runtime.StyleKit;
 using UnityEngine;
 
 namespace Examples.StyledElementKit.Scripts
