@@ -28,7 +28,7 @@ namespace SoyoFramework
             _eventSystem.Call<T>(in e);
         }
 
-        public void RegisterDomainRoot<T>(T domainRoot) where T : IDomainRoot
+        public void RegisterDomainRoot<T>(T domainRoot) where T : class, IDomainRoot
         {
             if (domainRoot == null)
             {
@@ -37,6 +37,17 @@ namespace SoyoFramework
             }
 
             _container.Register<T>(domainRoot);
+        }
+
+        public void RegisterDomainRoot(string key, IDomainRoot domainRoot)
+        {
+            if (domainRoot == null)
+            {
+                $"注册失败，注册的DomainRoot不能为null: key={key}".LogError();
+                return;
+            }
+
+            _container.Register(key, domainRoot);
         }
 
         public void UnregisterDomainRoot<T>() where T : class, IDomainRoot
@@ -52,6 +63,19 @@ namespace SoyoFramework
             _container.Unregister<T>();
         }
 
+        public void UnregisterDomainRoot(string key)
+        {
+            var domainRoot = _container.Get(key) as IDomainRoot;
+            if (domainRoot == null)
+            {
+                $"尝试注销未注册的DomainRoot: key={key}".LogError();
+                return;
+            }
+
+            domainRoot.Deinit();
+            _container.Unregister(key);
+        }
+
         public T GetDomainRoot<T>() where T : class, IDomainRoot
         {
             var domainRoot = _container.Get<T>();
@@ -61,6 +85,22 @@ namespace SoyoFramework
             }
 
             return domainRoot;
+        }
+
+        public T GetDomainRoot<T>(string key) where T : class, IDomainRoot
+        {
+            var domainRoot = _container.Get(key) as T;
+            if (domainRoot == null)
+            {
+                return null;
+            }
+
+            return domainRoot;
+        }
+
+        public object GetDomainRoot(string key)
+        {
+            return _container.Get(key);
         }
 
         public T InitCommand<T>(T command) where T : ICommand
@@ -212,8 +252,14 @@ namespace SoyoFramework
 
             arch.OnDeinit();
 
-            // 销毁 DomainRoot
+            // 销毁 DomainRoot (type-based)
             foreach (var domainRoot in arch._container.GetAll<IDomainRoot>())
+            {
+                domainRoot.Deinit();
+            }
+
+            // 销毁 DomainRoot (string-keyed)
+            foreach (var domainRoot in arch._container.GetAllKeyed<IDomainRoot>())
             {
                 domainRoot.Deinit();
             }

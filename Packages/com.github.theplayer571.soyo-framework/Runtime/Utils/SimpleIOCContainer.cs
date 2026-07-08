@@ -7,6 +7,7 @@ namespace SoyoFramework.Utils
     public class SimpleIOCContainer
     {
         private readonly Dictionary<Type, object> _container = new();
+        private readonly Dictionary<string, object> _stringContainer = new();
 
         public void Register<T>(T instance)
         {
@@ -43,6 +44,33 @@ namespace SoyoFramework.Utils
             return _container.Where(kv => keyType.IsAssignableFrom(kv.Key)).Select(kv => kv.Value as T);
         }
 
-        public void Clear() => _container.Clear();
+        public void Register(string key, object instance)
+        {
+            _stringContainer[key] = instance;
+        }
+
+        public void Unregister(string key)
+        {
+            if (_stringContainer.ContainsKey(key))
+            {
+                _stringContainer.Remove(key);
+            }
+        }
+
+        public object Get(string key)
+        {
+            return _stringContainer.TryGetValue(key, out var retInstance) ? retInstance : null;
+        }
+
+        public IEnumerable<T> GetAllKeyed<T>() where T : class
+        {
+            return _stringContainer.Values.OfType<T>();
+        }
+
+        public void Clear()
+        {
+            _container.Clear();
+            _stringContainer.Clear();
+        }
     }
 }

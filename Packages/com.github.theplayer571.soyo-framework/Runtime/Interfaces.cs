@@ -17,24 +17,52 @@ namespace SoyoFramework
         #region DomainRoot
 
         /// <summary>
-        /// 注册一个DomainRoot。会以T为key存储在IOCContainer里
+        /// 注册一个 DomainRoot。
         /// </summary>
         /// <param name="domainRoot"></param>
         /// <typeparam name="T"></typeparam>
-        void RegisterDomainRoot<T>(T domainRoot) where T : IDomainRoot;
+        void RegisterDomainRoot<T>(T domainRoot) where T : class, IDomainRoot;
 
         /// <summary>
-        /// 获取一个DomainRoot。会以T为key从IOCContainer里取出
+        /// 注册一个DomainRoot。
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="domainRoot"></param>
+        void RegisterDomainRoot(string key, IDomainRoot domainRoot);
+
+        /// <summary>
+        /// 获取对应 key 的 DomainRoot。
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         T GetDomainRoot<T>() where T : class, IDomainRoot;
 
         /// <summary>
-        /// 卸载一个DomainRoot。会以T为key从IOCContainer里移除
+        /// 获取对应 key 的 DomainRoot。
+        /// </summary>
+        /// <param name="key"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        T GetDomainRoot<T>(string key) where T : class, IDomainRoot;
+
+        /// <summary>
+        /// 获取对应 key 的 DomainRoot。
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        object GetDomainRoot(string key);
+
+        /// <summary>
+        /// 卸载对应 key 的 DomainRoot。
         /// </summary>
         /// <typeparam name="T"></typeparam>
         void UnregisterDomainRoot<T>() where T : class, IDomainRoot;
+
+        /// <summary>
+        /// 卸载对应 key 的 DomainRoot。
+        /// </summary>
+        /// <param name="key"></param>
+        void UnregisterDomainRoot(string key);
 
         #endregion
 
@@ -113,12 +141,12 @@ namespace SoyoFramework
     public interface IDomainRoot : IDomainRule
     {
         protected internal void Deinit();
-    } 
-    
+    }
+
     public interface IMonoVController : IViewControllerRule
     {
     }
-    
+
     public interface ICommand :
         ICanAttachToArchitecture, ICommandRule
     {
