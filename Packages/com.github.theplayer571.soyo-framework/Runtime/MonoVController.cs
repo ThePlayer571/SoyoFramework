@@ -15,7 +15,7 @@ namespace SoyoFramework
     {
         private IUnRegister _domainRootRegisteredEvent;
 
-        private void Awake()
+        protected void Awake()
         {
             var domainRoot = this.GetDomainRoot<TDomainRoot>();
 
@@ -36,7 +36,7 @@ namespace SoyoFramework
             Awake(e.DomainRoot);
         }
 
-        private void OnDestroy()
+        protected virtual void OnDestroy()
         {
             _domainRootRegisteredEvent?.UnRegister();
             _domainRootRegisteredEvent = null;
@@ -54,7 +54,7 @@ namespace SoyoFramework
         private IUnRegister _domainRootAEvent;
         private IUnRegister _domainRootBEvent;
 
-        private void Awake()
+        protected void Awake()
         {
             _domainRootA = this.GetDomainRoot<TDomainRootA>();
             _domainRootB = this.GetDomainRoot<TDomainRootB>();
@@ -100,7 +100,7 @@ namespace SoyoFramework
             }
         }
 
-        private void OnDestroy()
+        protected virtual void OnDestroy()
         {
             _domainRootAEvent?.UnRegister();
             _domainRootAEvent = null;
@@ -123,7 +123,7 @@ namespace SoyoFramework
         private IUnRegister _domainRootBEvent;
         private IUnRegister _domainRootCEvent;
 
-        private void Awake()
+        protected void Awake()
         {
             _domainRootA = this.GetDomainRoot<TDomainRootA>();
             _domainRootB = this.GetDomainRoot<TDomainRootB>();
@@ -183,7 +183,7 @@ namespace SoyoFramework
             }
         }
 
-        private void OnDestroy()
+        protected virtual void OnDestroy()
         {
             _domainRootAEvent?.UnRegister();
             _domainRootAEvent = null;
@@ -211,7 +211,7 @@ namespace SoyoFramework
         private IUnRegister _domainRootCEvent;
         private IUnRegister _domainRootDEvent;
 
-        private void Awake()
+        protected void Awake()
         {
             _domainRootA = this.GetDomainRoot<TDomainRootA>();
             _domainRootB = this.GetDomainRoot<TDomainRootB>();
@@ -285,7 +285,7 @@ namespace SoyoFramework
             }
         }
 
-        private void OnDestroy()
+        protected virtual void OnDestroy()
         {
             _domainRootAEvent?.UnRegister();
             _domainRootAEvent = null;

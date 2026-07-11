@@ -3,6 +3,8 @@ Procedure节点编辑器
 
 将Optionalkits移到其他项目，这个项目就是单纯的框架。
 
+神人TriggerDectorEditor的更新速度修复
+
 
 文档：
 如果你只引用一个Entity，没必要新增依赖，可以引用guid
