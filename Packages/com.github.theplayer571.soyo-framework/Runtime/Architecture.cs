@@ -37,6 +37,7 @@ namespace SoyoFramework
             }
 
             _container.Register<T>(domainRoot);
+            _eventSystem.Call(new AfterDomainRootRegistered<T>(domainRoot));
         }
 
         public void RegisterDomainRoot(string key, IDomainRoot domainRoot)

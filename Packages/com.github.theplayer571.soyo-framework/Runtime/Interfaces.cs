@@ -24,7 +24,7 @@ namespace SoyoFramework
         void RegisterDomainRoot<T>(T domainRoot) where T : class, IDomainRoot;
 
         /// <summary>
-        /// 注册一个DomainRoot。
+        /// 注册一个DomainRoot。建议优先使用按类型注册。
         /// </summary>
         /// <param name="key"></param>
         /// <param name="domainRoot"></param>
