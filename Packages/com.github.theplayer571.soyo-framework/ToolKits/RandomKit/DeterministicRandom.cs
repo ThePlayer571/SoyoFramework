@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SoyoFramework.Utils.LogKit;
+using UnityEngine;
 
 namespace SoyoFramework.ToolKits.RandomKit
 {
@@ -74,7 +76,18 @@ namespace SoyoFramework.ToolKits.RandomKit
         /// </summary>
         public int Range(int min, int max)
         {
-            if (min >= max) throw new ArgumentException();
+            if (min > max)
+            {
+                $"InvalidArgument: 参数的 min 大于 max。已通过交换二者的值处理".LogWarning();
+                (min, max) = (max, min);
+            }
+
+            if (min == max)
+            {
+                "InvalidArgument: 参数 min 等于 max。已将 max += 1 处理".LogWarning();
+                max++;
+            }
+
             return (int)(Value * (max - min)) + min;
         }
 
@@ -83,7 +96,12 @@ namespace SoyoFramework.ToolKits.RandomKit
         /// </summary>
         public float Range(float min, float max)
         {
-            if (min > max) throw new ArgumentException();
+            if (min > max)
+            {
+                $"InvalidArgument: 参数的 min 大于 max。已通过交换二者的值处理".LogWarning();
+                (min, max) = (max, min);
+            }
+
             return (float)Value * (max - min) + min;
         }
 
@@ -105,11 +123,13 @@ namespace SoyoFramework.ToolKits.RandomKit
         /// </summary>
         /// <param name="probability">返回true的概率，范围[0.0, 1.0]</param>
         /// <returns>根据概率生成的布尔值</returns>
-        /// <exception cref="ArgumentOutOfRangeException">概率值超出有效范围</exception>
         public bool NextBool(float probability)
         {
             if (probability < 0.0f || probability > 1.0f)
-                throw new ArgumentOutOfRangeException(nameof(probability), "概率值必须在0.0到1.0之间");
+            {
+                $"ArgumentOutOfRange: 概率值必须在0.0到1.0之间。当前值为 {probability}".LogError();
+                probability = Mathf.Clamp(probability, 0.0f, 1.0f);
+            }
 
             return Value < probability;
         }
@@ -119,13 +139,20 @@ namespace SoyoFramework.ToolKits.RandomKit
         /// </summary>
         /// <param name="source">数据源</param>
         /// <param name="count">选取数量（需非负）</param>
-        /// <exception cref="ArgumentNullException">源集合为空</exception>
-        /// <exception cref="ArgumentOutOfRangeException">数量为负</exception>
-        /// 
+        ///
         public IEnumerable<T> RandomSubset<T>(IEnumerable<T> source, int count)
         {
-            if (source == null) throw new ArgumentNullException(nameof(source));
-            if (count < 0) throw new ArgumentOutOfRangeException(nameof(count), "数量不能为负");
+            if (source == null)
+            {
+                "ArgumentNullException: 源集合 source 为 null，已返回空集合".LogError();
+                return Enumerable.Empty<T>();
+            }
+
+            if (count < 0)
+            {
+                $"ArgumentOutOfRangeException: 选取数量 count 为负（{count}），已替换为 0".LogWarning();
+                count = 0;
+            }
 
             var list = source.ToList();
             if (count == 0 || list.Count == 0)
@@ -148,8 +175,19 @@ namespace SoyoFramework.ToolKits.RandomKit
         /// </summary>
         public T RandomChoose<T>(IEnumerable<T> source)
         {
-            var list = source?.ToList() ?? throw new ArgumentNullException(nameof(source));
-            if (list.Count == 0) throw new InvalidOperationException("集合不能为空");
+            if (source == null)
+            {
+                "ArgumentNullException: 源集合 source 为 null，已返回默认值".LogError();
+                return default;
+            }
+
+            var list = source.ToList();
+            if (list.Count == 0)
+            {
+                "InvalidOperationException: 集合不能为空，已返回默认值".LogError();
+                return default;
+            }
+
             return list[Range(0, list.Count)];
         }
 
@@ -159,26 +197,47 @@ namespace SoyoFramework.ToolKits.RandomKit
         /// <param name="source">数据源</param>
         /// <param name="weightSelector">权重选择器，返回每个元素的权重（需非负）</param>
         /// <returns>根据权重随机选中的元素</returns>
-        /// <exception cref="ArgumentNullException">集合或权重选择器为 null</exception>
-        /// <exception cref="InvalidOperationException">集合为空或所有权重为零</exception>
         public T RandomChoose<T>(IEnumerable<T> source, Func<T, float> weightSelector)
         {
-            if (source == null) throw new ArgumentNullException(nameof(source));
-            if (weightSelector == null) throw new ArgumentNullException(nameof(weightSelector));
+            if (source == null)
+            {
+                "ArgumentNullException: 源集合 source 为 null，已返回默认值".LogError();
+                return default;
+            }
+
+            if (weightSelector == null)
+            {
+                "ArgumentNullException: 权重选择器 weightSelector 为 null，已返回默认值".LogError();
+                return default;
+            }
+
             var list = source.ToList();
-            if (list.Count == 0) throw new InvalidOperationException("集合不能为空");
+            if (list.Count == 0)
+            {
+                "InvalidOperationException: 集合不能为空，已返回默认值".LogError();
+                return default;
+            }
 
             float totalWeight = 0f;
             var weights = new List<float>(list.Count);
             foreach (var item in list)
             {
                 float w = weightSelector(item);
-                if (w < 0f) throw new ArgumentException("权重不能为负");
+                if (w < 0f)
+                {
+                    $"ArgumentException: 权重不能为负（{w}），已替换为 0".LogWarning();
+                    w = 0f;
+                }
+
                 weights.Add(w);
                 totalWeight += w;
             }
 
-            if (totalWeight == 0f) throw new InvalidOperationException("所有权重为零");
+            if (totalWeight == 0f)
+            {
+                "InvalidOperationException: 所有权重为零，已返回默认值".LogError();
+                return default;
+            }
 
             float r = (float)Range(0, int.MaxValue) / int.MaxValue * totalWeight;
             float acc = 0f;
@@ -197,12 +256,19 @@ namespace SoyoFramework.ToolKits.RandomKit
         /// 从集合中随机移除并返回一个元素
         /// </summary>
         /// <param name="source">可变的集合（需支持按索引移除）</param>
-        /// <exception cref="ArgumentNullException">集合为 null</exception>
-        /// <exception cref="InvalidOperationException">集合为空</exception>
         public T RandomPop<T>(IList<T> source)
         {
-            if (source == null) throw new ArgumentNullException(nameof(source));
-            if (source.Count == 0) throw new InvalidOperationException("集合不能为空");
+            if (source == null)
+            {
+                "ArgumentNullException: 源集合 source 为 null，已返回默认值".LogError();
+                return default;
+            }
+
+            if (source.Count == 0)
+            {
+                "InvalidOperationException: 集合不能为空，已返回默认值".LogError();
+                return default;
+            }
 
             int index = Range(0, source.Count);
             T item = source[index];
@@ -226,7 +292,11 @@ namespace SoyoFramework.ToolKits.RandomKit
 
         public IEnumerable<T> Shuffle<T>(IEnumerable<T> source)
         {
-            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (source == null)
+            {
+                "ArgumentNullException: 源集合 source 为 null，已返回空集合".LogError();
+                return Enumerable.Empty<T>();
+            }
 
             var list = source.ToList();
             for (int i = list.Count - 1; i > 0; i--)
