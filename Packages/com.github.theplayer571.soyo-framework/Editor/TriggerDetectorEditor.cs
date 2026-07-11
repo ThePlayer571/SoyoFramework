@@ -10,13 +10,24 @@ namespace SoyoFramework.Editor
         private SerializedProperty _debugAlwaysReturnHasTarget;
         private TriggerDetector _triggerDetector;
 
-        private double _lastRepaintTime;
-        private const double RepaintInterval = 0.25;
-
         private void OnEnable()
         {
             _triggerDetector = (TriggerDetector)target;
             _debugAlwaysReturnHasTarget = serializedObject.FindProperty("DebugAlwaysReturnHasTarget");
+            EditorApplication.update += OnEditorUpdate;
+        }
+
+        private void OnDisable()
+        {
+            EditorApplication.update -= OnEditorUpdate;
+        }
+
+        private void OnEditorUpdate()
+        {
+            if (Application.isPlaying && _triggerDetector != null)
+            {
+                Repaint();
+            }
         }
 
         public override void OnInspectorGUI()
@@ -182,24 +193,6 @@ namespace SoyoFramework.Editor
                         EditorGUILayout.TextField("Status", "None");
                     }
                 }
-            }
-
-            // Play mode 时自动刷新（节流）
-            if (Application.isPlaying)
-            {
-                EditorGUILayout.Space(5);
-                EditorGUILayout.HelpBox("Runtime information updates automatically during Play Mode.", MessageType.Info);
-                ThrottledRepaint();
-            }
-        }
-
-        private void ThrottledRepaint()
-        {
-            var currentTime = EditorApplication.timeSinceStartup;
-            if (currentTime - _lastRepaintTime >= RepaintInterval)
-            {
-                _lastRepaintTime = currentTime;
-                Repaint();
             }
         }
 
