@@ -17,6 +17,7 @@ DomainRoot可以依赖其他DomainRoot，但是不能出现环形引用
 - 事件是解耦用的，然而Domain内部的少量耦合是合理的
 对Domain依赖的定义：A以任何方式访问了DomainB的成员，认为是依赖
 Domain成员：组成一个Domain的 DomainRoot / DomainEntity （不过外部不关注DomainEntity的概念，这里的表达还需要改进）
-
+如果DomainA依赖了DomainB，DomainA不可以暴露DomainB的成员给外部使用
+（不确定应不应该）ViewController层不关注谁依赖谁
 
 # 1

@@ -21,7 +21,7 @@ namespace SoyoFramework
 
             if (domainRoot != null)
             {
-                Awake(domainRoot);
+                OnAwake(domainRoot);
             }
             else
             {
@@ -33,7 +33,7 @@ namespace SoyoFramework
         {
             _domainRootRegisteredEvent?.UnRegister();
             _domainRootRegisteredEvent = null;
-            Awake(e.DomainRoot);
+            OnAwake(e.DomainRoot);
         }
 
         protected virtual void OnDestroy()
@@ -42,7 +42,7 @@ namespace SoyoFramework
             _domainRootRegisteredEvent = null;
         }
 
-        protected abstract void Awake(TDomainRoot domainRoot);
+        protected abstract void OnAwake(TDomainRoot domainRoot);
     }
 
     public abstract class MonoVController<TDomainRootA, TDomainRootB> : MonoVController
@@ -61,7 +61,7 @@ namespace SoyoFramework
 
             if (_domainRootA != null && _domainRootB != null)
             {
-                Awake(_domainRootA, _domainRootB);
+                OnAwake(_domainRootA, _domainRootB);
                 return;
             }
 
@@ -81,7 +81,7 @@ namespace SoyoFramework
             _domainRootA = e.DomainRoot;
             _domainRootAEvent?.UnRegister();
             _domainRootAEvent = null;
-            TryInvokeAwake();
+            TryInvokeOnAwake();
         }
 
         private void OnDomainRootBRegistered(AfterDomainRootRegistered<TDomainRootB> e)
@@ -89,14 +89,14 @@ namespace SoyoFramework
             _domainRootB = e.DomainRoot;
             _domainRootBEvent?.UnRegister();
             _domainRootBEvent = null;
-            TryInvokeAwake();
+            TryInvokeOnAwake();
         }
 
-        private void TryInvokeAwake()
+        private void TryInvokeOnAwake()
         {
             if (_domainRootA != null && _domainRootB != null)
             {
-                Awake(_domainRootA, _domainRootB);
+                OnAwake(_domainRootA, _domainRootB);
             }
         }
 
@@ -108,7 +108,7 @@ namespace SoyoFramework
             _domainRootBEvent = null;
         }
 
-        protected abstract void Awake(TDomainRootA domainRootA, TDomainRootB domainRootB);
+        protected abstract void OnAwake(TDomainRootA domainRootA, TDomainRootB domainRootB);
     }
 
     public abstract class MonoVController<TDomainRootA, TDomainRootB, TDomainRootC> : MonoVController
@@ -131,7 +131,7 @@ namespace SoyoFramework
 
             if (_domainRootA != null && _domainRootB != null && _domainRootC != null)
             {
-                Awake(_domainRootA, _domainRootB, _domainRootC);
+                OnAwake(_domainRootA, _domainRootB, _domainRootC);
                 return;
             }
 
@@ -156,7 +156,7 @@ namespace SoyoFramework
             _domainRootA = e.DomainRoot;
             _domainRootAEvent?.UnRegister();
             _domainRootAEvent = null;
-            TryInvokeAwake();
+            TryInvokeOnAwake();
         }
 
         private void OnDomainRootBRegistered(AfterDomainRootRegistered<TDomainRootB> e)
@@ -164,7 +164,7 @@ namespace SoyoFramework
             _domainRootB = e.DomainRoot;
             _domainRootBEvent?.UnRegister();
             _domainRootBEvent = null;
-            TryInvokeAwake();
+            TryInvokeOnAwake();
         }
 
         private void OnDomainRootCRegistered(AfterDomainRootRegistered<TDomainRootC> e)
@@ -172,14 +172,14 @@ namespace SoyoFramework
             _domainRootC = e.DomainRoot;
             _domainRootCEvent?.UnRegister();
             _domainRootCEvent = null;
-            TryInvokeAwake();
+            TryInvokeOnAwake();
         }
 
-        private void TryInvokeAwake()
+        private void TryInvokeOnAwake()
         {
             if (_domainRootA != null && _domainRootB != null && _domainRootC != null)
             {
-                Awake(_domainRootA, _domainRootB, _domainRootC);
+                OnAwake(_domainRootA, _domainRootB, _domainRootC);
             }
         }
 
@@ -193,7 +193,7 @@ namespace SoyoFramework
             _domainRootCEvent = null;
         }
 
-        protected abstract void Awake(TDomainRootA domainRootA, TDomainRootB domainRootB, TDomainRootC domainRootC);
+        protected abstract void OnAwake(TDomainRootA domainRootA, TDomainRootB domainRootB, TDomainRootC domainRootC);
     }
 
     public abstract class MonoVController<TDomainRootA, TDomainRootB, TDomainRootC, TDomainRootD> : MonoVController
@@ -220,7 +220,7 @@ namespace SoyoFramework
 
             if (_domainRootA != null && _domainRootB != null && _domainRootC != null && _domainRootD != null)
             {
-                Awake(_domainRootA, _domainRootB, _domainRootC, _domainRootD);
+                OnAwake(_domainRootA, _domainRootB, _domainRootC, _domainRootD);
                 return;
             }
 
@@ -250,7 +250,7 @@ namespace SoyoFramework
             _domainRootA = e.DomainRoot;
             _domainRootAEvent?.UnRegister();
             _domainRootAEvent = null;
-            TryInvokeAwake();
+            TryInvokeOnAwake();
         }
 
         private void OnDomainRootBRegistered(AfterDomainRootRegistered<TDomainRootB> e)
@@ -258,7 +258,7 @@ namespace SoyoFramework
             _domainRootB = e.DomainRoot;
             _domainRootBEvent?.UnRegister();
             _domainRootBEvent = null;
-            TryInvokeAwake();
+            TryInvokeOnAwake();
         }
 
         private void OnDomainRootCRegistered(AfterDomainRootRegistered<TDomainRootC> e)
@@ -266,7 +266,7 @@ namespace SoyoFramework
             _domainRootC = e.DomainRoot;
             _domainRootCEvent?.UnRegister();
             _domainRootCEvent = null;
-            TryInvokeAwake();
+            TryInvokeOnAwake();
         }
 
         private void OnDomainRootDRegistered(AfterDomainRootRegistered<TDomainRootD> e)
@@ -274,14 +274,14 @@ namespace SoyoFramework
             _domainRootD = e.DomainRoot;
             _domainRootDEvent?.UnRegister();
             _domainRootDEvent = null;
-            TryInvokeAwake();
+            TryInvokeOnAwake();
         }
 
-        private void TryInvokeAwake()
+        private void TryInvokeOnAwake()
         {
             if (_domainRootA != null && _domainRootB != null && _domainRootC != null && _domainRootD != null)
             {
-                Awake(_domainRootA, _domainRootB, _domainRootC, _domainRootD);
+                OnAwake(_domainRootA, _domainRootB, _domainRootC, _domainRootD);
             }
         }
 
@@ -297,6 +297,6 @@ namespace SoyoFramework
             _domainRootDEvent = null;
         }
 
-        protected abstract void Awake(TDomainRootA domainRootA, TDomainRootB domainRootB, TDomainRootC domainRootC, TDomainRootD domainRootD);
+        protected abstract void OnAwake(TDomainRootA domainRootA, TDomainRootB domainRootB, TDomainRootC domainRootC, TDomainRootD domainRootD);
     }
 }
