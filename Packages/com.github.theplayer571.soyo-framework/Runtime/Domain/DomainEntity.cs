@@ -1,3 +1,4 @@
+using SoyoFramework.Utils.LogKit;
 using UnityEngine;
 
 namespace SoyoFramework.Domain
@@ -20,16 +21,21 @@ namespace SoyoFramework.Domain
     {
         protected TRoot Root
         {
-            get
+            get => _root;
+            set
             {
-                _root ??= GetRoot();
-                return _root;
+                if (_root != null)
+                {
+                    $"Root 已经被设置过了，不能再次设置: {_root} -> {value}".LogError();
+                }
+                else
+                {
+                    _root = value;
+                }
             }
         }
 
         private TRoot _root;
-
-        protected abstract TRoot GetRoot();
 
         public IArchitecture RelyingArchitecture => Root.RelyingArchitecture;
     }
