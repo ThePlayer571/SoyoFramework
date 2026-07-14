@@ -23,7 +23,7 @@ namespace SoyoFramework.ToolKits.FSMKit
         IState<TStateId>? PreviousState { get; }
         IState<TStateId>? GetState(TStateId stateId);
         IReadOnlyCollection<TStateId> GetAllStateIds();
-        EasyEvent<IState<TStateId>?, IState<TStateId>?> OnStateChanged { get; }
+        EasyEvent<IState<TStateId>?, IState<TStateId>> OnStateChanged { get; }
     }
 
     /// <summary>
@@ -150,7 +150,7 @@ namespace SoyoFramework.ToolKits.FSMKit
             return _states.Keys;
         }
 
-        public EasyEvent<IState<TStateId>?, IState<TStateId>?> OnStateChanged { get; } = new();
+        public EasyEvent<IState<TStateId>?, IState<TStateId>> OnStateChanged { get; } = new();
 
         #endregion
 
