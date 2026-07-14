@@ -5,7 +5,7 @@ namespace SoyoFramework.Utils.UnRegisters
 {
     public class CustomUnRegister : IUnRegister
     {
-        private Action _onUnRegister;
+        private Action? _onUnRegister;
 
         public CustomUnRegister(Action onUnRegister)
         {
@@ -15,9 +15,9 @@ namespace SoyoFramework.Utils.UnRegisters
         public void UnRegister()
         {
             var action = _onUnRegister;
-            _onUnRegister = null;
-
             if (action == null) return;
+            
+            _onUnRegister = null;
 
             // 多播委托逐个执行：一个失败不影响其他
             foreach (var d in action.GetInvocationList())

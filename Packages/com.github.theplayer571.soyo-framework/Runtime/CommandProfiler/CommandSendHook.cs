@@ -9,7 +9,7 @@ namespace SoyoFramework.CommandProfiler
 
         internal static void OnSend(ICommand command)
         {
-            if (!Enabled || command == null)
+            if (!Enabled)
                 return;
 
             CommandStatsStore.Record(command.GetType());
@@ -17,7 +17,7 @@ namespace SoyoFramework.CommandProfiler
 
         internal static void OnSend<TResult>(ICommand<TResult> command)
         {
-            if (!Enabled || command == null)
+            if (!Enabled)
                 return;
 
             CommandStatsStore.Record(command.GetType());

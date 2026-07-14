@@ -6,7 +6,7 @@ namespace SoyoFramework.UIKit.Runtime.Page
     {
         public IArchitecture AttachedArchitecture { get; set; } = null;
 
-        void ICommand.Execute(bool ignoreCanExecuteCheck)
+        void ICommand.Execute()
         {
             "这是UICommand，应该交与UIPage来处理，而不是发送给Architecture".LogError();
         }
@@ -18,13 +18,13 @@ namespace SoyoFramework.UIKit.Runtime.Page
     {
         public IArchitecture AttachedArchitecture { get; set; } = null;
 
-        TResult ICommand<TResult>.Execute(bool ignoreCanExecuteCheck)
+        TResult ICommand<TResult>.Execute()
         {
             "这是UICommand，应该交与UIPage来处理，而不是发送给Architecture".LogError();
             return default;
         }
 
-        void ICommand.Execute(bool ignoreCanExecuteCheck)
+        void ICommand.Execute()
         {
             "这是UICommand，应该交与UIPage来处理，而不是发送给Architecture".LogError();
         }

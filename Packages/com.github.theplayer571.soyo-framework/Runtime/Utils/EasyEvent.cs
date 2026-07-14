@@ -7,11 +7,11 @@ namespace SoyoFramework.Utils
 {
     public partial class EasyEvent
     {
-        private readonly List<Action> _callbacks = new List<Action>();
+        private readonly List<Action?> _callbacks = new();
 
         public IUnRegister Register(Action onEvent)
         {
-            if (onEvent != null && !_callbacks.Contains(onEvent))
+            if (!_callbacks.Contains(onEvent))
             {
                 _callbacks.Add(onEvent);
             }
@@ -21,7 +21,6 @@ namespace SoyoFramework.Utils
 
         public void UnRegister(Action onEvent)
         {
-            if (onEvent == null) return;
             int index = _callbacks.IndexOf(onEvent);
             if (index >= 0)
             {
@@ -38,9 +37,8 @@ namespace SoyoFramework.Utils
         {
             bool needCleanup = false;
 
-            for (int i = 0; i < _callbacks.Count; i++)
+            foreach (var callback in _callbacks)
             {
-                Action callback = _callbacks[i];
                 if (callback == null)
                 {
                     needCleanup = true;
@@ -65,7 +63,7 @@ namespace SoyoFramework.Utils
 
         public IUnRegister RegisterWithInvoke(Action onEvent)
         {
-            onEvent?.Invoke();
+            onEvent.Invoke();
             return Register(onEvent);
         }
     }

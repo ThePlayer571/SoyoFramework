@@ -1,3 +1,7 @@
+ICanRelyOnArchitecture 改成CanGet，明示语义
+EasyEvent 对抗运行时增删的能力还不够强
+
+
 将Optionalkits移到其他项目，这个项目就是单纯的框架。
 
 

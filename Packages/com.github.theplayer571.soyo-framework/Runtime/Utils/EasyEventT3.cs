@@ -8,20 +8,20 @@ namespace SoyoFramework.Utils
 {
     public partial class EasyEvent<T1, T2, T3>
     {
-        private readonly List<Action<T1, T2, T3>> _callbacks = new List<Action<T1, T2, T3>>();
+        private readonly List<Action<T1, T2, T3>?> _callbacks = new();
 
         public IUnRegister Register(Action<T1, T2, T3> onEvent)
         {
-            if (onEvent != null && !_callbacks.Contains(onEvent))
+            if (!_callbacks.Contains(onEvent))
             {
                 _callbacks.Add(onEvent);
             }
+
             return new CustomUnRegister(() => UnRegister(onEvent));
         }
 
         public void UnRegister(Action<T1, T2, T3> onEvent)
         {
-            if (onEvent == null) return;
             int index = _callbacks.IndexOf(onEvent);
             if (index >= 0)
             {
@@ -38,9 +38,8 @@ namespace SoyoFramework.Utils
         {
             bool needCleanup = false;
 
-            for (int i = 0; i < _callbacks.Count; i++)
+            foreach (var callback in _callbacks)
             {
-                Action<T1, T2, T3> callback = _callbacks[i];
                 if (callback == null)
                 {
                     needCleanup = true;
@@ -65,7 +64,7 @@ namespace SoyoFramework.Utils
 
         public IUnRegister RegisterWithInvoke(T1 arg1, T2 arg2, T3 arg3, Action<T1, T2, T3> onEvent)
         {
-            onEvent?.Invoke(arg1, arg2, arg3);
+            onEvent.Invoke(arg1, arg2, arg3);
             return Register(onEvent);
         }
     }
@@ -74,9 +73,9 @@ namespace SoyoFramework.Utils
     public partial class EasyEvent<T1, T2, T3>
     {
 #if UNITY_EDITOR
-        [SerializeField] private T1 _arg1;
-        [SerializeField] private T2 _arg2;
-        [SerializeField] private T3 _arg3;
+        [SerializeField] private T1 _arg1 = default!;
+        [SerializeField] private T2 _arg2 = default!;
+        [SerializeField] private T3 _arg3 = default!;
 
         /// <summary>
         /// 供 Editor PropertyDrawer 调用的触发方法

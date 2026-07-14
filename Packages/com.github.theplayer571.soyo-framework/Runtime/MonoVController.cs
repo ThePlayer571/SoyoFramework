@@ -13,7 +13,7 @@ namespace SoyoFramework
     public abstract class MonoVController<TDomainRoot> : MonoVController
         where TDomainRoot : class, IDomainRoot
     {
-        private IUnRegister _domainRootRegisteredEvent;
+        private IUnRegister? _domainRootRegisteredEvent;
 
         protected void Awake()
         {
@@ -25,7 +25,8 @@ namespace SoyoFramework
             }
             else
             {
-                _domainRootRegisteredEvent = this.RegisterEvent<AfterDomainRootRegistered<TDomainRoot>>(OnDomainRootRegistered);
+                _domainRootRegisteredEvent =
+                    this.RegisterEvent<AfterDomainRootRegistered<TDomainRoot>>(OnDomainRootRegistered);
             }
         }
 
@@ -49,10 +50,10 @@ namespace SoyoFramework
         where TDomainRootA : class, IDomainRoot
         where TDomainRootB : class, IDomainRoot
     {
-        private TDomainRootA _domainRootA;
-        private TDomainRootB _domainRootB;
-        private IUnRegister _domainRootAEvent;
-        private IUnRegister _domainRootBEvent;
+        private TDomainRootA? _domainRootA;
+        private TDomainRootB? _domainRootB;
+        private IUnRegister? _domainRootAEvent;
+        private IUnRegister? _domainRootBEvent;
 
         protected void Awake()
         {
@@ -67,12 +68,14 @@ namespace SoyoFramework
 
             if (_domainRootA == null)
             {
-                _domainRootAEvent = this.RegisterEvent<AfterDomainRootRegistered<TDomainRootA>>(OnDomainRootARegistered);
+                _domainRootAEvent =
+                    this.RegisterEvent<AfterDomainRootRegistered<TDomainRootA>>(OnDomainRootARegistered);
             }
 
             if (_domainRootB == null)
             {
-                _domainRootBEvent = this.RegisterEvent<AfterDomainRootRegistered<TDomainRootB>>(OnDomainRootBRegistered);
+                _domainRootBEvent =
+                    this.RegisterEvent<AfterDomainRootRegistered<TDomainRootB>>(OnDomainRootBRegistered);
             }
         }
 
@@ -116,12 +119,12 @@ namespace SoyoFramework
         where TDomainRootB : class, IDomainRoot
         where TDomainRootC : class, IDomainRoot
     {
-        private TDomainRootA _domainRootA;
-        private TDomainRootB _domainRootB;
-        private TDomainRootC _domainRootC;
-        private IUnRegister _domainRootAEvent;
-        private IUnRegister _domainRootBEvent;
-        private IUnRegister _domainRootCEvent;
+        private TDomainRootA? _domainRootA;
+        private TDomainRootB? _domainRootB;
+        private TDomainRootC? _domainRootC;
+        private IUnRegister? _domainRootAEvent;
+        private IUnRegister? _domainRootBEvent;
+        private IUnRegister? _domainRootCEvent;
 
         protected void Awake()
         {
@@ -137,17 +140,20 @@ namespace SoyoFramework
 
             if (_domainRootA == null)
             {
-                _domainRootAEvent = this.RegisterEvent<AfterDomainRootRegistered<TDomainRootA>>(OnDomainRootARegistered);
+                _domainRootAEvent =
+                    this.RegisterEvent<AfterDomainRootRegistered<TDomainRootA>>(OnDomainRootARegistered);
             }
 
             if (_domainRootB == null)
             {
-                _domainRootBEvent = this.RegisterEvent<AfterDomainRootRegistered<TDomainRootB>>(OnDomainRootBRegistered);
+                _domainRootBEvent =
+                    this.RegisterEvent<AfterDomainRootRegistered<TDomainRootB>>(OnDomainRootBRegistered);
             }
 
             if (_domainRootC == null)
             {
-                _domainRootCEvent = this.RegisterEvent<AfterDomainRootRegistered<TDomainRootC>>(OnDomainRootCRegistered);
+                _domainRootCEvent =
+                    this.RegisterEvent<AfterDomainRootRegistered<TDomainRootC>>(OnDomainRootCRegistered);
             }
         }
 
@@ -202,14 +208,14 @@ namespace SoyoFramework
         where TDomainRootC : class, IDomainRoot
         where TDomainRootD : class, IDomainRoot
     {
-        private TDomainRootA _domainRootA;
-        private TDomainRootB _domainRootB;
-        private TDomainRootC _domainRootC;
-        private TDomainRootD _domainRootD;
-        private IUnRegister _domainRootAEvent;
-        private IUnRegister _domainRootBEvent;
-        private IUnRegister _domainRootCEvent;
-        private IUnRegister _domainRootDEvent;
+        private TDomainRootA? _domainRootA;
+        private TDomainRootB? _domainRootB;
+        private TDomainRootC? _domainRootC;
+        private TDomainRootD? _domainRootD;
+        private IUnRegister? _domainRootAEvent;
+        private IUnRegister? _domainRootBEvent;
+        private IUnRegister? _domainRootCEvent;
+        private IUnRegister? _domainRootDEvent;
 
         protected void Awake()
         {
@@ -226,22 +232,26 @@ namespace SoyoFramework
 
             if (_domainRootA == null)
             {
-                _domainRootAEvent = this.RegisterEvent<AfterDomainRootRegistered<TDomainRootA>>(OnDomainRootARegistered);
+                _domainRootAEvent =
+                    this.RegisterEvent<AfterDomainRootRegistered<TDomainRootA>>(OnDomainRootARegistered);
             }
 
             if (_domainRootB == null)
             {
-                _domainRootBEvent = this.RegisterEvent<AfterDomainRootRegistered<TDomainRootB>>(OnDomainRootBRegistered);
+                _domainRootBEvent =
+                    this.RegisterEvent<AfterDomainRootRegistered<TDomainRootB>>(OnDomainRootBRegistered);
             }
 
             if (_domainRootC == null)
             {
-                _domainRootCEvent = this.RegisterEvent<AfterDomainRootRegistered<TDomainRootC>>(OnDomainRootCRegistered);
+                _domainRootCEvent =
+                    this.RegisterEvent<AfterDomainRootRegistered<TDomainRootC>>(OnDomainRootCRegistered);
             }
 
             if (_domainRootD == null)
             {
-                _domainRootDEvent = this.RegisterEvent<AfterDomainRootRegistered<TDomainRootD>>(OnDomainRootDRegistered);
+                _domainRootDEvent =
+                    this.RegisterEvent<AfterDomainRootRegistered<TDomainRootD>>(OnDomainRootDRegistered);
             }
         }
 
@@ -297,6 +307,7 @@ namespace SoyoFramework
             _domainRootDEvent = null;
         }
 
-        protected abstract void OnAwake(TDomainRootA domainRootA, TDomainRootB domainRootB, TDomainRootC domainRootC, TDomainRootD domainRootD);
+        protected abstract void OnAwake(TDomainRootA domainRootA, TDomainRootB domainRootB, TDomainRootC domainRootC,
+            TDomainRootD domainRootD);
     }
 }

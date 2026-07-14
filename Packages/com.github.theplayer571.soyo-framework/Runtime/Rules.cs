@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using SoyoFramework.Utils.UnRegisters;
 
 namespace SoyoFramework
@@ -141,9 +142,11 @@ namespace SoyoFramework
         /// </summary>
         /// <param name="self"></param>
         /// <param name="command"></param>
+        /// <param name="canExecuteResult"></param>
         /// <returns></returns>
-        public static CanExecuteResult TrySendCommand(this ICanSendCommand self, ICommand command)
-            => self.RelyingArchitecture.TrySendCommand(command);
+        public static bool TrySendCommand(this ICanSendCommand self,
+            ICommand command, out CanExecuteResult canExecuteResult)
+            => self.RelyingArchitecture.TrySendCommand(command, out canExecuteResult);
 
         /// <summary>
         /// 尝试发送一个Command，并返回CanExecuteResult和返回值
@@ -151,11 +154,12 @@ namespace SoyoFramework
         /// <param name="self"></param>
         /// <param name="command"></param>
         /// <param name="result"></param>
+        /// <param name="canExecuteResult"></param>
         /// <typeparam name="TResult"></typeparam>
         /// <returns></returns>
-        public static CanExecuteResult TrySendCommand<TResult>(this ICanSendCommand self, ICommand<TResult> command,
-            out TResult result)
-            => self.RelyingArchitecture.TrySendCommand(command, out result);
+        public static bool TrySendCommand<TResult>(this ICanSendCommand self,
+            ICommand<TResult> command, [NotNullWhen(true)] out TResult? result, out CanExecuteResult canExecuteResult)
+            => self.RelyingArchitecture.TrySendCommand(command, out result, out canExecuteResult);
     }
 
     public static class CanRegisterDomainRootExtension
@@ -180,7 +184,7 @@ namespace SoyoFramework
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T GetDomainRoot<T>(this ICanGetDomainRoot self)
+        public static T? GetDomainRoot<T>(this ICanGetDomainRoot self)
             where T : class, IDomainRoot
         {
             return self.RelyingArchitecture.GetDomainRoot<T>();

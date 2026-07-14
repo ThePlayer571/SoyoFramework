@@ -23,49 +23,7 @@ namespace SoyoFramework.Utils
     [Serializable]
     public partial class BindableProperty<T> : IBindableProperty<T>
     {
-        private EasyEvent<T> _valueChangeEvent;
-        private T _value;
-
-        public BindableProperty(T initialValue)
-        {
-            _valueChangeEvent = new EasyEvent<T>();
-            _value = initialValue;
-        }
-
-        public BindableProperty()
-        {
-            _valueChangeEvent = new EasyEvent<T>();
-            _value = default;
-        }
-
-        public T Value
-        {
-            get => _value;
-            set
-            {
-                if (!Equals(_value, value))
-                {
-                    _value = value;
-                    _valueChangeEvent.Trigger(_value);
-                }
-            }
-        }
-
-        IUnRegister IReadOnlyBindableProperty<T>.Register(Action<T> onValueChanged)
-        {
-            return _valueChangeEvent.Register(onValueChanged);
-        }
-
-        void IReadOnlyBindableProperty<T>.UnRegister(Action<T> onValueChanged)
-        {
-            _valueChangeEvent.UnRegister(onValueChanged);
-        }
-
-        IUnRegister IReadOnlyBindableProperty<T>.RegisterWithInitValue(Action<T> onValueChanged)
-        {
-            onValueChanged(_value);
-            return _valueChangeEvent.Register(onValueChanged);
-        }
+        #region 接口实现：IReadOnlyBindableProperty
 
         public IUnRegister Register(Action<T> onValueChanged)
         {
@@ -83,6 +41,23 @@ namespace SoyoFramework.Utils
             return _valueChangeEvent.Register(onValueChanged);
         }
 
+        #endregion
+
+        #region 接口实现：IBindableProperty
+
+        public T Value
+        {
+            get => _value;
+            set
+            {
+                if (!Equals(_value, value))
+                {
+                    _value = value;
+                    _valueChangeEvent.Trigger(_value);
+                }
+            }
+        }
+
         public void SetValueWithoutTrigger(T value)
         {
             _value = value;
@@ -97,6 +72,18 @@ namespace SoyoFramework.Utils
         {
             _valueChangeEvent.UnRegisterAll();
         }
+
+        #endregion
+
+        private readonly EasyEvent<T> _valueChangeEvent = new EasyEvent<T>();
+        private T _value;
+
+        public BindableProperty(T initialValue)
+        {
+            _value = initialValue;
+        }
+
+        #region 内部类
 
         private class ActionUnRegister : IUnRegister
         {
@@ -117,15 +104,17 @@ namespace SoyoFramework.Utils
                 }
             }
         }
+
+        #endregion
     }
 
     public partial class BindableProperty<T> : ISerializationCallbackReceiver
     {
-        [SerializeField] private T _serializedValue;
+        [SerializeField] private T _serializedValue = default!;
 
         public void OnBeforeSerialize()
         {
-            _serializedValue = _value;
+            _serializedValue = _value!;
         }
 
         public void OnAfterDeserialize()

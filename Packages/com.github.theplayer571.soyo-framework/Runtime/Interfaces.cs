@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using SoyoFramework.Utils.UnRegisters;
 
 namespace SoyoFramework
@@ -24,45 +25,17 @@ namespace SoyoFramework
         void RegisterDomainRoot<T>(T domainRoot) where T : class, IDomainRoot;
 
         /// <summary>
-        /// 注册一个DomainRoot。建议优先使用按类型注册。
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="domainRoot"></param>
-        void RegisterDomainRoot(string key, IDomainRoot domainRoot);
-
-        /// <summary>
         /// 获取对应 key 的 DomainRoot。
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        T GetDomainRoot<T>() where T : class, IDomainRoot;
-
-        /// <summary>
-        /// 获取对应 key 的 DomainRoot。
-        /// </summary>
-        /// <param name="key"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        T GetDomainRoot<T>(string key) where T : class, IDomainRoot;
-
-        /// <summary>
-        /// 获取对应 key 的 DomainRoot。
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        object GetDomainRoot(string key);
+        T? GetDomainRoot<T>() where T : class, IDomainRoot;
 
         /// <summary>
         /// 卸载对应 key 的 DomainRoot。
         /// </summary>
         /// <typeparam name="T"></typeparam>
         void UnregisterDomainRoot<T>() where T : class, IDomainRoot;
-
-        /// <summary>
-        /// 卸载对应 key 的 DomainRoot。
-        /// </summary>
-        /// <param name="key"></param>
-        void UnregisterDomainRoot(string key);
 
         #endregion
 
@@ -123,17 +96,22 @@ namespace SoyoFramework
         /// 尝试发送一个Command，并返回CanExecuteResult
         /// </summary>
         /// <param name="command"></param>
+        /// <param name="canExecuteResult"></param>
         /// <returns></returns>
-        CanExecuteResult TrySendCommand(ICommand command);
+        bool TrySendCommand(ICommand command, out CanExecuteResult canExecuteResult);
 
         /// <summary>
         /// 尝试发送一个Command，并返回CanExecuteResult和返回值
         /// </summary>
         /// <param name="command"></param>
         /// <param name="result"></param>
+        /// <param name="canExecuteResult"></param>
         /// <typeparam name="TResult"></typeparam>
         /// <returns></returns>
-        CanExecuteResult TrySendCommand<TResult>(ICommand<TResult> command, out TResult result);
+        bool TrySendCommand<TResult>(
+            ICommand<TResult> command,
+            out TResult? result,
+            out CanExecuteResult canExecuteResult);
 
         #endregion
     }
@@ -154,7 +132,7 @@ namespace SoyoFramework
         /// 执行Command的逻辑，推荐只能通过Architecture来调用
         /// </summary>
         /// <param name="ignoreCanExecuteCheck">执行时不自动调用CanExecute检查，通常为了性能而开启</param>
-        protected internal void Execute(bool ignoreCanExecuteCheck = false);
+        protected internal void Execute();
 
         CanExecuteResult CanExecute();
     }
@@ -165,6 +143,6 @@ namespace SoyoFramework
         /// 执行Command的逻辑，推荐只能通过Architecture来调用
         /// </summary>
         /// <param name="ignoreCanExecuteCheck">执行时不自动调用CanExecute检查，通常为了性能而开启</param>
-        protected internal new TResult Execute(bool ignoreCanExecuteCheck = false);
+        protected internal new TResult Execute();
     }
 }

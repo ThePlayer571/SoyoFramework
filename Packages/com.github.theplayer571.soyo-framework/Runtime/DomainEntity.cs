@@ -1,3 +1,4 @@
+using System;
 using SoyoFramework.Utils.LogKit;
 using UnityEngine;
 
@@ -21,7 +22,8 @@ namespace SoyoFramework
     {
         protected TRoot Root
         {
-            get => _root;
+            get => _root ??
+                   throw new InvalidOperationException("尝试在 MonoDomainEntity 初始化前访问 Root。请先调用 Root.setter 来设置 Root");
             set
             {
                 if (_root != null)
@@ -35,7 +37,7 @@ namespace SoyoFramework
             }
         }
 
-        private TRoot _root;
+        private TRoot? _root;
 
         public IArchitecture RelyingArchitecture => Root.RelyingArchitecture;
     }

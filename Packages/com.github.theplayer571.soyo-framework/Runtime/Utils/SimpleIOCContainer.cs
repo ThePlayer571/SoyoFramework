@@ -7,26 +7,22 @@ namespace SoyoFramework.Utils
     public class SimpleIOCContainer
     {
         private readonly Dictionary<Type, object> _container = new();
-        private readonly Dictionary<string, object> _stringContainer = new();
 
-        public void Register<T>(T instance)
+        public void Register<T>(T instance) where T : class
         {
             var key = typeof(T);
 
             _container[key] = instance;
         }
 
-        public void Unregister<T>()
+        public void Unregister<T>() where T : class
         {
             var key = typeof(T);
 
-            if (_container.ContainsKey(key))
-            {
-                _container.Remove(key);
-            }
+            _container.Remove(key);
         }
 
-        public T Get<T>() where T : class
+        public T? Get<T>() where T : class
         {
             var key = typeof(T);
 
@@ -41,36 +37,12 @@ namespace SoyoFramework.Utils
         public IEnumerable<T> GetAll<T>() where T : class
         {
             var keyType = typeof(T);
-            return _container.Where(kv => keyType.IsAssignableFrom(kv.Key)).Select(kv => kv.Value as T);
-        }
-
-        public void Register(string key, object instance)
-        {
-            _stringContainer[key] = instance;
-        }
-
-        public void Unregister(string key)
-        {
-            if (_stringContainer.ContainsKey(key))
-            {
-                _stringContainer.Remove(key);
-            }
-        }
-
-        public object Get(string key)
-        {
-            return _stringContainer.TryGetValue(key, out var retInstance) ? retInstance : null;
-        }
-
-        public IEnumerable<T> GetAllKeyed<T>() where T : class
-        {
-            return _stringContainer.Values.OfType<T>();
+            return _container.Where(kv => keyType.IsAssignableFrom(kv.Key)).Select(kv => (T)kv.Value);
         }
 
         public void Clear()
         {
             _container.Clear();
-            _stringContainer.Clear();
         }
     }
 }

@@ -4,9 +4,9 @@ namespace SoyoFramework
 {
     public static class GlobalArchitecture
     {
-        private static IArchitecture _instance;
+        private static IArchitecture? _instance;
 
-        public static IArchitecture Instance
+        public static IArchitecture? Instance
         {
             get => _instance;
             internal set

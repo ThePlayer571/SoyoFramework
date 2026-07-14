@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using SoyoFramework.Utils;
 using SoyoFramework.Utils.LogKit;
 using SoyoFramework.Utils.UnRegisters;
@@ -30,25 +31,8 @@ namespace SoyoFramework
 
         public void RegisterDomainRoot<T>(T domainRoot) where T : class, IDomainRoot
         {
-            if (domainRoot == null)
-            {
-                $"注册失败，注册的DomainRoot不能为null: {typeof(T).Name}".LogError();
-                return;
-            }
-
             _container.Register<T>(domainRoot);
             _eventSystem.Call(new AfterDomainRootRegistered<T>(domainRoot));
-        }
-
-        public void RegisterDomainRoot(string key, IDomainRoot domainRoot)
-        {
-            if (domainRoot == null)
-            {
-                $"注册失败，注册的DomainRoot不能为null: key={key}".LogError();
-                return;
-            }
-
-            _container.Register(key, domainRoot);
         }
 
         public void UnregisterDomainRoot<T>() where T : class, IDomainRoot
@@ -64,44 +48,9 @@ namespace SoyoFramework
             _container.Unregister<T>();
         }
 
-        public void UnregisterDomainRoot(string key)
+        public T? GetDomainRoot<T>() where T : class, IDomainRoot
         {
-            var domainRoot = _container.Get(key) as IDomainRoot;
-            if (domainRoot == null)
-            {
-                $"尝试注销未注册的DomainRoot: key={key}".LogError();
-                return;
-            }
-
-            domainRoot.Deinit();
-            _container.Unregister(key);
-        }
-
-        public T GetDomainRoot<T>() where T : class, IDomainRoot
-        {
-            var domainRoot = _container.Get<T>();
-            if (domainRoot == null)
-            {
-                return null;
-            }
-
-            return domainRoot;
-        }
-
-        public T GetDomainRoot<T>(string key) where T : class, IDomainRoot
-        {
-            var domainRoot = _container.Get(key) as T;
-            if (domainRoot == null)
-            {
-                return null;
-            }
-
-            return domainRoot;
-        }
-
-        public object GetDomainRoot(string key)
-        {
-            return _container.Get(key);
+            return _container.Get<T>();
         }
 
         public T InitCommand<T>(T command) where T : ICommand
@@ -117,11 +66,20 @@ namespace SoyoFramework
             if (IgnoreCommandCanExecuteCheck)
             {
                 command.AttachedArchitecture = this;
-                command.Execute(true);
+                command.Execute();
                 return;
             }
 #endif
+
             command.AttachedArchitecture = this;
+
+            var canExecute = command.CanExecute();
+            if (!canExecute)
+            {
+                $"Command {command.GetType().Name} 执行失败，原因: {canExecute.FailMessage}".LogError();
+                return;
+            }
+
             command.Execute();
         }
 
@@ -132,58 +90,70 @@ namespace SoyoFramework
             if (IgnoreCommandCanExecuteCheck)
             {
                 command.AttachedArchitecture = this;
-                return command.Execute(true);
+                return command.Execute();
             }
 #endif
             command.AttachedArchitecture = this;
+
+            var canExecute = command.CanExecute();
+            if (!canExecute)
+            {
+                throw new InvalidOperationException(
+                    $"Command {command.GetType().Name} 执行失败，原因: {canExecute.FailMessage}");
+            }
+
             return command.Execute();
         }
 
-
-        public CanExecuteResult TrySendCommand(ICommand command)
+        public bool TrySendCommand(ICommand command, out CanExecuteResult canExecuteResult)
         {
 #if UNITY_EDITOR
             CommandProfiler.CommandSendHook.OnSend(command);
             if (IgnoreCommandCanExecuteCheck)
             {
                 command.AttachedArchitecture = this;
-                command.Execute(true);
-                return CanExecuteResult.Success;
+                command.Execute();
+                canExecuteResult = CanExecuteResult.Success;
+                return true;
             }
 #endif
             command.AttachedArchitecture = this;
-            var canExecuteResult = command.CanExecute();
+
+            canExecuteResult = command.CanExecute();
             if (canExecuteResult.CanExecute)
             {
-                command.Execute(true);
+                command.Execute();
             }
 
             return canExecuteResult;
         }
 
-        public CanExecuteResult TrySendCommand<TResult>(ICommand<TResult> command, out TResult result)
+        public bool TrySendCommand<TResult>(ICommand<TResult> command, out TResult? result,
+            out CanExecuteResult canExecuteResult)
         {
 #if UNITY_EDITOR
             CommandProfiler.CommandSendHook.OnSend(command);
             if (IgnoreCommandCanExecuteCheck)
             {
                 command.AttachedArchitecture = this;
-                result = command.Execute(true);
-                return CanExecuteResult.Success;
+                result = command.Execute();
+                canExecuteResult = CanExecuteResult.Success;
+                return true;
             }
 #endif
             command.AttachedArchitecture = this;
-            var canExecute = command.CanExecute();
-            if (canExecute.CanExecute)
+
+            canExecuteResult = command.CanExecute();
+            if (canExecuteResult.CanExecute)
             {
-                result = command.Execute(true);
+                result = command.Execute();
+                return true;
             }
             else
             {
                 result = default;
+                return false;
             }
-
-            return canExecute;
         }
 
         #endregion
@@ -253,14 +223,8 @@ namespace SoyoFramework
 
             arch.OnDeinit();
 
-            // 销毁 DomainRoot (type-based)
+            // 销毁 DomainRoot
             foreach (var domainRoot in arch._container.GetAll<IDomainRoot>())
-            {
-                domainRoot.Deinit();
-            }
-
-            // 销毁 DomainRoot (string-keyed)
-            foreach (var domainRoot in arch._container.GetAllKeyed<IDomainRoot>())
             {
                 domainRoot.Deinit();
             }
