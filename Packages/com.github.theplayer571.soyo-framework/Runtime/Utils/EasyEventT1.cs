@@ -9,12 +9,25 @@ namespace SoyoFramework.Utils
     public partial class EasyEvent<T>
     {
         private readonly List<Action<T>?> _callbacks = new();
+        private readonly List<Action<T>> _pendingAdds = new();
+        private int _triggerDepth = 0;
+        private bool _needsCleanup = false;
 
         public IUnRegister Register(Action<T> onEvent)
         {
-            if (!_callbacks.Contains(onEvent))
+            if (_triggerDepth > 0)
             {
-                _callbacks.Add(onEvent);
+                if (!_callbacks.Contains(onEvent) && !_pendingAdds.Contains(onEvent))
+                {
+                    _pendingAdds.Add(onEvent);
+                }
+            }
+            else
+            {
+                if (!_callbacks.Contains(onEvent))
+                {
+                    _callbacks.Add(onEvent);
+                }
             }
 
             return new CustomUnRegister(() => UnRegister(onEvent));
@@ -26,23 +39,44 @@ namespace SoyoFramework.Utils
             if (index >= 0)
             {
                 _callbacks[index] = null;
+                _needsCleanup = true;
+            }
+            else if (_triggerDepth > 0)
+            {
+                index = _pendingAdds.IndexOf(onEvent);
+                if (index >= 0)
+                {
+                    _pendingAdds.RemoveAt(index);
+                }
             }
         }
 
         public void UnRegisterAll()
         {
-            _callbacks.Clear();
+            if (_triggerDepth > 0)
+            {
+                _pendingAdds.Clear();
+                for (int i = 0; i < _callbacks.Count; i++)
+                {
+                    _callbacks[i] = null;
+                }
+
+                _needsCleanup = true;
+            }
+            else
+            {
+                _callbacks.Clear();
+            }
         }
 
         public void Trigger(in T arg)
         {
-            bool needCleanup = false;
+            _triggerDepth++;
 
             foreach (var callback in _callbacks)
             {
                 if (callback == null)
                 {
-                    needCleanup = true;
                     continue;
                 }
 
@@ -56,9 +90,28 @@ namespace SoyoFramework.Utils
                 }
             }
 
-            if (needCleanup)
+            _triggerDepth--;
+
+            if (_triggerDepth == 0)
             {
-                _callbacks.RemoveAll(c => c == null);
+                if (_pendingAdds.Count > 0)
+                {
+                    foreach (var cb in _pendingAdds)
+                    {
+                        if (!_callbacks.Contains(cb))
+                        {
+                            _callbacks.Add(cb);
+                        }
+                    }
+
+                    _pendingAdds.Clear();
+                }
+
+                if (_needsCleanup)
+                {
+                    _callbacks.RemoveAll(c => c == null);
+                    _needsCleanup = false;
+                }
             }
         }
 
