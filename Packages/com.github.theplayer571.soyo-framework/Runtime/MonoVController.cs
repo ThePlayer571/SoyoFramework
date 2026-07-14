@@ -7,7 +7,10 @@ namespace SoyoFramework
 {
     public class MonoVController : MonoBehaviour, IMonoVController
     {
-        public virtual IArchitecture RelyingArchitecture => GlobalArchitecture.Instance;
+        public virtual IArchitecture RelyingArchitecture
+            => GlobalArchitecture.Instance ?? throw new InvalidOperationException(
+                "GlobalArchitecture 未初始化。你应该调用 Architecture.Init() 来初始化框架" +
+                $"如果你不打算使用 GlobalArchitecture，请重写 {nameof(RelyingArchitecture)} 并返回正确的 IArchitecture 实例。");
     }
 
     public abstract class MonoVController<TDomainRoot> : MonoVController

@@ -170,14 +170,14 @@ namespace SoyoFramework
                     Init();
                 }
 
-                return _instance;
+                return _instance!;
             }
         }
 
         #endregion
 
         // 静态变量
-        private static TArch _instance;
+        private static TArch? _instance;
 
         // 变量
         private bool _inited;
@@ -187,6 +187,7 @@ namespace SoyoFramework
 
         #region 生命周期
 
+        // [MemberNotNull(nameof(_instance))]
         public static void Init(bool isGlobal = true)
         {
             if (_instance != null)
