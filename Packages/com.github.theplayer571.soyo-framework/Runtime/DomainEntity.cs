@@ -1,7 +1,7 @@
 using SoyoFramework.Utils.LogKit;
 using UnityEngine;
 
-namespace SoyoFramework.Domain
+namespace SoyoFramework
 {
     public abstract class DomainEntity<TRoot> : IDomainRule
         where TRoot : IDomainRoot

@@ -1,4 +1,4 @@
-namespace SoyoFramework.Domain
+namespace SoyoFramework
 {
     public abstract class EntityProperty<TEntity>
     {

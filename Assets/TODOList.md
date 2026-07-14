@@ -1,9 +1,4 @@
-Dictionary库
-Procedure节点编辑器
-
 将Optionalkits移到其他项目，这个项目就是单纯的框架。
-
-神人TriggerDectorEditor的更新速度修复
 
 
 文档：
@@ -20,4 +15,14 @@ Domain成员：组成一个Domain的 DomainRoot / DomainEntity （不过外部�
 如果DomainA依赖了DomainB，DomainA不可以暴露DomainB的成员给外部使用
 （不确定应不应该）ViewController层不关注谁依赖谁
 
-# 1
+
+代码依赖于概念
+后端代码，有时会被迫添加因为表现层需求而存在的内容
+这并不是依赖于表现层
+而是依赖于需求
+
+
+
+
+Dictionary库
+Procedure节点编辑器
