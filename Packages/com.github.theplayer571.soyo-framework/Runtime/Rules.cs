@@ -148,6 +148,17 @@ namespace SoyoFramework
             ICommand command, out CanExecuteResult canExecuteResult)
             => self.RelyingArchitecture.TrySendCommand(command, out canExecuteResult);
 
+
+        /// <summary>
+        /// 尝试发送一个Command
+        /// </summary>
+        /// <param name="self"></param>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public static bool TrySendCommand(this ICanSendCommand self, ICommand command)
+            => self.RelyingArchitecture.TrySendCommand(command, out _);
+
+
         /// <summary>
         /// 尝试发送一个Command，并返回CanExecuteResult和返回值
         /// </summary>
@@ -158,8 +169,21 @@ namespace SoyoFramework
         /// <typeparam name="TResult"></typeparam>
         /// <returns></returns>
         public static bool TrySendCommand<TResult>(this ICanSendCommand self,
-            ICommand<TResult> command, [NotNullWhen(true)] out TResult? result, out CanExecuteResult canExecuteResult)
+            ICommand<TResult> command, out TResult? result, out CanExecuteResult canExecuteResult)
             => self.RelyingArchitecture.TrySendCommand(command, out result, out canExecuteResult);
+
+        /// <summary>
+        /// 尝试发送一个Command，并返回返回值
+        /// </summary>
+        /// <param name="self"></param>
+        /// <param name="command"></param>
+        /// <param name="result"></param>
+        /// <param name="canExecuteResult"></param>
+        /// <typeparam name="TResult"></typeparam>
+        /// <returns></returns>
+        public static bool TrySendCommand<TResult>(this ICanSendCommand self,
+            ICommand<TResult> command, out TResult? result)
+            => self.RelyingArchitecture.TrySendCommand(command, out result, out _);
     }
 
     public static class CanRegisterDomainRootExtension
