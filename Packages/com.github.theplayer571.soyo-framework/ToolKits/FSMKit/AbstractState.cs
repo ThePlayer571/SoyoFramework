@@ -52,7 +52,10 @@ namespace SoyoFramework.ToolKits.FSMKit
 
         #region Protected
 
-        protected FSM<TStateId>? AttachedFSM { get; private set; }
+        /// <summary>
+        /// 如果未绑定至FSM，可能为null。
+        /// </summary>
+        protected FSM<TStateId> AttachedFSM { get; private set; } = null!;
 
         protected virtual void OnEnter()
         {
