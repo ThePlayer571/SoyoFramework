@@ -147,5 +147,12 @@ namespace SoyoFramework.ToolKits
             Duration = duration;
             Reset();
         }
+
+        /// <summary>
+        /// 创建一个新的计时器，默认持续时间为0秒
+        /// </summary>
+        public Timer() : this(0f)
+        {
+        }
     }
 }
