@@ -4,7 +4,7 @@ namespace SoyoFramework.ToolKits.FSMKit
     /// 推荐为所有State的基类
     /// </summary>
     /// <typeparam name="TStateId">该State的唯一标识符的类型</typeparam>
-    public abstract class AbstractState<TStateId> : IState<TStateId>
+    public abstract class AbstractState<TStateId> : IState<TStateId> where TStateId : notnull
     {
         #region IState接口
 
@@ -52,7 +52,7 @@ namespace SoyoFramework.ToolKits.FSMKit
 
         #region Protected
 
-        protected FSM<TStateId> AttachedFSM { get; private set; }
+        protected FSM<TStateId>? AttachedFSM { get; private set; }
 
         protected virtual void OnEnter()
         {
@@ -82,7 +82,7 @@ namespace SoyoFramework.ToolKits.FSMKit
     /// </summary>
     /// <typeparam name="TStateId">该State的唯一标识符的类型</typeparam>
     /// <typeparam name="TTarget">该State绑定的对象的类型</typeparam>
-    public abstract class AbstractState<TStateId, TTarget> : AbstractState<TStateId>
+    public abstract class AbstractState<TStateId, TTarget> : AbstractState<TStateId> where TStateId : notnull
     {
         protected TTarget AttachedTarget { get; private set; }
 

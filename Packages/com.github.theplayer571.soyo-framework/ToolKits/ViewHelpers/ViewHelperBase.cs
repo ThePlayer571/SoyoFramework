@@ -22,7 +22,7 @@ namespace SoyoFramework.ToolKits.ViewHelpers
     {
         public abstract void Update(TData data);
         public abstract void ForceResetView(TData data);
-        public override void Update() => Update(default);
-        public override void ForceResetView() => ForceResetView(default);
+        public override void Update() => Update(default!);
+        public override void ForceResetView() => ForceResetView(default!);
     }
 }

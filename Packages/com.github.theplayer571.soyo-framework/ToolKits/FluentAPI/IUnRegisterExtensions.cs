@@ -18,14 +18,16 @@ namespace SoyoFramework.ToolKits.FluentAPI
             unRegisterGroup.Add(unRegister);
         }
 
-        public static void UnRegisterWhenGameObjectDestroyed(this IUnRegister self, GameObject gameObject)
+        public static void UnRegisterWhenGameObjectDestroyed(this IUnRegister self, GameObject? gameObject)
         {
-            gameObject?.GetOrAddComponent<OnDestroyListener>().onDestroy.Register(self.UnRegister);
+            if (gameObject == null) return;
+            gameObject.GetOrAddComponent<OnDestroyListener>().onDestroy.Register(self.UnRegister);
         }
 
-        public static void UnRegisterWhenGameObjectDestroyed(this IUnRegister self, Component component)
+        public static void UnRegisterWhenGameObjectDestroyed(this IUnRegister self, Component? component)
         {
-            component?.gameObject.GetOrAddComponent<OnDestroyListener>().onDestroy.Register(self.UnRegister);
+            if (component == null) return;
+            component.gameObject.GetOrAddComponent<OnDestroyListener>().onDestroy.Register(self.UnRegister);
         }
 
         // ====================== UnityEvent ======================

@@ -89,19 +89,19 @@ namespace SoyoFramework.ToolKits.ViewHelpers
             _isVisible = initialVisible;
         }
 
-        public ViewHelper WithOnShow(Action onShow)
+        public ViewHelper WithOnShow(Action? onShow)
         {
             _onShow = onShow;
             return this;
         }
 
-        public ViewHelper WithOnHide(Action onHide)
+        public ViewHelper WithOnHide(Action? onHide)
         {
             _onHide = onHide;
             return this;
         }
 
-        public ViewHelper WithOnUpdate(Action onUpdate)
+        public ViewHelper WithOnUpdate(Action? onUpdate)
         {
             _onUpdate = onUpdate;
             return this;
@@ -110,9 +110,9 @@ namespace SoyoFramework.ToolKits.ViewHelpers
         #endregion
 
         // 回调
-        private Action _onShow;
-        private Action _onHide;
-        private Action _onUpdate;
+        private Action? _onShow;
+        private Action? _onHide;
+        private Action? _onUpdate;
 
         // 变量
         private bool _isVisible;

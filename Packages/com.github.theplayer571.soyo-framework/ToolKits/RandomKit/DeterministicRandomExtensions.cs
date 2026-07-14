@@ -16,7 +16,7 @@ namespace SoyoFramework.ToolKits.RandomKit
         /// <summary>
         /// 从集合中随机选择一个元素
         /// </summary>
-        public static T RandomChoose<T>(this IEnumerable<T> source, DeterministicRandom random)
+        public static T? RandomChoose<T>(this IEnumerable<T> source, DeterministicRandom random)
         {
             return random.RandomChoose(source);
         }
@@ -24,7 +24,7 @@ namespace SoyoFramework.ToolKits.RandomKit
         /// <summary>
         /// 从集合中根据权重随机选择一个元素
         /// </summary>
-        public static T RandomChoose<T>(this IEnumerable<T> source, DeterministicRandom random, Func<T, float> weightSelector)
+        public static T? RandomChoose<T>(this IEnumerable<T> source, DeterministicRandom random, Func<T, float> weightSelector)
         {
             return random.RandomChoose(source, weightSelector);
         }
@@ -48,7 +48,7 @@ namespace SoyoFramework.ToolKits.RandomKit
         /// <summary>
         /// 从集合中随机移除并返回一个元素
         /// </summary>
-        public static T RandomPop<T>(this IList<T> source, DeterministicRandom random)
+        public static T? RandomPop<T>(this IList<T> source, DeterministicRandom random)
         {
             return random.RandomPop(source);
         }

@@ -140,7 +140,7 @@ namespace SoyoFramework.ToolKits.RandomKit
         /// <param name="source">数据源</param>
         /// <param name="count">选取数量（需非负）</param>
         ///
-        public IEnumerable<T> RandomSubset<T>(IEnumerable<T> source, int count)
+        public IEnumerable<T> RandomSubset<T>(IEnumerable<T>? source, int count)
         {
             if (source == null)
             {
@@ -173,7 +173,7 @@ namespace SoyoFramework.ToolKits.RandomKit
         /// <summary>
         /// 从集合中随机选择一个元素
         /// </summary>
-        public T RandomChoose<T>(IEnumerable<T> source)
+        public T? RandomChoose<T>(IEnumerable<T>? source)
         {
             if (source == null)
             {
@@ -197,7 +197,7 @@ namespace SoyoFramework.ToolKits.RandomKit
         /// <param name="source">数据源</param>
         /// <param name="weightSelector">权重选择器，返回每个元素的权重（需非负）</param>
         /// <returns>根据权重随机选中的元素</returns>
-        public T RandomChoose<T>(IEnumerable<T> source, Func<T, float> weightSelector)
+        public T? RandomChoose<T>(IEnumerable<T>? source, Func<T, float>? weightSelector)
         {
             if (source == null)
             {
@@ -249,14 +249,14 @@ namespace SoyoFramework.ToolKits.RandomKit
             }
 
             // 理论上不会到这里
-            return list[list.Count - 1];
+            return list[^1];
         }
 
         /// <summary>
         /// 从集合中随机移除并返回一个元素
         /// </summary>
         /// <param name="source">可变的集合（需支持按索引移除）</param>
-        public T RandomPop<T>(IList<T> source)
+        public T? RandomPop<T>(IList<T>? source)
         {
             if (source == null)
             {
@@ -290,7 +290,7 @@ namespace SoyoFramework.ToolKits.RandomKit
             return list;
         }
 
-        public IEnumerable<T> Shuffle<T>(IEnumerable<T> source)
+        public IEnumerable<T> Shuffle<T>(IEnumerable<T>? source)
         {
             if (source == null)
             {
@@ -342,7 +342,7 @@ namespace SoyoFramework.ToolKits.RandomKit
                 return state0 == other.state0 && state1 == other.state1;
             }
 
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
             {
                 return obj is State other && Equals(other);
             }

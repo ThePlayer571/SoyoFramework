@@ -36,12 +36,12 @@ namespace SoyoFramework.ToolKits.ViewHelpers
 
         public void Show()
         {
-            Show(default);
+            Show(default!);
         }
 
         public void Hide()
         {
-            Hide(default);
+            Hide(default!);
         }
 
         public override void Update(TData data)
@@ -98,48 +98,48 @@ namespace SoyoFramework.ToolKits.ViewHelpers
             _isVisible = initialVisible;
         }
 
-        public ViewHelper<TData> WithOnShow(Action<TData> onShow)
+        public ViewHelper<TData> WithOnShow(Action<TData>? onShow)
         {
             _onShow = onShow;
             return this;
         }
 
-        public ViewHelper<TData> WithOnShow(Action onShow)
+        public ViewHelper<TData> WithOnShow(Action? onShow)
         {
-            _onShow = _ => onShow.Invoke();
+            _onShow = onShow != null ? _ => onShow.Invoke() : null;
             return this;
         }
 
-        public ViewHelper<TData> WithOnHide(Action<TData> onHide)
+        public ViewHelper<TData> WithOnHide(Action<TData>? onHide)
         {
             _onHide = onHide;
             return this;
         }
 
-        public ViewHelper<TData> WithOnHide(Action onHide)
+        public ViewHelper<TData> WithOnHide(Action? onHide)
         {
-            _onHide = _ => onHide.Invoke();
+            _onHide = onHide != null ? _ => onHide.Invoke() : null;
             return this;
         }
 
-        public ViewHelper<TData> WithOnUpdate(Action<TData> onUpdate)
+        public ViewHelper<TData> WithOnUpdate(Action<TData>? onUpdate)
         {
             _onUpdate = onUpdate;
             return this;
         }
 
-        public ViewHelper<TData> WithOnUpdate(Action onUpdate)
+        public ViewHelper<TData> WithOnUpdate(Action? onUpdate)
         {
-            _onUpdate = _ => onUpdate.Invoke();
+            _onUpdate = onUpdate != null ? _ => onUpdate.Invoke() : null;
             return this;
         }
 
         #endregion
 
         // 回调
-        private Action<TData> _onShow;
-        private Action<TData> _onHide;
-        private Action<TData> _onUpdate;
+        private Action<TData>? _onShow;
+        private Action<TData>? _onHide;
+        private Action<TData>? _onUpdate;
 
         // 变量
         private bool _isVisible;

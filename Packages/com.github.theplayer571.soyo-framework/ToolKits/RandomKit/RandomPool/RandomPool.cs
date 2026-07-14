@@ -23,13 +23,13 @@ namespace SoyoFramework.ToolKits.RandomKit.RandomPool
         /// 计算权重时，会根据此计算出一个新的权重值（为null时不会计算）。
         /// 这是一个纯函数
         /// </summary>
-        WeightModifierDelegate<TEntry, TOutput> WeightModifier { get; set; }
+        WeightModifierDelegate<TEntry, TOutput>? WeightModifier { get; set; }
 
         /// <summary>
         /// 随机生成一个输出
         /// </summary>
         /// <returns>随机的输出。如果没有满足条件的输出，会返回null</returns>
-        TOutput Generate();
+        TOutput? Generate();
 
         /// <summary>
         /// 随机生成多个输出
@@ -59,7 +59,7 @@ namespace SoyoFramework.ToolKits.RandomKit.RandomPool
         public bool IsFinished => _isFinished;
         public float RemainingValue => _remainingValue;
 
-        public WeightModifierDelegate<TEntry, TOutput> WeightModifier
+        public WeightModifierDelegate<TEntry, TOutput>? WeightModifier
         {
             get => _weightModifier;
             set
@@ -78,7 +78,7 @@ namespace SoyoFramework.ToolKits.RandomKit.RandomPool
             }
         }
 
-        public TOutput Generate()
+        public TOutput? Generate()
         {
             if (_isFinished)
             {
@@ -181,7 +181,7 @@ namespace SoyoFramework.ToolKits.RandomKit.RandomPool
         private float _remainingValue;
         private readonly List<TEntry> _availableEntries;
         private readonly DeterministicRandom _random;
-        private WeightModifierDelegate<TEntry, TOutput> _weightModifier;
+        private WeightModifierDelegate<TEntry, TOutput>? _weightModifier;
         private readonly Dictionary<TEntry, int> _entryReturnCounts = new();
 
         private float _totalWeightCache = -1f;
@@ -236,7 +236,7 @@ namespace SoyoFramework.ToolKits.RandomKit.RandomPool
 
         #region 内部函数（操作）
 
-        private TOutput ReturnRandomOutput()
+        private TOutput? ReturnRandomOutput()
         {
             if (_isFinished) return null;
 
@@ -289,7 +289,7 @@ namespace SoyoFramework.ToolKits.RandomKit.RandomPool
         }
 
         [Pure]
-        private TEntry SelectRandomEntry()
+        private TEntry? SelectRandomEntry()
         {
             if (_totalWeightCache <= 0f) return null;
 

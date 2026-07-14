@@ -5,7 +5,7 @@ namespace SoyoFramework.ToolKits.FluentAPI
 {
     public static class UnityGameObjectExtension
     {
-        public static GameObject DestroySelf(this GameObject selfObj)
+        public static GameObject? DestroySelf(this GameObject selfObj)
         {
             Object.Destroy(selfObj);
             return null;

@@ -53,7 +53,7 @@ namespace SoyoFramework.ToolKits.ViewHelpers
 
         public UniTask ShowAsync()
         {
-            return ShowAsync(default);
+            return ShowAsync(default!);
         }
 
         public async UniTask HideAsync(TData data)
@@ -100,7 +100,7 @@ namespace SoyoFramework.ToolKits.ViewHelpers
 
         public UniTask HideAsync()
         {
-            return HideAsync(default);
+            return HideAsync(default!);
         }
 
         public void ShowInstantly(TData data)
@@ -128,7 +128,7 @@ namespace SoyoFramework.ToolKits.ViewHelpers
 
         public void ShowInstantly()
         {
-            ShowInstantly(default);
+            ShowInstantly(default!);
         }
 
 
@@ -157,7 +157,7 @@ namespace SoyoFramework.ToolKits.ViewHelpers
 
         public void HideInstantly()
         {
-            HideInstantly(default);
+            HideInstantly(default!);
         }
 
 
@@ -222,31 +222,31 @@ namespace SoyoFramework.ToolKits.ViewHelpers
             ShowMoreLog = false;
         }
 
-        public ViewHelperAsync<TData> WithOnShow(Func<CancellationToken, TData, UniTask> onShowAsync)
+        public ViewHelperAsync<TData> WithOnShow(Func<CancellationToken, TData, UniTask>? onShowAsync)
         {
             _onShowAsync = onShowAsync;
             return this;
         }
 
-        public ViewHelperAsync<TData> WithOnHide(Func<CancellationToken, TData, UniTask> onHideAsync)
+        public ViewHelperAsync<TData> WithOnHide(Func<CancellationToken, TData, UniTask>? onHideAsync)
         {
             _onHideAsync = onHideAsync;
             return this;
         }
 
-        public ViewHelperAsync<TData> WithOnUpdate(Action<TData> onUpdate)
+        public ViewHelperAsync<TData> WithOnUpdate(Action<TData>? onUpdate)
         {
             _onUpdate = onUpdate;
             return this;
         }
 
-        public ViewHelperAsync<TData> WithOnShowInstantly(Action<TData> onShowInstantly)
+        public ViewHelperAsync<TData> WithOnShowInstantly(Action<TData>? onShowInstantly)
         {
             _onShowInstantly = onShowInstantly;
             return this;
         }
 
-        public ViewHelperAsync<TData> WithOnHideInstantly(Action<TData> onHideInstantly)
+        public ViewHelperAsync<TData> WithOnHideInstantly(Action<TData>? onHideInstantly)
         {
             _onHideInstantly = onHideInstantly;
             return this;
@@ -273,15 +273,15 @@ namespace SoyoFramework.ToolKits.ViewHelpers
         }
 
         // 回调
-        private Func<CancellationToken, TData, UniTask> _onShowAsync;
-        private Func<CancellationToken, TData, UniTask> _onHideAsync;
-        private Action<TData> _onUpdate;
+        private Func<CancellationToken, TData, UniTask>? _onShowAsync;
+        private Func<CancellationToken, TData, UniTask>? _onHideAsync;
+        private Action<TData>? _onUpdate;
 
-        private Action<TData> _onShowInstantly;
-        private Action<TData> _onHideInstantly;
+        private Action<TData>? _onShowInstantly;
+        private Action<TData>? _onHideInstantly;
 
         // 变量
         private AsyncViewState _state;
-        private CancellationTokenSource _cts;
+        private CancellationTokenSource? _cts;
     }
 }

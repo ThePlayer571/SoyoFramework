@@ -2,7 +2,7 @@ using System;
 
 namespace SoyoFramework.ToolKits.FSMKit
 {
-    public class FluentState<TStateId> : AbstractState<TStateId>
+    public class FluentState<TStateId> : AbstractState<TStateId> where TStateId : notnull
     {
         public FluentState(TStateId stateId)
         {
@@ -11,11 +11,11 @@ namespace SoyoFramework.ToolKits.FSMKit
 
         public override TStateId StateId { get; }
 
-        private Action _onEnter;
-        private Action _onUpdate;
-        private Action _onExit;
-        private Action _onFixedUpdate;
-        private Action _onLateUpdate;
+        private Action? _onEnter;
+        private Action? _onUpdate;
+        private Action? _onExit;
+        private Action? _onFixedUpdate;
+        private Action? _onLateUpdate;
 
         public FluentState<TStateId> WithOnEnter(Action onEnter)
         {
@@ -76,19 +76,22 @@ namespace SoyoFramework.ToolKits.FSMKit
     public static class FluentStateExtension
     {
         public static FluentState<TStateId> AddFluentState<TStateId>(this FSM<TStateId> self, TStateId stateId)
+            where TStateId : notnull
         {
             var state = new FluentState<TStateId>(stateId);
             self.AddState(state);
             return state;
         }
 
-        public static FluentState<TStateId> GetFluentState<TStateId>(this FSM<TStateId> self, TStateId stateId)
+        public static FluentState<TStateId>? GetFluentState<TStateId>(this FSM<TStateId> self, TStateId stateId)
+            where TStateId : notnull
         {
             var state = self.GetState(stateId) as FluentState<TStateId>;
             return state;
         }
 
         public static FluentState<TStateId> GetOrAddFluentState<TStateId>(this FSM<TStateId> self, TStateId stateId)
+            where TStateId : notnull
         {
             var state = self.GetFluentState(stateId) ?? self.AddFluentState(stateId);
             return state;

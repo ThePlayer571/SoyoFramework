@@ -201,31 +201,31 @@ namespace SoyoFramework.ToolKits.ViewHelpers
             ShowMoreLog = false;
         }
 
-        public ViewHelperAsync WithOnShow(Func<CancellationToken, UniTask> onShowAsync)
+        public ViewHelperAsync WithOnShow(Func<CancellationToken, UniTask>? onShowAsync)
         {
             _onShowAsync = onShowAsync;
             return this;
         }
 
-        public ViewHelperAsync WithOnHide(Func<CancellationToken, UniTask> onHideAsync)
+        public ViewHelperAsync WithOnHide(Func<CancellationToken, UniTask>? onHideAsync)
         {
             _onHideAsync = onHideAsync;
             return this;
         }
 
-        public ViewHelperAsync WithOnUpdate(Action onUpdate)
+        public ViewHelperAsync WithOnUpdate(Action? onUpdate)
         {
             _onUpdate = onUpdate;
             return this;
         }
 
-        public ViewHelperAsync WithOnShowInstantly(Action onShowInstantly)
+        public ViewHelperAsync WithOnShowInstantly(Action? onShowInstantly)
         {
             _onShowInstantly = onShowInstantly;
             return this;
         }
 
-        public ViewHelperAsync WithOnHideInstantly(Action onHideInstantly)
+        public ViewHelperAsync WithOnHideInstantly(Action? onHideInstantly)
         {
             _onHideInstantly = onHideInstantly;
             return this;
@@ -252,15 +252,15 @@ namespace SoyoFramework.ToolKits.ViewHelpers
         }
 
         // 回调
-        private Func<CancellationToken, UniTask> _onShowAsync;
-        private Func<CancellationToken, UniTask> _onHideAsync;
-        private Action _onUpdate;
+        private Func<CancellationToken, UniTask>? _onShowAsync;
+        private Func<CancellationToken, UniTask>? _onHideAsync;
+        private Action? _onUpdate;
 
-        private Action _onShowInstantly;
-        private Action _onHideInstantly;
+        private Action? _onShowInstantly;
+        private Action? _onHideInstantly;
 
         // 变量
         private AsyncViewState _state;
-        private CancellationTokenSource _cts;
+        private CancellationTokenSource? _cts;
     }
 }

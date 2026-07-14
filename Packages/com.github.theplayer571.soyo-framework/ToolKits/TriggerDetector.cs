@@ -29,13 +29,13 @@ namespace SoyoFramework.ToolKits
         /// <summary>
         /// 判别函数，只记录返回值为true的target
         /// </summary>
-        public Func<Collider2D, bool> TargetPredicate
+        public Func<Collider2D, bool>? TargetPredicate
         {
             get => _targetPredicate;
             set
             {
                 _targetPredicate = value;
-                if (Application.isPlaying && _detectedTargets != null)
+                if (Application.isPlaying)
                 {
                     RefreshTargetPredicate();
                 }
@@ -43,7 +43,7 @@ namespace SoyoFramework.ToolKits
         }
 
         // 排序比较器，可动态设置
-        public IComparer<Collider2D> Comparer
+        public IComparer<Collider2D>? Comparer
         {
             get => _comparer;
             set
@@ -74,7 +74,7 @@ namespace SoyoFramework.ToolKits
             }
         }
 
-        public Collider2D FirstTarget
+        public Collider2D? FirstTarget
         {
             get
             {
@@ -101,9 +101,9 @@ namespace SoyoFramework.ToolKits
 
         [SerializeField] private bool _recordTarget;
         private bool _recordTargetPrev;
-        private Func<Collider2D, bool> _targetPredicate;
-        private IComparer<Collider2D> _comparer;
-        private List<Collider2D> _detectedTargets;
+        private Func<Collider2D, bool>? _targetPredicate;
+        private IComparer<Collider2D>? _comparer;
+        private readonly List<Collider2D> _detectedTargets = new();
         private int _targetCount = 0;
         private bool _sortDirty;
 
@@ -111,7 +111,6 @@ namespace SoyoFramework.ToolKits
 
         private void Awake()
         {
-            _detectedTargets = new List<Collider2D>();
             _recordTargetPrev = _recordTarget;
         }
 
@@ -130,10 +129,11 @@ namespace SoyoFramework.ToolKits
 
         private void OnValidate()
         {
-            if (Application.isPlaying && _detectedTargets != null && _recordTarget != _recordTargetPrev)
+            if (Application.isPlaying && _recordTarget != _recordTargetPrev)
             {
                 OnRecordTargetChanged();
             }
+
             _recordTargetPrev = _recordTarget;
         }
 
@@ -182,7 +182,7 @@ namespace SoyoFramework.ToolKits
         /// </summary>
         private void OnRecordTargetChanged()
         {
-            if (!Application.isPlaying || _detectedTargets == null) return;
+            if (!Application.isPlaying) return;
 
             if (!_recordTarget)
             {

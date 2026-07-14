@@ -19,11 +19,11 @@ namespace SoyoFramework.ToolKits.FSMKit
         void LateUpdate();
 
         // 实用
-        IState<TStateId> CurrentState { get; }
-        IState<TStateId> PreviousState { get; }
-        IState<TStateId> GetState(TStateId stateId);
+        IState<TStateId>? CurrentState { get; }
+        IState<TStateId>? PreviousState { get; }
+        IState<TStateId>? GetState(TStateId stateId);
         IReadOnlyCollection<TStateId> GetAllStateIds();
-        EasyEvent<IState<TStateId>, IState<TStateId>> OnStateChanged { get; }
+        EasyEvent<IState<TStateId>?, IState<TStateId>?> OnStateChanged { get; }
     }
 
     /// <summary>
@@ -31,18 +31,12 @@ namespace SoyoFramework.ToolKits.FSMKit
     /// ”开始运行“的bool 等价于 CurrentState != null
     /// </summary>
     /// <typeparam name="TStateId"></typeparam>
-    public class FSM<TStateId> : IFSM<TStateId>
+    public class FSM<TStateId> : IFSM<TStateId> where TStateId : notnull
     {
         #region IFSM接口实现
 
         public void AddState(IState<TStateId> state)
         {
-            if (state == null)
-            {
-                "尝试添加一个空状态".LogError(_logger);
-                return;
-            }
-
             if (!_states.TryAdd(state.StateId, state))
             {
                 $"已经包含状态: {state.StateId}，无法重复添加".LogError(_logger);
@@ -136,11 +130,11 @@ namespace SoyoFramework.ToolKits.FSMKit
             }
         }
 
-        public IState<TStateId> CurrentState => _currentState;
-        public TStateId CurrentStateId => CurrentState.StateId;
-        public IState<TStateId> PreviousState => _previousState;
+        public IState<TStateId>? CurrentState => _currentState;
+        public TStateId? CurrentStateId => CurrentState != null ? CurrentState.StateId : default;
+        public IState<TStateId>? PreviousState => _previousState;
 
-        public IState<TStateId> GetState(TStateId stateId)
+        public IState<TStateId>? GetState(TStateId stateId)
         {
             if (_states.TryGetValue(stateId, out var state))
             {
@@ -156,13 +150,13 @@ namespace SoyoFramework.ToolKits.FSMKit
             return _states.Keys;
         }
 
-        public EasyEvent<IState<TStateId>, IState<TStateId>> OnStateChanged { get; } = new();
+        public EasyEvent<IState<TStateId>?, IState<TStateId>?> OnStateChanged { get; } = new();
 
         #endregion
 
         private Dictionary<TStateId, IState<TStateId>> _states = new();
-        private IState<TStateId> _currentState;
-        private IState<TStateId> _previousState;
+        private IState<TStateId>? _currentState;
+        private IState<TStateId>? _previousState;
         private ILog _logger = new PrefixLogger("[FSM]", LogStrategy.WarningAndError);
 
         /// <summary>

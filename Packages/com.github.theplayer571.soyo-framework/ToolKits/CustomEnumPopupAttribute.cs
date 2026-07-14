@@ -23,7 +23,7 @@ namespace SoyoFramework.ToolKits
     public class CustomEnumPopupAttribute : PropertyAttribute
     {
         /// <summary>在 Inspector 中显示的属性名称</summary>
-        public string DisplayName { get; private set; }
+        public string? DisplayName { get; private set; }
 
         /// <summary>枚举值的排序类型</summary>
         public EnumSortType SortType { get; private set; }
