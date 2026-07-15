@@ -8,78 +8,33 @@ namespace SoyoFramework.Utils
 {
     public partial class EasyEvent<T1, T2, T3>
     {
-        private readonly List<Action<T1, T2, T3>?> _callbacks = new();
-        private readonly List<Action<T1, T2, T3>> _pendingAdds = new();
-        private int _triggerDepth = 0;
-        private bool _needsCleanup = false;
+        private readonly List<Action<T1, T2, T3>> _callbacks = new();
 
         public IUnRegister Register(Action<T1, T2, T3> onEvent)
         {
-            if (_triggerDepth > 0)
-            {
-                if (!_callbacks.Contains(onEvent) && !_pendingAdds.Contains(onEvent))
-                {
-                    _pendingAdds.Add(onEvent);
-                }
-            }
-            else
-            {
-                if (!_callbacks.Contains(onEvent))
-                {
-                    _callbacks.Add(onEvent);
-                }
-            }
-
+            _callbacks.Add(onEvent);
             return new CustomUnRegister(() => UnRegister(onEvent));
         }
 
         public void UnRegister(Action<T1, T2, T3> onEvent)
         {
-            int index = _callbacks.IndexOf(onEvent);
-            if (index >= 0)
-            {
-                _callbacks[index] = null;
-                _needsCleanup = true;
-            }
-            else if (_triggerDepth > 0)
-            {
-                index = _pendingAdds.IndexOf(onEvent);
-                if (index >= 0)
-                {
-                    _pendingAdds.RemoveAt(index);
-                }
-            }
+            _callbacks.Remove(onEvent);
         }
 
         public void UnRegisterAll()
         {
-            if (_triggerDepth > 0)
-            {
-                _pendingAdds.Clear();
-                for (int i = 0; i < _callbacks.Count; i++)
-                {
-                    _callbacks[i] = null;
-                }
-
-                _needsCleanup = true;
-            }
-            else
-            {
-                _callbacks.Clear();
-            }
+            _callbacks.Clear();
         }
 
         public void Trigger(in T1 arg1, in T2 arg2, in T3 arg3)
         {
-            _triggerDepth++;
+            if (_callbacks.Count == 0) return;
 
-            foreach (var callback in _callbacks)
+            var snapshot = ListPool<Action<T1, T2, T3>>.Rent();
+            snapshot.AddRange(_callbacks);
+
+            foreach (var callback in snapshot)
             {
-                if (callback == null)
-                {
-                    continue;
-                }
-
                 try
                 {
                     callback.Invoke(arg1, arg2, arg3);
@@ -90,29 +45,7 @@ namespace SoyoFramework.Utils
                 }
             }
 
-            _triggerDepth--;
-
-            if (_triggerDepth == 0)
-            {
-                if (_pendingAdds.Count > 0)
-                {
-                    foreach (var cb in _pendingAdds)
-                    {
-                        if (!_callbacks.Contains(cb))
-                        {
-                            _callbacks.Add(cb);
-                        }
-                    }
-
-                    _pendingAdds.Clear();
-                }
-
-                if (_needsCleanup)
-                {
-                    _callbacks.RemoveAll(c => c == null);
-                    _needsCleanup = false;
-                }
-            }
+            ListPool<Action<T1, T2, T3>>.Return(snapshot);
         }
 
         public IUnRegister RegisterWithInvoke(T1 arg1, T2 arg2, T3 arg3, Action<T1, T2, T3> onEvent)
