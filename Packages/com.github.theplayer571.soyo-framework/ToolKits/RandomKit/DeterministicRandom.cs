@@ -140,14 +140,8 @@ namespace SoyoFramework.ToolKits.RandomKit
         /// <param name="source">数据源</param>
         /// <param name="count">选取数量（需非负）</param>
         ///
-        public IEnumerable<T> RandomSubset<T>(IEnumerable<T>? source, int count)
+        public IEnumerable<T> RandomSubset<T>(IEnumerable<T> source, int count)
         {
-            if (source == null)
-            {
-                "ArgumentNullException: 源集合 source 为 null，已返回空集合".LogError();
-                return Enumerable.Empty<T>();
-            }
-
             if (count < 0)
             {
                 $"ArgumentOutOfRangeException: 选取数量 count 为负（{count}），已替换为 0".LogWarning();
@@ -173,19 +167,16 @@ namespace SoyoFramework.ToolKits.RandomKit
         /// <summary>
         /// 从集合中随机选择一个元素
         /// </summary>
-        public T? RandomChoose<T>(IEnumerable<T>? source)
+        public T RandomChoose<T>(IEnumerable<T> source)
         {
-            if (source == null)
+            if (source is not IReadOnlyList<T> list)
             {
-                "ArgumentNullException: 源集合 source 为 null，已返回默认值".LogError();
-                return default;
+                list = source.ToList();
             }
 
-            var list = source.ToList();
             if (list.Count == 0)
             {
-                "InvalidOperationException: 集合不能为空，已返回默认值".LogError();
-                return default;
+                throw new InvalidOperationException("集合不能为空，无法选择元素");
             }
 
             return list[Range(0, list.Count)];
@@ -197,25 +188,16 @@ namespace SoyoFramework.ToolKits.RandomKit
         /// <param name="source">数据源</param>
         /// <param name="weightSelector">权重选择器，返回每个元素的权重（需非负）</param>
         /// <returns>根据权重随机选中的元素</returns>
-        public T? RandomChoose<T>(IEnumerable<T>? source, Func<T, float>? weightSelector)
+        public T RandomChoose<T>(IEnumerable<T> source, Func<T, float> weightSelector)
         {
-            if (source == null)
+            if (source is not IReadOnlyList<T> list)
             {
-                "ArgumentNullException: 源集合 source 为 null，已返回默认值".LogError();
-                return default;
+                list = source.ToList();
             }
 
-            if (weightSelector == null)
-            {
-                "ArgumentNullException: 权重选择器 weightSelector 为 null，已返回默认值".LogError();
-                return default;
-            }
-
-            var list = source.ToList();
             if (list.Count == 0)
             {
-                "InvalidOperationException: 集合不能为空，已返回默认值".LogError();
-                return default;
+                throw new InvalidOperationException("集合不能为空，无法选择元素");
             }
 
             float totalWeight = 0f;
@@ -233,10 +215,10 @@ namespace SoyoFramework.ToolKits.RandomKit
                 totalWeight += w;
             }
 
-            if (totalWeight == 0f)
+            if (totalWeight <= 0f)
             {
-                "InvalidOperationException: 所有权重为零，已返回默认值".LogError();
-                return default;
+                "所有权重之和零，无法随机。已返回第一个值".LogError();
+                return list[0];
             }
 
             float r = (float)Range(0, int.MaxValue) / int.MaxValue * totalWeight;
@@ -256,18 +238,11 @@ namespace SoyoFramework.ToolKits.RandomKit
         /// 从集合中随机移除并返回一个元素
         /// </summary>
         /// <param name="source">可变的集合（需支持按索引移除）</param>
-        public T? RandomPop<T>(IList<T>? source)
+        public T RandomPop<T>(IList<T> source)
         {
-            if (source == null)
-            {
-                "ArgumentNullException: 源集合 source 为 null，已返回默认值".LogError();
-                return default;
-            }
-
             if (source.Count == 0)
             {
-                "InvalidOperationException: 集合不能为空，已返回默认值".LogError();
-                return default;
+                throw new InvalidOperationException("集合不能为空，无法选择元素");
             }
 
             int index = Range(0, source.Count);
@@ -290,14 +265,8 @@ namespace SoyoFramework.ToolKits.RandomKit
             return list;
         }
 
-        public IEnumerable<T> Shuffle<T>(IEnumerable<T>? source)
+        public IEnumerable<T> Shuffle<T>(IEnumerable<T> source)
         {
-            if (source == null)
-            {
-                "ArgumentNullException: 源集合 source 为 null，已返回空集合".LogError();
-                return Enumerable.Empty<T>();
-            }
-
             var list = source.ToList();
             for (int i = list.Count - 1; i > 0; i--)
             {
