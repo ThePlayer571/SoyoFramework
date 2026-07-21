@@ -30,6 +30,8 @@ namespace SoyoFramework
         public static implicit operator bool(CanExecuteResult result) => result.CanExecute;
 
         public static implicit operator CanExecuteResult(bool canExecute) => new CanExecuteResult(canExecute);
+        
+        public static implicit operator CanExecuteResult(string failMessage) => new CanExecuteResult(false, failMessage);
 
         #endregion
     }
