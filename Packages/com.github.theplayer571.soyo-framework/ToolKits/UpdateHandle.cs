@@ -45,7 +45,7 @@ namespace SoyoFramework.ToolKits
         /// <param name="onUpdate"></param>
         /// <param name="externalToken"></param>
         /// <returns></returns>
-        public static UpdateHandle Start(Action? onUpdate, CancellationToken externalToken = default)
+        public static UpdateHandle Start(Action onUpdate, CancellationToken externalToken = default)
         {
             return Start(onUpdate, PlayerLoopTiming.Update, externalToken);
         }
@@ -57,7 +57,7 @@ namespace SoyoFramework.ToolKits
         /// <param name="timing"></param>
         /// <param name="externalToken"></param>
         /// <returns></returns>
-        public static UpdateHandle Start(Action? onUpdate, PlayerLoopTiming timing, CancellationToken externalToken = default)
+        public static UpdateHandle Start(Action onUpdate, PlayerLoopTiming timing, CancellationToken externalToken = default)
         {
             var internalCts = new CancellationTokenSource();
             var linkedCts = externalToken != CancellationToken.None
@@ -73,7 +73,7 @@ namespace SoyoFramework.ToolKits
                 {
                     while (!linkedCts.IsCancellationRequested)
                     {
-                        onUpdate?.Invoke();
+                        onUpdate.Invoke();
                         await UniTask.Yield(timing, linkedCts.Token);
                     }
                 }
