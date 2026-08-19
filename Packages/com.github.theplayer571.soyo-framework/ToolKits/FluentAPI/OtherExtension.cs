@@ -83,6 +83,7 @@ namespace SoyoFramework.ToolKits.FluentAPI
         /// <param name="vector">原始向量</param>
         /// <param name="angleDegrees">旋转角度（度），正值为顺时针</param>
         /// <returns>旋转后的 Vector2</returns>
+        [Pure]
         public static Vector2 Rotate(this Vector2 vector, float angleDegrees)
         {
             float rad = angleDegrees * Mathf.Deg2Rad;
@@ -92,108 +93,6 @@ namespace SoyoFramework.ToolKits.FluentAPI
                 vector.x * cos + vector.y * sin,
                 -vector.x * sin + vector.y * cos
             );
-        }
-    }
-
-    public static class LinqExtensions
-    {
-        // 兼容老环境自定义 MinBy
-        public static TSource MinBy<TSource, TKey>(
-            this IEnumerable<TSource> source,
-            Func<TSource, TKey> selector)
-            where TKey : IComparable<TKey>
-        {
-            using var e = source.GetEnumerator();
-            if (!e.MoveNext())
-                throw new InvalidOperationException("Sequence contains no elements");
-            var min = e.Current;
-            var minKey = selector(min);
-            while (e.MoveNext())
-            {
-                var key = selector(e.Current);
-                if (key.CompareTo(minKey) < 0)
-                {
-                    min = e.Current;
-                    minKey = key;
-                }
-            }
-
-            return min;
-        }
-
-        // 兼容老环境自定义 MaxBy
-        public static TSource MaxBy<TSource, TKey>(
-            this IEnumerable<TSource> source,
-            Func<TSource, TKey> selector)
-            where TKey : IComparable<TKey>
-        {
-            using var e = source.GetEnumerator();
-            if (!e.MoveNext())
-                throw new InvalidOperationException("Sequence contains no elements");
-            var max = e.Current;
-            var maxKey = selector(max);
-            while (e.MoveNext())
-            {
-                var key = selector(e.Current);
-                if (key.CompareTo(maxKey) > 0)
-                {
-                    max = e.Current;
-                    maxKey = key;
-                }
-            }
-
-            return max;
-        }
-    }
-
-    public static class Physics2DExtensions
-    {
-        /// <summary>
-        /// 从起点沿方向发射射线，返回第一个阻挡物体的点；若无阻挡则返回最大距离点。
-        /// </summary>
-        /// <param name="origin">射线起点</param>
-        /// <param name="direction">射线方向（无需单位化，内部自动归一）</param>
-        /// <param name="maxDistance">最大检测距离</param>
-        /// <param name="blockingLayer">阻挡层 LayerMask</param>
-        /// <returns>命中点或最大距离点</returns>
-        public static Vector2 GetRaycastEndPoint(Vector2 origin, Vector2 direction, float maxDistance,
-            LayerMask blockingLayer)
-        {
-            var hit = Physics2D.Raycast(origin, direction.normalized, maxDistance, blockingLayer);
-            if (hit.collider)
-            {
-                return hit.point;
-            }
-            else
-            {
-                return origin + direction.normalized * maxDistance;
-            }
-        }
-    }
-
-    public static class Collider2DExtensions
-    {
-        public static bool IsInLayerMask(this Collider2D self, LayerMask layerMask)
-        {
-            return LayerMaskUtility.IsInLayerMask(self.gameObject.layer, layerMask);
-        }
-
-        public static bool IsInLayerMask(this Collider2D self, params string[] layerNames)
-        {
-            return self.IsInLayerMask(LayerMask.GetMask(layerNames));
-        }
-
-        public static bool IsInLayerMask(this Collider2D self, int layerMask)
-        {
-            return self.IsInLayerMask((LayerMask)layerMask);
-        }
-    }
-
-    public static class ObjectExtensions
-    {
-        public static T? As<T>(this object obj) where T : class
-        {
-            return obj as T;
         }
     }
 }

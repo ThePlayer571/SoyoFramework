@@ -69,9 +69,9 @@ namespace SoyoFramework.ToolKits.FluentAPI
             return self;
         }
 
-        public static Transform LocalScale(this Transform self, float xyz)
+        public static Transform LocalScale(this Transform self, float scale)
         {
-            self.localScale = Vector3.one * xyz;
+            self.localScale = Vector3.one * scale;
             return self;
         }
 
@@ -115,17 +115,6 @@ namespace SoyoFramework.ToolKits.FluentAPI
             var localScale = self.localScale;
             localScale.z = z;
             self.localScale = localScale;
-            return self;
-        }
-
-        public static Transform RemoveAllChildren(this Transform self)
-        {
-            for (int i = self.childCount - 1; i >= 0; i--)
-            {
-                var child = self.GetChild(i);
-                Object.Destroy(child.gameObject);
-            }
-
             return self;
         }
     }

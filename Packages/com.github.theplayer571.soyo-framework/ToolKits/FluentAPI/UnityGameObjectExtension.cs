@@ -85,9 +85,9 @@ namespace SoyoFramework.ToolKits.FluentAPI
             return self;
         }
 
-        public static GameObject LocalScale(this GameObject self, float xyz)
+        public static GameObject LocalScale(this GameObject self, float scale)
         {
-            self.transform.localScale = Vector3.one * xyz;
+            self.transform.localScale = Vector3.one * scale;
             return self;
         }
 
@@ -137,16 +137,6 @@ namespace SoyoFramework.ToolKits.FluentAPI
         public static void SetActive(this Component self, bool active)
         {
             self.gameObject.SetActive(active);
-        }
-
-        public static bool CompareTag(this Component self, params string[] tags)
-        {
-            return tags.Any(self.CompareTag);
-        }
-
-        public static bool CompareTag(this GameObject self, params string[] tags)
-        {
-            return tags.Any(self.CompareTag);
         }
     }
 }
