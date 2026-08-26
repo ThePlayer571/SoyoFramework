@@ -1,11 +1,3 @@
-EasyEvent 对抗运行时增删的能力还不够强
-
-炼化 SoyoUguiKit
-
-
-将Optionalkits移到其他项目，这个项目就是单纯的框架。
-
-
 文档：
 如果你只引用一个Entity，没必要新增依赖，可以引用guid
 依赖的规则：持有一个Root或者它内部人额和Enityt
