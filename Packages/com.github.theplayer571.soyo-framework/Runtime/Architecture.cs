@@ -29,26 +29,26 @@ namespace SoyoFramework
             _eventSystem.Call<T>(in e);
         }
 
-        public void RegisterDomainRoot<T>(T domainRoot) where T : class, IDomainRoot
+        public void RegisterAggregateRoot<T>(T aggregateRoot) where T : class, IAggregateRoot
         {
-            _container.Register<T>(domainRoot);
-            _eventSystem.Call(new AfterDomainRootRegistered<T>(domainRoot));
+            _container.Register<T>(aggregateRoot);
+            _eventSystem.Call(new AfterAggregateRootRegistered<T>(aggregateRoot));
         }
 
-        public void UnregisterDomainRoot<T>() where T : class, IDomainRoot
+        public void UnregisterAggregateRoot<T>() where T : class, IAggregateRoot
         {
-            var domainRoot = _container.Get<T>();
-            if (domainRoot == null)
+            var aggregateRoot = _container.Get<T>();
+            if (aggregateRoot == null)
             {
-                $"尝试注销未注册的DomainRoot: {typeof(T).Name}".LogError();
+                $"尝试注销未注册的AggregateRoot: {typeof(T).Name}".LogError();
                 return;
             }
 
-            domainRoot.Deinit();
+            aggregateRoot.Deinit();
             _container.Unregister<T>();
         }
 
-        public T? GetDomainRoot<T>() where T : class, IDomainRoot
+        public T? GetAggregateRoot<T>() where T : class, IAggregateRoot
         {
             return _container.Get<T>();
         }
@@ -183,7 +183,6 @@ namespace SoyoFramework
         private bool _inited;
         private readonly SimpleIOCContainer _container = new();
         private readonly TypeEventSystem _eventSystem = new();
-        private readonly ILog _logger = new PrefixLogger($"[{typeof(TArch).Name}]");
 
         #region 生命周期
 
@@ -224,10 +223,10 @@ namespace SoyoFramework
 
             arch.OnDeinit();
 
-            // 销毁 DomainRoot
-            foreach (var domainRoot in arch._container.GetAll<IDomainRoot>())
+            // 销毁 AggregateRoot
+            foreach (var aggregateRoot in arch._container.GetAll<IAggregateRoot>())
             {
-                domainRoot.Deinit();
+                aggregateRoot.Deinit();
             }
 
             arch._container.Clear();

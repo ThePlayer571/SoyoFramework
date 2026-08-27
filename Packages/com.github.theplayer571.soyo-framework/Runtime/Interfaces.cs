@@ -15,27 +15,27 @@ namespace SoyoFramework
 
         #endregion
 
-        #region DomainRoot
+        #region AggregateRoot
 
         /// <summary>
-        /// 注册一个 DomainRoot。
+        /// 注册一个 AggregateRoot。
         /// </summary>
-        /// <param name="domainRoot"></param>
+        /// <param name="aggregateRoot"></param>
         /// <typeparam name="T"></typeparam>
-        void RegisterDomainRoot<T>(T domainRoot) where T : class, IDomainRoot;
+        void RegisterAggregateRoot<T>(T aggregateRoot) where T : class, IAggregateRoot;
 
         /// <summary>
-        /// 获取对应 key 的 DomainRoot。
+        /// 获取对应 key 的 AggregateRoot。
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        T? GetDomainRoot<T>() where T : class, IDomainRoot;
+        T? GetAggregateRoot<T>() where T : class, IAggregateRoot;
 
         /// <summary>
-        /// 卸载对应 key 的 DomainRoot。
+        /// 卸载对应 key 的 AggregateRoot。
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        void UnregisterDomainRoot<T>() where T : class, IDomainRoot;
+        void UnregisterAggregateRoot<T>() where T : class, IAggregateRoot;
 
         #endregion
 
@@ -116,7 +116,7 @@ namespace SoyoFramework
         #endregion
     }
 
-    public interface IDomainRoot : IDomainRule
+    public interface IAggregateRoot : IAggregateRule
     {
         protected internal void Deinit();
     }

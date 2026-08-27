@@ -2,9 +2,9 @@ using System;
 
 namespace SoyoFramework
 {
-    public abstract class DomainRoot : IDomainRoot
+    public abstract class AggregateRoot : IAggregateRoot
     {
-        protected DomainRoot()
+        protected AggregateRoot()
         {
         }
 
@@ -13,7 +13,7 @@ namespace SoyoFramework
                 "GlobalArchitecture 未初始化。你应该调用 Architecture.Init() 来初始化框架"
                 + $"如果你不打算使用 GlobalArchitecture，请重写 {nameof(RelyingArchitecture)} 并返回正确的 IArchitecture 实例。");
 
-        void IDomainRoot.Deinit()
+        void IAggregateRoot.Deinit()
         {
             OnDeinit();
         }

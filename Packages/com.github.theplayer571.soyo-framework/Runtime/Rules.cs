@@ -39,15 +39,15 @@ namespace SoyoFramework
     {
     }
 
-    public interface ICanRegisterDomainRoot : ICanRelyOnArchitecture
+    public interface ICanRegisterAggregateRoot : ICanRelyOnArchitecture
     {
     }
 
-    public interface ICanGetDomainRoot : ICanRelyOnArchitecture
+    public interface ICanGetAggregateRoot : ICanRelyOnArchitecture
     {
     }
 
-    public interface ICanUnregisterDomainRoot : ICanRelyOnArchitecture
+    public interface ICanUnregisterAggregateRoot : ICanRelyOnArchitecture
     {
     }
 
@@ -55,19 +55,19 @@ namespace SoyoFramework
 
     #region 接口：层级规则
 
-    public interface IDomainRule :
+    public interface IAggregateRule :
         ICanRegisterEvent, ICanSendEvent
     {
     }
 
     public interface IViewControllerRule :
-        ICanRegisterEvent, ICanSendCommand, ICanGetDomainRoot
+        ICanRegisterEvent, ICanSendCommand, ICanGetAggregateRoot
     {
     }
 
     public interface ICommandRule :
         ICanSendEvent, ICanSendCommand,
-        ICanGetDomainRoot, ICanRegisterDomainRoot, ICanUnregisterDomainRoot
+        ICanGetAggregateRoot, ICanRegisterAggregateRoot, ICanUnregisterAggregateRoot
     {
     }
 
@@ -186,45 +186,45 @@ namespace SoyoFramework
             => self.RelyingArchitecture.TrySendCommand(command, out result, out _);
     }
 
-    public static class CanRegisterDomainRootExtension
+    public static class CanRegisterAggregateRootExtension
     {
         /// <summary>
-        /// 注册一个DomainRoot。会以T为key存储在IOCContainer里
+        /// 注册一个AggregateRoot。会以T为key存储在IOCContainer里
         /// </summary>
         /// <param name="self"></param>
-        /// <param name="domainRoot"></param>
+        /// <param name="aggregateRoot"></param>
         /// <typeparam name="T"></typeparam>
-        public static void RegisterDomainRoot<T>(this ICanRegisterDomainRoot self, T domainRoot)
-            where T : class, IDomainRoot
+        public static void RegisterAggregateRoot<T>(this ICanRegisterAggregateRoot self, T aggregateRoot)
+            where T : class, IAggregateRoot
         {
-            self.RelyingArchitecture.RegisterDomainRoot(domainRoot);
+            self.RelyingArchitecture.RegisterAggregateRoot(aggregateRoot);
         }
     }
 
-    public static class CanGetDomainRootExtension
+    public static class CanGetAggregateRootExtension
     {
         /// <summary>
-        /// 获取一个DomainRoot。会以T为key从IOCContainer里取出
+        /// 获取一个AggregateRoot。会以T为key从IOCContainer里取出
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T? GetDomainRoot<T>(this ICanGetDomainRoot self)
-            where T : class, IDomainRoot
+        public static T? GetAggregateRoot<T>(this ICanGetAggregateRoot self)
+            where T : class, IAggregateRoot
         {
-            return self.RelyingArchitecture.GetDomainRoot<T>();
+            return self.RelyingArchitecture.GetAggregateRoot<T>();
         }
     }
 
-    public static class CanUnregisterDomainRootExtension
+    public static class CanUnregisterAggregateRootExtension
     {
         /// <summary>
-        /// 卸载一个DomainRoot。会以T为key从IOCContainer里移除
+        /// 卸载一个AggregateRoot。会以T为key从IOCContainer里移除
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        public static void UnregisterDomainRoot<T>(this ICanUnregisterDomainRoot self)
-            where T : class, IDomainRoot
+        public static void UnregisterAggregateRoot<T>(this ICanUnregisterAggregateRoot self)
+            where T : class, IAggregateRoot
         {
-            self.RelyingArchitecture.UnregisterDomainRoot<T>();
+            self.RelyingArchitecture.UnregisterAggregateRoot<T>();
         }
     }
 

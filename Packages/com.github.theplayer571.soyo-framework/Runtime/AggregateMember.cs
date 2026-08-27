@@ -4,10 +4,22 @@ using UnityEngine;
 
 namespace SoyoFramework
 {
-    public abstract class DomainEntity<TRoot> : IDomainRule
-        where TRoot : IDomainRoot
+    public abstract class AggregateMember : IAggregateRule
     {
-        protected DomainEntity(TRoot root)
+        protected AggregateMember(IAggregateRoot root)
+        {
+            Root = root;
+        }
+
+        protected IAggregateRoot Root { get; }
+
+        public virtual IArchitecture RelyingArchitecture => Root.RelyingArchitecture;
+    }
+
+    public abstract class AggregateMember<TRoot> : IAggregateRule
+        where TRoot : IAggregateRoot
+    {
+        protected AggregateMember(TRoot root)
         {
             Root = root;
         }
@@ -17,13 +29,13 @@ namespace SoyoFramework
         public IArchitecture RelyingArchitecture => Root.RelyingArchitecture;
     }
 
-    public abstract class MonoDomainEntity<TRoot> : MonoBehaviour, IDomainRule
-        where TRoot : IDomainRoot
+    public abstract class MonoAggregateMember<TRoot> : MonoBehaviour, IAggregateRule
+        where TRoot : IAggregateRoot
     {
         protected TRoot Root
         {
             get => _root ??
-                   throw new InvalidOperationException("尝试在 MonoDomainEntity 初始化前访问 Root。请先调用 Root.setter 来设置 Root");
+                   throw new InvalidOperationException("尝试在 MonoAggregateMember 初始化前访问 Root。请先调用 Root.setter 来设置 Root");
             set
             {
                 if (_root != null)
