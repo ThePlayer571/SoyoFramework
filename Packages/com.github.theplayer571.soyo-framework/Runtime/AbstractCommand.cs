@@ -21,7 +21,7 @@ namespace SoyoFramework
         IArchitecture ICanAttachToArchitecture.AttachedArchitecture
         {
             get => _architecture ?? throw new InvalidOperationException(
-                "尝试在 Command 初始化前访问 AttachedArchitecture。请先调用 IArchitecture.InitCommand 来初始化 Command，或者通过 IArchitecture.SendCommand 直接发送命令");
+                $"尝试在 {nameof(ICommand)} 初始化前访问 {nameof(ICanAttachToArchitecture.AttachedArchitecture)}。请先调用 {nameof(IArchitecture)}.{nameof(IArchitecture.InitCommand)} 来初始化 {nameof(ICommand)}，或者通过 {nameof(IArchitecture)}.{nameof(IArchitecture.SendCommand)} 直接发送命令");
             set => _architecture = value;
         }
     }
@@ -50,7 +50,7 @@ namespace SoyoFramework
         IArchitecture ICanAttachToArchitecture.AttachedArchitecture
         {
             get => _architecture ?? throw new InvalidOperationException(
-                "尝试在 Command 初始化前访问 AttachedArchitecture。请先调用 IArchitecture.InitCommand 来初始化 Command，或者通过 IArchitecture.SendCommand 直接发送命令");
+                $"尝试在 {nameof(ICommand)} 初始化前访问 {nameof(ICanAttachToArchitecture.AttachedArchitecture)}。请先调用 {nameof(IArchitecture)}.{nameof(IArchitecture.InitCommand)} 来初始化 {nameof(ICommand)}，或者通过 {nameof(IArchitecture)}.{nameof(IArchitecture.SendCommand)} 直接发送命令");
             set => _architecture = value;
         }
     }

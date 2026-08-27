@@ -23,7 +23,7 @@ namespace SoyoFramework
                     }
                     else
                     {
-                        Debug.LogError("在已有GlobalArchitecture的情况下，尝试设置GlobalArchitecture，被阻断");
+                        Debug.LogError($"在已有{nameof(GlobalArchitecture)}实例的情况下尝试设置新的实例，被阻断");
                     }
                 }
             }

@@ -35,12 +35,12 @@ namespace SoyoFramework
         protected TRoot Root
         {
             get => _root ??
-                   throw new InvalidOperationException("尝试在 MonoAggregateMember 初始化前访问 Root。请先调用 Root.setter 来设置 Root");
+                   throw new InvalidOperationException($"尝试在 {nameof(MonoAggregateMember<TRoot>)} 初始化前访问 {nameof(Root)}。请先调用 {nameof(Root)}.setter 来设置 {nameof(Root)}");
             set
             {
                 if (_root != null)
                 {
-                    $"Root 已经被设置过了，不能再次设置: {_root} -> {value}".LogError();
+                    $"{nameof(Root)} 已经被设置过了，不能再次设置: {_root} -> {value}".LogError();
                 }
                 else
                 {

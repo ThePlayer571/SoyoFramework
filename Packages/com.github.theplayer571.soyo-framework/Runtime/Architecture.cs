@@ -40,7 +40,7 @@ namespace SoyoFramework
             var aggregateRoot = _container.Get<T>();
             if (aggregateRoot == null)
             {
-                $"尝试注销未注册的AggregateRoot: {typeof(T).Name}".LogError();
+                $"尝试注销未注册的{nameof(IAggregateRoot)}: {typeof(T).Name}".LogError();
                 return;
             }
 
@@ -76,7 +76,7 @@ namespace SoyoFramework
             var canExecute = command.CanExecute();
             if (!canExecute)
             {
-                $"Command {command.GetType().Name} 执行失败，原因: {canExecute.FailMessage}".LogError();
+                $"{nameof(ICommand)} {command.GetType().Name} 执行失败，原因: {canExecute.FailMessage}".LogError();
                 return;
             }
 
@@ -99,7 +99,7 @@ namespace SoyoFramework
             if (!canExecute)
             {
                 throw new InvalidOperationException(
-                    $"Command {command.GetType().Name} 执行失败，原因: {canExecute.FailMessage}");
+                    $"{nameof(ICommand)} {command.GetType().Name} 执行失败，原因: {canExecute.FailMessage}");
             }
 
             return command.Execute();
@@ -191,7 +191,7 @@ namespace SoyoFramework
         {
             if (_instance != null)
             {
-                "Architecture单例已存在，无法再次Init".LogError();
+                $"Architecture单例已存在，无法再次{nameof(Init)}".LogError();
                 return;
             }
 
@@ -217,7 +217,7 @@ namespace SoyoFramework
 
             if (arch == null)
             {
-                "Architecture单例不存在，无法Deinit".LogError();
+                $"Architecture单例不存在，无法{nameof(Deinit)}".LogError();
                 return;
             }
 
