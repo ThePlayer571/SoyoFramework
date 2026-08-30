@@ -121,7 +121,7 @@ namespace SoyoFramework
         protected internal void Deinit();
     }
 
-    public interface IMonoVController : IViewControllerRule
+    public interface IViewController : IViewControllerRule
     {
     }
 

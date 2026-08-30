@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace SoyoFramework
 {
-    public class MonoVController : MonoBehaviour, IMonoVController
+    public abstract class MonoVController : MonoBehaviour, IViewController
     {
         public virtual IArchitecture RelyingArchitecture
             => GlobalArchitecture.Instance ?? throw new InvalidOperationException(
