@@ -16,9 +16,9 @@ namespace SoyoFramework.Samples.SnakeGame.Presentation.ViewControllers
         {
             theSnakeGame.Map.Food.Position.RegisterWithInitValue(newPosition =>
             {
-                foodTilemap.SetTile(new Vector3Int(_foodPosition.x, _foodPosition.y, 1), null);
+                foodTilemap.SetTile(new Vector3Int(_foodPosition.x, _foodPosition.y, 2), null);
                 _foodPosition = newPosition;
-                foodTilemap.SetTile(new Vector3Int(newPosition.x, newPosition.y, 1), foodTile);
+                foodTilemap.SetTile(new Vector3Int(newPosition.x, newPosition.y, 2), foodTile);
             }).UnRegisterWhenGameObjectDestroyed(this);
         }
     }

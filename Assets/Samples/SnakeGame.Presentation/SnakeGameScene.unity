@@ -329,7 +329,7 @@ Transform:
   m_GameObject: {fileID: 912859391}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -10}
+  m_LocalPosition: {x: 5, y: 5, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -466,7 +466,7 @@ GameObject:
   - component: {fileID: 964934154}
   - component: {fileID: 964934153}
   m_Layer: 0
-  m_Name: TestManager
+  m_Name: ArchInitializer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -578,6 +578,7 @@ Transform:
   - {fileID: 926257506}
   - {fileID: 1083497097}
   - {fileID: 1935739185}
+  - {fileID: 2136982397}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1905624122
@@ -670,7 +671,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1aa266d5b2fa46889c205a8edcfcd213, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  foodTilemap: {fileID: 588708602}
+  foodTilemap: {fileID: 1998021246}
   foodTile: {fileID: 11400000, guid: 1d574ce2b2f55304ab80d12b627683f1, type: 2}
 --- !u!1 &1998021243
 GameObject:
@@ -792,6 +793,51 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!1 &2136982396
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2136982397}
+  - component: {fileID: 2136982398}
+  m_Layer: 0
+  m_Name: InputController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2136982397
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2136982396}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1805508459}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2136982398
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2136982396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00d53327b0dd46099457c896addcc331, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveInterval: 0.5
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

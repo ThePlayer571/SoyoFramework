@@ -31,6 +31,9 @@ namespace SoyoFramework.Samples.SnakeGame.Presentation.ViewControllers
         private void UpdateSnake()
         {
             var snake = _theSnakeGame.Map.Snake;
+            
+            // 清除旧蛇
+            snakeTilemap.ClearAllTiles();
 
             // 尾
             var tailPosition = snake.Body[^1];

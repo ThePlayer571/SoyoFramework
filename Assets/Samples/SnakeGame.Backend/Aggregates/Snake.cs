@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using SoyoFramework.Utils;
 using UnityEngine;
 
@@ -32,6 +33,16 @@ namespace SoyoFramework.Samples.SnakeGame.Backend.Aggregates
                 }
 
                 Body[0] = newHeadPosition;
+            }
+
+            if (Body.Skip(1).Any(p => p == newHeadPosition) || Root.Map.Walls.Contains(newHeadPosition))
+            {
+#if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;
+#else
+                Application.Quit();
+#endif
+                return;
             }
 
             AfterBodyChanged.Trigger();
