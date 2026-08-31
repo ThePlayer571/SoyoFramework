@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace SoyoFramework.Utils
 {
-    public class OnDestroyListener : MonoBehaviour
+    internal class OnDestroyListener : MonoBehaviour
     {
         public EasyEvent onDestroy { get; } = new();
         

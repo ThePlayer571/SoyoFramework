@@ -61,16 +61,6 @@ namespace SoyoFramework
 
         public void SendCommand(ICommand command)
         {
-#if UNITY_EDITOR
-            CommandProfiler.CommandSendHook.OnSend(command);
-            if (IgnoreCommandCanExecuteCheck)
-            {
-                command.AttachedArchitecture = this;
-                command.Execute();
-                return;
-            }
-#endif
-
             command.AttachedArchitecture = this;
 
             var canExecute = command.CanExecute();
@@ -85,14 +75,6 @@ namespace SoyoFramework
 
         public TResult SendCommand<TResult>(ICommand<TResult> command)
         {
-#if UNITY_EDITOR
-            CommandProfiler.CommandSendHook.OnSend(command);
-            if (IgnoreCommandCanExecuteCheck)
-            {
-                command.AttachedArchitecture = this;
-                return command.Execute();
-            }
-#endif
             command.AttachedArchitecture = this;
 
             var canExecute = command.CanExecute();
@@ -107,16 +89,6 @@ namespace SoyoFramework
 
         public bool TrySendCommand(ICommand command, out CanExecuteResult canExecuteResult)
         {
-#if UNITY_EDITOR
-            CommandProfiler.CommandSendHook.OnSend(command);
-            if (IgnoreCommandCanExecuteCheck)
-            {
-                command.AttachedArchitecture = this;
-                command.Execute();
-                canExecuteResult = CanExecuteResult.Success;
-                return true;
-            }
-#endif
             command.AttachedArchitecture = this;
 
             canExecuteResult = command.CanExecute();
@@ -131,16 +103,6 @@ namespace SoyoFramework
         public bool TrySendCommand<TResult>(ICommand<TResult> command, out TResult? result,
             out CanExecuteResult canExecuteResult)
         {
-#if UNITY_EDITOR
-            CommandProfiler.CommandSendHook.OnSend(command);
-            if (IgnoreCommandCanExecuteCheck)
-            {
-                command.AttachedArchitecture = this;
-                result = command.Execute();
-                canExecuteResult = CanExecuteResult.Success;
-                return true;
-            }
-#endif
             command.AttachedArchitecture = this;
 
             canExecuteResult = command.CanExecute();

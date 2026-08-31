@@ -1,8 +1,7 @@
 using System;
-using SoyoFramework.Utils;
 using SoyoFramework.Utils.UnRegisters;
 
-namespace SoyoFramework
+namespace SoyoFramework.Utils
 {
     public class AggregateRootGetter<TAggregateRoot> : IViewControllerRule, IDisposable
         where TAggregateRoot : class, IAggregateRoot
