@@ -105,6 +105,9 @@ namespace SoyoFramework
 
     public interface IAggregateRoot : IAggregateMember
     {
+        /// <summary>
+        /// 聚合根注销回调。回调时已被移出容器。
+        /// </summary>
         protected internal void OnUnregister();
     }
 
@@ -115,7 +118,7 @@ namespace SoyoFramework
     public interface ICommand : ICommandRule
     {
         /// <summary>
-        /// 执行Command的逻辑，推荐只能通过Architecture来调用
+        /// 执行Command的逻辑，约定只通过Architecture来调用
         /// </summary>
        protected internal void Execute();
 
@@ -125,7 +128,7 @@ namespace SoyoFramework
     public interface ICommand<out TResult> : ICommand
     {
         /// <summary>
-        /// 执行Command的逻辑，推荐只能通过Architecture来调用
+        /// 执行Command的逻辑，约定只通过Architecture来调用
         /// </summary>
         protected internal new TResult Execute();
     }
