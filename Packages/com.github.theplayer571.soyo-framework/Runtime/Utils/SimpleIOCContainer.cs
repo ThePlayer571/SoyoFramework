@@ -12,6 +12,11 @@ namespace SoyoFramework.Utils
         {
             var key = typeof(T);
 
+            Register(key, instance);
+        }
+
+        public void Register(Type key, object instance)
+        {
             _container[key] = instance;
         }
 
@@ -32,6 +37,21 @@ namespace SoyoFramework.Utils
             }
 
             return null;
+        }
+
+        public object? Get(Type key)
+        {
+            return _container.TryGetValue(key, out var retInstance) ? retInstance : null;
+        }
+
+        public bool Unregister(Type key)
+        {
+            return _container.Remove(key);
+        }
+
+        public Type[] GetAllKeys()
+        {
+            return _container.Keys.ToArray();
         }
 
         public IEnumerable<T> GetAll<T>() where T : class

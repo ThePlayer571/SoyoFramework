@@ -14,7 +14,7 @@ namespace SoyoFramework.Samples.SnakeGame.Backend.Aggregates
             ScoreBoard = new ScoreBoard(this);
         }
 
-        protected override void OnDeinit()
+        protected override void OnUnregistered()
         {
         }
     }

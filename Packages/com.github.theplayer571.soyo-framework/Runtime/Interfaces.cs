@@ -116,7 +116,12 @@ namespace SoyoFramework
         #endregion
     }
 
-    public interface IAggregateRoot : IAggregateRule
+    public interface IAggregateMember : IAggregateRule
+    {
+        IAggregateRoot AggregateRoot { get; }
+    }
+
+    public interface IAggregateRoot : IAggregateMember
     {
         protected internal void Deinit();
     }

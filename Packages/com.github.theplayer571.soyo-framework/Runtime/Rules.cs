@@ -56,7 +56,8 @@ namespace SoyoFramework
     #region 接口：层级规则
 
     public interface IAggregateRule :
-        ICanRegisterEvent, ICanSendEvent
+        ICanRegisterEvent, ICanSendEvent,
+        ICanRegisterAggregateRoot, ICanUnregisterAggregateRoot
     {
     }
 
@@ -197,6 +198,17 @@ namespace SoyoFramework
         public static void RegisterAggregateRoot<T>(this ICanRegisterAggregateRoot self, T aggregateRoot)
             where T : class, IAggregateRoot
         {
+#if UNITY_EDITOR
+            // AggregateMember 检验
+            if (self is IAggregateMember member)
+            {
+                AggregateHigherThan.ValidateLifecycle(
+                    member.AggregateRoot,
+                    typeof(T),
+                    AggregateLifecycleOperation.Register);
+            }
+#endif
+
             self.RelyingArchitecture.RegisterAggregateRoot(aggregateRoot);
         }
     }
@@ -224,6 +236,17 @@ namespace SoyoFramework
         public static void UnregisterAggregateRoot<T>(this ICanUnregisterAggregateRoot self)
             where T : class, IAggregateRoot
         {
+#if UNITY_EDITOR
+            // AggregateMember 检验
+            if (self is IAggregateMember member)
+            {
+                AggregateHigherThan.ValidateLifecycle(
+                    member.AggregateRoot,
+                    typeof(T),
+                    AggregateLifecycleOperation.Unregister);
+            }
+#endif
+
             self.RelyingArchitecture.UnregisterAggregateRoot<T>();
         }
     }

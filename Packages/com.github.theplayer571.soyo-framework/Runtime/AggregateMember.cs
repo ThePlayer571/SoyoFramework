@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace SoyoFramework
 {
-    public abstract class AggregateMember : IAggregateRule
+    public abstract class AggregateMember : IAggregateMember
     {
         protected AggregateMember(IAggregateRoot root)
         {
@@ -13,10 +13,12 @@ namespace SoyoFramework
 
         protected IAggregateRoot Root { get; }
 
-        public virtual IArchitecture RelyingArchitecture => Root.RelyingArchitecture;
+        IAggregateRoot IAggregateMember.AggregateRoot => Root;
+
+        public IArchitecture RelyingArchitecture => Root.RelyingArchitecture;
     }
 
-    public abstract class AggregateMember<TRoot> : IAggregateRule
+    public abstract class AggregateMember<TRoot> : IAggregateMember
         where TRoot : IAggregateRoot
     {
         protected AggregateMember(TRoot root)
@@ -26,10 +28,12 @@ namespace SoyoFramework
 
         protected TRoot Root { get; }
 
+        IAggregateRoot IAggregateMember.AggregateRoot => Root;
+
         public IArchitecture RelyingArchitecture => Root.RelyingArchitecture;
     }
 
-    public abstract class MonoAggregateMember<TRoot> : MonoBehaviour, IAggregateRule
+    public abstract class MonoAggregateMember<TRoot> : MonoBehaviour, IAggregateMember
         where TRoot : IAggregateRoot
     {
         protected TRoot Root
@@ -50,6 +54,8 @@ namespace SoyoFramework
         }
 
         private TRoot? _root;
+
+        IAggregateRoot IAggregateMember.AggregateRoot => Root;
 
         public IArchitecture RelyingArchitecture => Root.RelyingArchitecture;
     }

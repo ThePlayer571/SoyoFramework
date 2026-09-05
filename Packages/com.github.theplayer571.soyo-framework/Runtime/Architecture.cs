@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using SoyoFramework.Utils;
 using SoyoFramework.Utils.LogKit;
 using SoyoFramework.Utils.UnRegisters;
@@ -31,26 +30,20 @@ namespace SoyoFramework
 
         public void RegisterAggregateRoot<T>(T aggregateRoot) where T : class, IAggregateRoot
         {
-            _container.Register<T>(aggregateRoot);
-            _eventSystem.Call(new AfterAggregateRootRegistered<T>(aggregateRoot));
+            if (_aggregateRootRegistry.TryRegister(typeof(T), aggregateRoot))
+            {
+                _eventSystem.Call(new AfterAggregateRootRegistered<T>(aggregateRoot));
+            }
         }
 
         public void UnregisterAggregateRoot<T>() where T : class, IAggregateRoot
         {
-            var aggregateRoot = _container.Get<T>();
-            if (aggregateRoot == null)
-            {
-                $"尝试注销未注册的{nameof(IAggregateRoot)}: {typeof(T).Name}".LogError();
-                return;
-            }
-
-            aggregateRoot.Deinit();
-            _container.Unregister<T>();
+            _aggregateRootRegistry.RequestUnregister(typeof(T));
         }
 
         public T? GetAggregateRoot<T>() where T : class, IAggregateRoot
         {
-            return _container.Get<T>();
+            return _aggregateRootRegistry.Get(typeof(T)) as T;
         }
 
         public T InitCommand<T>(T command) where T : ICommand
@@ -143,7 +136,7 @@ namespace SoyoFramework
 
         // 变量
         private bool _inited;
-        private readonly SimpleIOCContainer _container = new();
+        private readonly AggregateRootRegistry _aggregateRootRegistry = new();
         private readonly TypeEventSystem _eventSystem = new();
 
         #region 生命周期
@@ -183,26 +176,42 @@ namespace SoyoFramework
                 return;
             }
 
-            arch.OnDeinit();
-
-            // 销毁 AggregateRoot
-            foreach (var aggregateRoot in arch._container.GetAll<IAggregateRoot>())
+            if (!arch._aggregateRootRegistry.BeginDeinitialization())
             {
-                aggregateRoot.Deinit();
+                return;
             }
 
-            arch._container.Clear();
-
-            // TypeEventSystem清理
-            arch._eventSystem.Clear();
-
-            // 标记未初始化
-            _instance = null;
-
-            // 语法糖：GlobalArchitecture实例
-            if (GlobalArchitecture.Instance == arch)
+            var completed = false;
+            try
             {
-                GlobalArchitecture.Instance = null;
+                arch.OnDeinit();
+
+                // 销毁 AggregateRoot。Registry 会建立快照并统一进入串行注销队列。
+                arch._aggregateRootRegistry.UnregisterAll();
+
+                // TypeEventSystem清理
+                arch._eventSystem.Clear();
+
+                // 标记未初始化
+                _instance = null;
+
+                // 语法糖：GlobalArchitecture实例
+                if (GlobalArchitecture.Instance == arch)
+                {
+                    GlobalArchitecture.Instance = null;
+                }
+
+                arch._aggregateRootRegistry.CompleteDeinitialization();
+                completed = true;
+            }
+            finally
+            {
+                // 失败时恢复标志，避免架构永久停留在“正在销毁”状态，
+                // 同时保留原始异常向外传播。
+                if (!completed)
+                {
+                    arch._aggregateRootRegistry.AbortDeinitialization();
+                }
             }
         }
 
