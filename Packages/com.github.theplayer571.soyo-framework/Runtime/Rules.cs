@@ -1,4 +1,5 @@
 using System;
+using SoyoFramework.Utils.LogKit;
 using SoyoFramework.Utils.UnRegisters;
 
 namespace SoyoFramework
@@ -170,10 +171,11 @@ namespace SoyoFramework
             // AggregateMember 检验
             if (self is IAggregateMember member)
             {
-                AggregateHigherThan.ValidateLifecycle(
-                    member.AggregateRoot,
-                    typeof(T),
-                    AggregateLifecycleOperation.Register);
+                if (!AggregateHigherThan.ValidateLifecycle(member.AggregateRoot, typeof(T)))
+                {
+                    $"Aggregate {member.AggregateRoot.GetType().Name} 不能注册 {typeof(T).Name}：目标不是当前聚合的 HigherThan 下位聚合。"
+                        .LogError();
+                }
             }
 #endif
 
@@ -208,10 +210,11 @@ namespace SoyoFramework
             // AggregateMember 检验
             if (self is IAggregateMember member)
             {
-                AggregateHigherThan.ValidateLifecycle(
-                    member.AggregateRoot,
-                    typeof(T),
-                    AggregateLifecycleOperation.Unregister);
+                if (!AggregateHigherThan.ValidateLifecycle(member.AggregateRoot, typeof(T)))
+                {
+                    $"Aggregate {member.AggregateRoot.GetType().Name} 不能注销 {typeof(T).Name}：目标不是当前聚合的 HigherThan 下位聚合。"
+                        .LogError();
+                }
             }
 #endif
 

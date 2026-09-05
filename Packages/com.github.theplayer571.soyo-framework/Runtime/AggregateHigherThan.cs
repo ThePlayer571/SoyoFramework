@@ -3,39 +3,29 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using UnityEngine;
 
 namespace SoyoFramework
 {
-    internal enum AggregateLifecycleOperation
-    {
-        Register,
-        Unregister
-    }
-
     internal static class AggregateHigherThan
     {
         internal static bool LifecycleCheckEnabled { get; set; } = true;
 
-        internal static void ValidateLifecycle(
+        internal static bool ValidateLifecycle(
             IAggregateRoot aggregateRoot,
-            Type targetType,
-            AggregateLifecycleOperation operation)
+            Type targetType)
         {
             if (!LifecycleCheckEnabled)
             {
-                return;
+                return true;
             }
 
             var rootType = aggregateRoot.GetType();
             if (IsHigherThan(rootType, targetType))
             {
-                return;
+                return true;
             }
 
-            var operationName = operation == AggregateLifecycleOperation.Register ? "注册" : "注销";
-            Debug.LogError(
-                $"Aggregate {rootType.Name} 不能{operationName} {targetType.Name}：目标不是当前聚合的 HigherThan 下位聚合。");
+            return false;
         }
 
         internal static bool IsHigherThan(Type higherType, Type lowerType)
