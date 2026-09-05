@@ -8,7 +8,7 @@ namespace SoyoFramework.Samples.SnakeGame.Presentation.ViewControllers
     {
         private void Awake()
         {
-            TSG.Init();
+            Architecture.Init();
         }
     }
 }

@@ -1,20 +1,10 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using SoyoFramework.Utils.UnRegisters;
 
 namespace SoyoFramework
 {
     public interface IArchitecture
     {
-        #region Architecture生命周期
-
-        /// <summary>
-        /// Architecture是否已完成初始化。只有初始化后的Architecture才能正常使用。通常会自动初始化，如果出现问题，尝试手动调用Architecture.Init()
-        /// </summary>
-        bool Inited { get; }
-
-        #endregion
-
         #region AggregateRoot
 
         /// <summary>
@@ -72,14 +62,6 @@ namespace SoyoFramework
         bool IgnoreCommandCanExecuteCheck { get; set; }
 
         /// <summary>
-        /// 初始化一个Command。初始化后，可以直接调用CanExecute获取CanExecuteResult。想调用Command，必须通过SendCommand
-        /// </summary>
-        /// <param name="command"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        T InitCommand<T>(T command) where T : ICommand;
-
-        /// <summary>
         /// 发送一个Command
         /// </summary>
         /// <param name="command"></param>
@@ -123,21 +105,19 @@ namespace SoyoFramework
 
     public interface IAggregateRoot : IAggregateMember
     {
-        protected internal void Deinit();
+        protected internal void OnUnregister();
     }
 
     public interface IViewController : IViewControllerRule
     {
     }
 
-    public interface ICommand :
-        ICanAttachToArchitecture, ICommandRule
+    public interface ICommand : ICommandRule
     {
         /// <summary>
         /// 执行Command的逻辑，推荐只能通过Architecture来调用
         /// </summary>
-        /// <param name="ignoreCanExecuteCheck">执行时不自动调用CanExecute检查，通常为了性能而开启</param>
-        protected internal void Execute();
+       protected internal void Execute();
 
         CanExecuteResult CanExecute();
     }
@@ -147,7 +127,6 @@ namespace SoyoFramework
         /// <summary>
         /// 执行Command的逻辑，推荐只能通过Architecture来调用
         /// </summary>
-        /// <param name="ignoreCanExecuteCheck">执行时不自动调用CanExecute检查，通常为了性能而开启</param>
         protected internal new TResult Execute();
     }
 }

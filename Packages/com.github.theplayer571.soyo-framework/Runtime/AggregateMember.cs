@@ -15,7 +15,6 @@ namespace SoyoFramework
 
         IAggregateRoot IAggregateMember.AggregateRoot => Root;
 
-        public IArchitecture RelyingArchitecture => Root.RelyingArchitecture;
     }
 
     public abstract class AggregateMember<TRoot> : IAggregateMember
@@ -30,7 +29,6 @@ namespace SoyoFramework
 
         IAggregateRoot IAggregateMember.AggregateRoot => Root;
 
-        public IArchitecture RelyingArchitecture => Root.RelyingArchitecture;
     }
 
     public abstract class MonoAggregateMember<TRoot> : MonoBehaviour, IAggregateMember
@@ -57,6 +55,5 @@ namespace SoyoFramework
 
         IAggregateRoot IAggregateMember.AggregateRoot => Root;
 
-        public IArchitecture RelyingArchitecture => Root.RelyingArchitecture;
     }
 }

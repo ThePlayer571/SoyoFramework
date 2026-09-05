@@ -1,53 +1,31 @@
 using System;
-using System.Diagnostics.CodeAnalysis;
 using SoyoFramework.Utils.UnRegisters;
 
 namespace SoyoFramework
 {
-    #region 接口：框架依赖
-
-    /// <summary>
-    /// 依赖于框架，框架可以不知道它的存在。
-    /// </summary>
-    public interface ICanRelyOnArchitecture
-    {
-        IArchitecture RelyingArchitecture { get; }
-    }
-
-    /// <summary>
-    /// 与框架绑定，框架知道它的存在。
-    /// </summary>
-    public interface ICanAttachToArchitecture : ICanRelyOnArchitecture
-    {
-        IArchitecture AttachedArchitecture { get; set; }
-        IArchitecture ICanRelyOnArchitecture.RelyingArchitecture => AttachedArchitecture;
-    }
-
-    #endregion
-
     #region 接口：基础规则
 
-    public interface ICanRegisterEvent : ICanRelyOnArchitecture
+    public interface ICanRegisterEvent
     {
     }
 
-    public interface ICanSendEvent : ICanRelyOnArchitecture
+    public interface ICanSendEvent
     {
     }
 
-    public interface ICanSendCommand : ICanRelyOnArchitecture
+    public interface ICanSendCommand
     {
     }
 
-    public interface ICanRegisterAggregateRoot : ICanRelyOnArchitecture
+    public interface ICanRegisterAggregateRoot
     {
     }
 
-    public interface ICanGetAggregateRoot : ICanRelyOnArchitecture
+    public interface ICanGetAggregateRoot
     {
     }
 
-    public interface ICanUnregisterAggregateRoot : ICanRelyOnArchitecture
+    public interface ICanUnregisterAggregateRoot
     {
     }
 
@@ -86,7 +64,7 @@ namespace SoyoFramework
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
         public static IUnRegister RegisterEvent<T>(this ICanRegisterEvent self, Action<T> onEvent)
-            => self.RelyingArchitecture.RegisterEvent<T>(onEvent);
+            => Architecture.Instance.RegisterEvent<T>(onEvent);
     }
 
     public static class CanSendEventExtension
@@ -96,7 +74,7 @@ namespace SoyoFramework
         /// </summary>
         /// <typeparam name="T"></typeparam>
         public static void SendEvent<T>(this ICanSendEvent self) where T : new()
-            => self.RelyingArchitecture.SendEvent<T>();
+            => Architecture.Instance.SendEvent<T>();
 
         /// <summary>
         /// 按类型发送事件，会调用所有注册了该类型事件的回调。
@@ -105,28 +83,18 @@ namespace SoyoFramework
         /// <param name="e"></param>
         /// <typeparam name="T"></typeparam>
         public static void SendEvent<T>(this ICanSendEvent self, T e)
-            => self.RelyingArchitecture.SendEvent<T>(e);
+            => Architecture.Instance.SendEvent<T>(e);
     }
 
     public static class CanSendCommandExtension
     {
-        /// <summary>
-        /// 初始化一个Command。初始化后，可以直接调用CanExecute获取CanExecuteResult。想调用Command，必须通过SendCommand
-        /// </summary>
-        /// <param name="self"></param>
-        /// <param name="command"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static T InitCommand<T>(this ICanSendCommand self, T command) where T : ICommand
-            => self.RelyingArchitecture.InitCommand(command);
-
         /// <summary>
         /// 发送一个Command
         /// </summary>
         /// <param name="self"></param>
         /// <param name="command"></param>
         public static void SendCommand(this ICanSendCommand self, ICommand command)
-            => self.RelyingArchitecture.SendCommand(command);
+            => Architecture.Instance.SendCommand(command);
 
         /// <summary>
         /// 发送一个Command，并获取返回值
@@ -135,7 +103,7 @@ namespace SoyoFramework
         /// <param name="command"></param>
         /// <typeparam name="TResult"></typeparam>
         public static TResult SendCommand<TResult>(this ICanSendCommand self, ICommand<TResult> command)
-            => self.RelyingArchitecture.SendCommand(command);
+            => Architecture.Instance.SendCommand(command);
 
 
         /// <summary>
@@ -147,7 +115,7 @@ namespace SoyoFramework
         /// <returns></returns>
         public static bool TrySendCommand(this ICanSendCommand self,
             ICommand command, out CanExecuteResult canExecuteResult)
-            => self.RelyingArchitecture.TrySendCommand(command, out canExecuteResult);
+            => Architecture.Instance.TrySendCommand(command, out canExecuteResult);
 
 
         /// <summary>
@@ -157,7 +125,7 @@ namespace SoyoFramework
         /// <param name="command"></param>
         /// <returns></returns>
         public static bool TrySendCommand(this ICanSendCommand self, ICommand command)
-            => self.RelyingArchitecture.TrySendCommand(command, out _);
+            => Architecture.Instance.TrySendCommand(command, out _);
 
 
         /// <summary>
@@ -171,7 +139,7 @@ namespace SoyoFramework
         /// <returns></returns>
         public static bool TrySendCommand<TResult>(this ICanSendCommand self,
             ICommand<TResult> command, out TResult? result, out CanExecuteResult canExecuteResult)
-            => self.RelyingArchitecture.TrySendCommand(command, out result, out canExecuteResult);
+            => Architecture.Instance.TrySendCommand(command, out result, out canExecuteResult);
 
         /// <summary>
         /// 尝试发送一个Command，并返回返回值
@@ -184,7 +152,7 @@ namespace SoyoFramework
         /// <returns></returns>
         public static bool TrySendCommand<TResult>(this ICanSendCommand self,
             ICommand<TResult> command, out TResult? result)
-            => self.RelyingArchitecture.TrySendCommand(command, out result, out _);
+            => Architecture.Instance.TrySendCommand(command, out result, out _);
     }
 
     public static class CanRegisterAggregateRootExtension
@@ -209,7 +177,7 @@ namespace SoyoFramework
             }
 #endif
 
-            self.RelyingArchitecture.RegisterAggregateRoot(aggregateRoot);
+            Architecture.Instance.RegisterAggregateRoot(aggregateRoot);
         }
     }
 
@@ -223,7 +191,7 @@ namespace SoyoFramework
         public static T? GetAggregateRoot<T>(this ICanGetAggregateRoot self)
             where T : class, IAggregateRoot
         {
-            return self.RelyingArchitecture.GetAggregateRoot<T>();
+            return Architecture.Instance.GetAggregateRoot<T>();
         }
     }
 
@@ -247,7 +215,7 @@ namespace SoyoFramework
             }
 #endif
 
-            self.RelyingArchitecture.UnregisterAggregateRoot<T>();
+            Architecture.Instance.UnregisterAggregateRoot<T>();
         }
     }
 

@@ -6,24 +6,11 @@ namespace SoyoFramework.Utils
     public class AggregateRootGetter<TAggregateRoot> : IViewControllerRule, IDisposable
         where TAggregateRoot : class, IAggregateRoot
     {
-        public IArchitecture RelyingArchitecture => _relyingArchitecture;
-
-        private readonly IArchitecture _relyingArchitecture;
         private readonly Action<TAggregateRoot> _onAwake;
         private IUnRegister? _aggregateRootRegisteredEvent;
 
         public AggregateRootGetter(Action<TAggregateRoot> onAwake)
-            : this(
-                GlobalArchitecture.Instance ?? throw new InvalidOperationException(
-                    "GlobalArchitecture 未初始化。你应该调用 Architecture.Init() 来初始化框架" +
-                    $"如果你不打算使用 GlobalArchitecture，请传入正确的 IArchitecture 实例。"),
-                onAwake)
         {
-        }
-
-        public AggregateRootGetter(IArchitecture relyingArchitecture, Action<TAggregateRoot> onAwake)
-        {
-            _relyingArchitecture = relyingArchitecture;
             _onAwake = onAwake;
 
             var aggregateRoot = this.GetAggregateRoot<TAggregateRoot>();
@@ -58,9 +45,6 @@ namespace SoyoFramework.Utils
         where TAggregateRootA : class, IAggregateRoot
         where TAggregateRootB : class, IAggregateRoot
     {
-        public IArchitecture RelyingArchitecture => _relyingArchitecture;
-
-        private readonly IArchitecture _relyingArchitecture;
         private readonly Action<TAggregateRootA, TAggregateRootB> _onAwake;
         private TAggregateRootA? _aggregateRootA;
         private TAggregateRootB? _aggregateRootB;
@@ -68,17 +52,7 @@ namespace SoyoFramework.Utils
         private IUnRegister? _aggregateRootBEvent;
 
         public AggregateRootGetter(Action<TAggregateRootA, TAggregateRootB> onAwake)
-            : this(
-                GlobalArchitecture.Instance ?? throw new InvalidOperationException(
-                    "GlobalArchitecture 未初始化。你应该调用 Architecture.Init() 来初始化框架" +
-                    $"如果你不打算使用 GlobalArchitecture，请传入正确的 IArchitecture 实例。"),
-                onAwake)
         {
-        }
-
-        public AggregateRootGetter(IArchitecture relyingArchitecture, Action<TAggregateRootA, TAggregateRootB> onAwake)
-        {
-            _relyingArchitecture = relyingArchitecture;
             _onAwake = onAwake;
 
             _aggregateRootA = this.GetAggregateRoot<TAggregateRootA>();
@@ -142,9 +116,6 @@ namespace SoyoFramework.Utils
         where TAggregateRootB : class, IAggregateRoot
         where TAggregateRootC : class, IAggregateRoot
     {
-        public IArchitecture RelyingArchitecture => _relyingArchitecture;
-
-        private readonly IArchitecture _relyingArchitecture;
         private readonly Action<TAggregateRootA, TAggregateRootB, TAggregateRootC> _onAwake;
         private TAggregateRootA? _aggregateRootA;
         private TAggregateRootB? _aggregateRootB;
@@ -154,18 +125,7 @@ namespace SoyoFramework.Utils
         private IUnRegister? _aggregateRootCEvent;
 
         public AggregateRootGetter(Action<TAggregateRootA, TAggregateRootB, TAggregateRootC> onAwake)
-            : this(
-                GlobalArchitecture.Instance ?? throw new InvalidOperationException(
-                    "GlobalArchitecture 未初始化。你应该调用 Architecture.Init() 来初始化框架" +
-                    $"如果你不打算使用 GlobalArchitecture，请传入正确的 IArchitecture 实例。"),
-                onAwake)
         {
-        }
-
-        public AggregateRootGetter(IArchitecture relyingArchitecture,
-            Action<TAggregateRootA, TAggregateRootB, TAggregateRootC> onAwake)
-        {
-            _relyingArchitecture = relyingArchitecture;
             _onAwake = onAwake;
 
             _aggregateRootA = this.GetAggregateRoot<TAggregateRootA>();
@@ -248,9 +208,6 @@ namespace SoyoFramework.Utils
         where TAggregateRootC : class, IAggregateRoot
         where TAggregateRootD : class, IAggregateRoot
     {
-        public IArchitecture RelyingArchitecture => _relyingArchitecture;
-
-        private readonly IArchitecture _relyingArchitecture;
         private readonly Action<TAggregateRootA, TAggregateRootB, TAggregateRootC, TAggregateRootD> _onAwake;
         private TAggregateRootA? _aggregateRootA;
         private TAggregateRootB? _aggregateRootB;
@@ -262,18 +219,7 @@ namespace SoyoFramework.Utils
         private IUnRegister? _aggregateRootDEvent;
 
         public AggregateRootGetter(Action<TAggregateRootA, TAggregateRootB, TAggregateRootC, TAggregateRootD> onAwake)
-            : this(
-                GlobalArchitecture.Instance ?? throw new InvalidOperationException(
-                    "GlobalArchitecture 未初始化。你应该调用 Architecture.Init() 来初始化框架" +
-                    $"如果你不打算使用 GlobalArchitecture，请传入正确的 IArchitecture 实例。"),
-                onAwake)
         {
-        }
-
-        public AggregateRootGetter(IArchitecture relyingArchitecture,
-            Action<TAggregateRootA, TAggregateRootB, TAggregateRootC, TAggregateRootD> onAwake)
-        {
-            _relyingArchitecture = relyingArchitecture;
             _onAwake = onAwake;
 
             _aggregateRootA = this.GetAggregateRoot<TAggregateRootA>();

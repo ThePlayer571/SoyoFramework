@@ -4,31 +4,32 @@ using SoyoFramework.Utils.LogKit;
 
 namespace SoyoFramework.Utils
 {
-    // todo：这个类存在巨大缺陷，等后面重构完了来统一处理
     internal sealed class AggregateRootRegistry
-    
     {
-        // Aggregate实例 所有权拥有者
+        // Aggregate实例所有权拥有者
         private readonly SimpleIOCContainer _container = new();
         
         private readonly Queue<Type> _unregisterQueue = new();
         private readonly HashSet<Type> _queuedUnregisterTypes = new();
         private readonly HashSet<Type> _processedUnregisterTypes = new();
         private bool _isUnregistering;
-        private bool _isDeinitializing;
         private Type? _currentUnregisterType;
 
         internal bool TryRegister(Type key, IAggregateRoot aggregateRoot)
         {
-            if (_isUnregistering || _isDeinitializing)
+            if (_isUnregistering)
             {
-                $"禁止在 UnregisterAggregateRoot 或 Architecture 销毁期间注册 {nameof(IAggregateRoot)}: {key.Name}"
-                    .LogError();
+                $"禁止在 UnregisterAggregateRoot 期间注册 {nameof(IAggregateRoot)}: {key.Name}".LogError();
                 return false;
             }
 
-            // 重新注册同一个 key 后，它代表的是一个新的注册实例，
-            // 因此允许该 key 再次进入注销流程。
+            if (_container.Get(key) != null)
+            {
+                $"禁止重复注册 {nameof(IAggregateRoot)}: {key.Name}".LogError();
+                return false;
+            }
+
+            // 已注销的 key 再次注册时代表一个新实例，允许它重新进入注销流程。
             _processedUnregisterTypes.Remove(key);
             _container.Register(key, aggregateRoot);
             return true;
@@ -40,48 +41,6 @@ namespace SoyoFramework.Utils
         {
             QueueUnregister(key);
             ProcessUnregisterQueue();
-        }
-
-        internal bool BeginDeinitialization()
-        {
-            if (_isDeinitializing || _isUnregistering)
-            {
-                "禁止重复进入 Architecture 销毁流程。".LogError();
-                return false;
-            }
-
-            _isDeinitializing = true;
-            return true;
-        }
-
-        internal void UnregisterAll()
-        {
-            foreach (var key in _container.GetAllKeys())
-            {
-                QueueUnregister(key);
-            }
-
-            ProcessUnregisterQueue();
-        }
-
-        internal void CompleteDeinitialization()
-        {
-            _container.Clear();
-            _unregisterQueue.Clear();
-            _queuedUnregisterTypes.Clear();
-            _processedUnregisterTypes.Clear();
-            _currentUnregisterType = null;
-            _isUnregistering = false;
-            _isDeinitializing = false;
-        }
-
-        internal void AbortDeinitialization()
-        {
-            _unregisterQueue.Clear();
-            _queuedUnregisterTypes.Clear();
-            _currentUnregisterType = null;
-            _isUnregistering = false;
-            _isDeinitializing = false;
         }
 
         private bool QueueUnregister(Type aggregateRootType)
@@ -125,7 +84,7 @@ namespace SoyoFramework.Utils
                     _currentUnregisterType = aggregateRootType;
                     try
                     {
-                        aggregateRoot.Deinit();
+                        aggregateRoot.OnUnregister();
                     }
                     finally
                     {
