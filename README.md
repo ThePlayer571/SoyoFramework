@@ -1,5 +1,8 @@
 # SoyoFramework
 
+[![Unity 2022.3+](https://img.shields.io/badge/unity-2022.3%2B-blue.svg)](https://unity3d.com/get-unity/download)
+[![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://github.com/ThePlayer571/SoyoRuntimeConsole/blob/master/LICENSE)
+
 ## 快速简介
 
 SoyoFramework 是一个适用于单机游戏开发的实验性 Unity 框架。
@@ -22,6 +25,11 @@ SoyoFramework 是一个适用于单机游戏开发的实验性 Unity 框架。
 - **自然制作流程优先于规范**
 
 ---
+
+## 安装
+
+推荐使用 Unity Package Manager 安装：
+https://github.com/ThePlayer571/SoyoFramework.git?path=Packages/com.github.theplayer571.soyo-framework
 
 ## 架构介绍
 
@@ -62,4 +70,4 @@ SoyoFramework 是一个适用于单机游戏开发的实验性 Unity 框架。
 |--------------------|--------------------------------------------------------------------------------------------|
 | 教程（初学者必看） | [点此跳转](Packages/com.github.theplayer571.soyo-framework/Documentation~/教程.md)         |
 | 层级职能速查       | [点此跳转](Packages/com.github.theplayer571.soyo-framework/Documentation~/层级职能速查.md) |
-| 代码规范           | [点此跳转](Packages/com.github.theplayer571.soyo-framework/Documentation~/代码规范.md)         |
+| 代码规范           | [点此跳转](Packages/com.github.theplayer571.soyo-framework/Documentation~/代码规范.md)     |
