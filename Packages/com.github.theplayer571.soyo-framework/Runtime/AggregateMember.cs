@@ -12,7 +12,7 @@ namespace SoyoFramework
             Root = root;
         }
 
-        protected IAggregateRoot Root { get; }
+        protected virtual IAggregateRoot Root { get; }
 
         IAggregateRoot IAggregateMember.AggregateRoot => Root;
 
@@ -30,7 +30,7 @@ namespace SoyoFramework
             Root = root;
         }
 
-        protected TRoot Root { get; }
+        protected virtual TRoot Root { get; }
 
         IAggregateRoot IAggregateMember.AggregateRoot => Root;
 
@@ -43,7 +43,7 @@ namespace SoyoFramework
     public abstract class MonoAggregateMember<TRoot> : MonoBehaviour, IAggregateMember
         where TRoot : IAggregateRoot
     {
-        protected TRoot Root
+        protected virtual TRoot Root
         {
             get => _root ??
                    throw new InvalidOperationException($"尝试在 {nameof(MonoAggregateMember<TRoot>)} 初始化前访问 {nameof(Root)}。请先调用 {nameof(Root)}.setter 来设置 {nameof(Root)}");
