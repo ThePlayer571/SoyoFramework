@@ -14,6 +14,10 @@ namespace SoyoFramework
 
         IAggregateRoot IAggregateMember.AggregateRoot => this;
 
+        protected void SendEvent<T>() where T : new() => ((IAggregateRoot)this).SendEvent<T>();
+
+        protected void SendEvent<T>(in T e) => ((IAggregateRoot)this).SendEvent(in e);
+
         IUnRegister IAggregateRoot.RegisterEvent<T>(Action<T> onEvent)
         {
             return _eventSystem.Register(onEvent);
