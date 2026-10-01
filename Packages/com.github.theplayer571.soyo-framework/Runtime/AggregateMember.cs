@@ -1,4 +1,5 @@
 using System;
+using SoyoFramework.Utils.UnRegisters;
 using SoyoFramework.Utils.LogKit;
 using UnityEngine;
 
@@ -15,6 +16,10 @@ namespace SoyoFramework
 
         IAggregateRoot IAggregateMember.AggregateRoot => Root;
 
+        protected void SendEvent<T>() where T : new() => Root.SendEvent<T>();
+
+        protected void SendEvent<T>(in T e) => Root.SendEvent(in e);
+
     }
 
     public abstract class AggregateMember<TRoot> : IAggregateMember
@@ -28,6 +33,10 @@ namespace SoyoFramework
         protected TRoot Root { get; }
 
         IAggregateRoot IAggregateMember.AggregateRoot => Root;
+
+        protected void SendEvent<T>() where T : new() => Root.SendEvent<T>();
+
+        protected void SendEvent<T>(in T e) => Root.SendEvent(in e);
 
     }
 
@@ -54,6 +63,10 @@ namespace SoyoFramework
         private TRoot? _root;
 
         IAggregateRoot IAggregateMember.AggregateRoot => Root;
+
+        protected void SendEvent<T>() where T : new() => Root.SendEvent<T>();
+
+        protected void SendEvent<T>(in T e) => Root.SendEvent(in e);
 
     }
 }

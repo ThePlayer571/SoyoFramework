@@ -22,7 +22,7 @@ namespace SoyoFramework.Utils
             else
             {
                 _aggregateRootRegisteredEvent =
-                    this.RegisterEvent<AfterAggregateRootRegistered<TAggregateRoot>>(OnAggregateRootRegistered);
+                    Architecture.Instance.RegisterEvent<AfterAggregateRootRegistered<TAggregateRoot>>(OnAggregateRootRegistered);
             }
         }
 
@@ -67,13 +67,13 @@ namespace SoyoFramework.Utils
             if (_aggregateRootA == null)
             {
                 _aggregateRootAEvent =
-                    this.RegisterEvent<AfterAggregateRootRegistered<TAggregateRootA>>(OnAggregateRootARegistered);
+                    Architecture.Instance.RegisterEvent<AfterAggregateRootRegistered<TAggregateRootA>>(OnAggregateRootARegistered);
             }
 
             if (_aggregateRootB == null)
             {
                 _aggregateRootBEvent =
-                    this.RegisterEvent<AfterAggregateRootRegistered<TAggregateRootB>>(OnAggregateRootBRegistered);
+                    Architecture.Instance.RegisterEvent<AfterAggregateRootRegistered<TAggregateRootB>>(OnAggregateRootBRegistered);
             }
         }
 
@@ -141,19 +141,19 @@ namespace SoyoFramework.Utils
             if (_aggregateRootA == null)
             {
                 _aggregateRootAEvent =
-                    this.RegisterEvent<AfterAggregateRootRegistered<TAggregateRootA>>(OnAggregateRootARegistered);
+                    Architecture.Instance.RegisterEvent<AfterAggregateRootRegistered<TAggregateRootA>>(OnAggregateRootARegistered);
             }
 
             if (_aggregateRootB == null)
             {
                 _aggregateRootBEvent =
-                    this.RegisterEvent<AfterAggregateRootRegistered<TAggregateRootB>>(OnAggregateRootBRegistered);
+                    Architecture.Instance.RegisterEvent<AfterAggregateRootRegistered<TAggregateRootB>>(OnAggregateRootBRegistered);
             }
 
             if (_aggregateRootC == null)
             {
                 _aggregateRootCEvent =
-                    this.RegisterEvent<AfterAggregateRootRegistered<TAggregateRootC>>(OnAggregateRootCRegistered);
+                    Architecture.Instance.RegisterEvent<AfterAggregateRootRegistered<TAggregateRootC>>(OnAggregateRootCRegistered);
             }
         }
 
@@ -236,25 +236,25 @@ namespace SoyoFramework.Utils
             if (_aggregateRootA == null)
             {
                 _aggregateRootAEvent =
-                    this.RegisterEvent<AfterAggregateRootRegistered<TAggregateRootA>>(OnAggregateRootARegistered);
+                    Architecture.Instance.RegisterEvent<AfterAggregateRootRegistered<TAggregateRootA>>(OnAggregateRootARegistered);
             }
 
             if (_aggregateRootB == null)
             {
                 _aggregateRootBEvent =
-                    this.RegisterEvent<AfterAggregateRootRegistered<TAggregateRootB>>(OnAggregateRootBRegistered);
+                    Architecture.Instance.RegisterEvent<AfterAggregateRootRegistered<TAggregateRootB>>(OnAggregateRootBRegistered);
             }
 
             if (_aggregateRootC == null)
             {
                 _aggregateRootCEvent =
-                    this.RegisterEvent<AfterAggregateRootRegistered<TAggregateRootC>>(OnAggregateRootCRegistered);
+                    Architecture.Instance.RegisterEvent<AfterAggregateRootRegistered<TAggregateRootC>>(OnAggregateRootCRegistered);
             }
 
             if (_aggregateRootD == null)
             {
                 _aggregateRootDEvent =
-                    this.RegisterEvent<AfterAggregateRootRegistered<TAggregateRootD>>(OnAggregateRootDRegistered);
+                    Architecture.Instance.RegisterEvent<AfterAggregateRootRegistered<TAggregateRootD>>(OnAggregateRootDRegistered);
             }
         }
 

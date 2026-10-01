@@ -29,30 +29,10 @@ namespace SoyoFramework
 
         #endregion
 
-        #region Event
-
         /// <summary>
-        /// 按类型注册事件，会在事件发送时调用onEvent。返回一个IUnRegister，调用它可以取消注册
+        /// 订阅框架级通知。当前用于订阅聚合根注册完成通知。
         /// </summary>
-        /// <param name="onEvent"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
         IUnRegister RegisterEvent<T>(Action<T> onEvent);
-
-        /// <summary>
-        /// 按类型发送事件，会调用所有注册了该类型事件的回调。这是无需传入实例的语法糖，T必须包含无参构造函数
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        void SendEvent<T>() where T : new();
-
-        /// <summary>
-        /// 按类型发送事件，会调用所有注册了该类型事件的回调。
-        /// </summary>
-        /// <param name="e"></param>
-        /// <typeparam name="T"></typeparam>
-        void SendEvent<T>(in T e);
-
-        #endregion
 
         #region Command
 
@@ -101,12 +81,18 @@ namespace SoyoFramework
     public interface IAggregateMember : IAggregateRule
     {
         IAggregateRoot AggregateRoot { get; }
+
     }
 
     public interface IAggregateRoot : IAggregateMember
     {
+        IUnRegister RegisterEvent<T>(Action<T> onEvent);
+        protected internal void SendEvent<T>() where T : new();
+        protected internal void SendEvent<T>(in T e);
+
         /// <summary>
-        /// 聚合根注销回调。回调时已被移出容器。
+        /// 聚合根注销回调。
+        /// 时序：回调时已被移出容器。
         /// </summary>
         protected internal void OnUnregister();
     }
@@ -120,7 +106,7 @@ namespace SoyoFramework
         /// <summary>
         /// 执行Command的逻辑，约定只通过Architecture来调用
         /// </summary>
-       protected internal void Execute();
+        protected internal void Execute();
 
         CanExecuteResult CanExecute();
     }

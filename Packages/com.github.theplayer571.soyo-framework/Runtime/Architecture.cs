@@ -43,16 +43,6 @@ namespace SoyoFramework
             return _eventSystem.Register<T>(onEvent);
         }
 
-        public void SendEvent<T>() where T : new()
-        {
-            _eventSystem.Call<T>();
-        }
-
-        public void SendEvent<T>(in T e)
-        {
-            _eventSystem.Call<T>(in e);
-        }
-
         public void RegisterAggregateRoot<T>(T aggregateRoot) where T : class, IAggregateRoot
         {
             if (_aggregateRootRegistry.TryRegister(typeof(T), aggregateRoot))

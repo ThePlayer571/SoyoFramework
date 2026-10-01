@@ -1,18 +1,8 @@
-using System;
 using SoyoFramework.Utils.LogKit;
-using SoyoFramework.Utils.UnRegisters;
 
 namespace SoyoFramework
 {
     #region 接口：基础规则
-
-    public interface ICanRegisterEvent
-    {
-    }
-
-    public interface ICanSendEvent
-    {
-    }
 
     public interface ICanSendCommand
     {
@@ -35,18 +25,17 @@ namespace SoyoFramework
     #region 接口：层级规则
 
     public interface IAggregateRule :
-        ICanRegisterEvent, ICanSendEvent,
         ICanRegisterAggregateRoot, ICanUnregisterAggregateRoot
     {
     }
 
     public interface IViewControllerRule :
-        ICanRegisterEvent, ICanSendCommand, ICanGetAggregateRoot
+        ICanSendCommand, ICanGetAggregateRoot
     {
     }
 
     public interface ICommandRule :
-        ICanSendEvent, ICanSendCommand,
+        ICanSendCommand,
         ICanGetAggregateRoot, ICanRegisterAggregateRoot, ICanUnregisterAggregateRoot
     {
     }
@@ -54,38 +43,6 @@ namespace SoyoFramework
     #endregion
 
     #region Extensions
-
-    public static class CanRegisterEventExtension
-    {
-        /// <summary>
-        /// 按类型注册事件，会在事件发送时调用onEvent。返回一个IUnRegister，调用它可以取消注册
-        /// </summary>
-        /// <param name="self"></param>
-        /// <param name="onEvent"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static IUnRegister RegisterEvent<T>(this ICanRegisterEvent self, Action<T> onEvent)
-            => Architecture.Instance.RegisterEvent<T>(onEvent);
-    }
-
-    public static class CanSendEventExtension
-    {
-        /// <summary>
-        /// 按类型发送事件，会调用所有注册了该类型事件的回调。这是无需传入实例的语法糖，T必须包含无参构造函数
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        public static void SendEvent<T>(this ICanSendEvent self) where T : new()
-            => Architecture.Instance.SendEvent<T>();
-
-        /// <summary>
-        /// 按类型发送事件，会调用所有注册了该类型事件的回调。
-        /// </summary>
-        /// <param name="self"></param>
-        /// <param name="e"></param>
-        /// <typeparam name="T"></typeparam>
-        public static void SendEvent<T>(this ICanSendEvent self, T e)
-            => Architecture.Instance.SendEvent<T>(e);
-    }
 
     public static class CanSendCommandExtension
     {
