@@ -12,14 +12,13 @@ namespace SoyoFramework
             Root = root;
         }
 
-        protected virtual IAggregateRoot Root { get; }
+        protected IAggregateRoot Root { get; }
 
         IAggregateRoot IAggregateMember.AggregateRoot => Root;
 
         protected void SendEvent<T>() where T : new() => Root.SendEvent<T>();
 
         protected void SendEvent<T>(in T e) => Root.SendEvent(in e);
-
     }
 
     public abstract class AggregateMember<TRoot> : IAggregateMember
@@ -30,23 +29,132 @@ namespace SoyoFramework
             Root = root;
         }
 
-        protected virtual TRoot Root { get; }
+        protected TRoot Root { get; }
 
         IAggregateRoot IAggregateMember.AggregateRoot => Root;
 
         protected void SendEvent<T>() where T : new() => Root.SendEvent<T>();
 
         protected void SendEvent<T>(in T e) => Root.SendEvent(in e);
+    }
 
+    public abstract class NullableAggregateMember : IAggregateMember
+    {
+        protected NullableAggregateMember(IAggregateRoot? root)
+        {
+            Root = root;
+        }
+
+        protected IAggregateRoot? Root
+        {
+            get => _root;
+            set
+            {
+                if (_root != null)
+                {
+                    $"{nameof(Root)} 已经被设置过了，不能再次设置: {_root} -> {value}".LogError();
+                }
+                else
+                {
+                    _root = value;
+                }
+            }
+        }
+
+        private IAggregateRoot? _root;
+
+        IAggregateRoot IAggregateMember.AggregateRoot
+            => Root ?? throw new InvalidOperationException(
+                $"尝试在 {nameof(NullableAggregateMember)} 初始化前访问 {nameof(Root)}。请先调用 {nameof(Root)}.setter 来设置 {nameof(Root)}");
+
+        protected void SendEvent<T>() where T : new()
+        {
+            if (Root == null)
+            {
+                $"尝试在 {nameof(NullableAggregateMember)} 初始化前访问 {nameof(Root)}。请先调用 {nameof(Root)}.setter 来设置 {nameof(Root)}"
+                    .LogError();
+                return;
+            }
+
+            Root.SendEvent<T>();
+        }
+
+        protected void SendEvent<T>(in T e)
+        {
+            if (Root == null)
+            {
+                $"尝试在 {nameof(NullableAggregateMember)} 初始化前访问 {nameof(Root)}。请先调用 {nameof(Root)}.setter 来设置 {nameof(Root)}"
+                    .LogError();
+                return;
+            }
+
+            Root.SendEvent(in e);
+        }
+    }
+
+    public abstract class NullableAggregateMember<TRoot> : IAggregateMember
+        where TRoot : IAggregateRoot
+    {
+        protected NullableAggregateMember(TRoot? root)
+        {
+            Root = root;
+        }
+
+        protected TRoot? Root
+        {
+            get => _root;
+            set
+            {
+                if (_root != null)
+                {
+                    $"{nameof(Root)} 已经被设置过了，不能再次设置: {_root} -> {value}".LogError();
+                }
+                else
+                {
+                    _root = value;
+                }
+            }
+        }
+
+        private TRoot? _root;
+
+        IAggregateRoot IAggregateMember.AggregateRoot
+            => Root ?? throw new InvalidOperationException(
+                $"尝试在 {nameof(NullableAggregateMember<TRoot>)} 初始化前访问 {nameof(Root)}。请先调用 {nameof(Root)}.setter 来设置 {nameof(Root)}");
+
+        protected void SendEvent<T>() where T : new()
+        {
+            if (Root == null)
+            {
+                $"尝试在 {nameof(NullableAggregateMember<TRoot>)} 初始化前访问 {nameof(Root)}。请先调用 {nameof(Root)}.setter 来设置 {nameof(Root)}"
+                    .LogError();
+                return;
+            }
+
+            Root.SendEvent<T>();
+        }
+
+        protected void SendEvent<T>(in T e)
+        {
+            if (Root == null)
+            {
+                $"尝试在 {nameof(NullableAggregateMember<TRoot>)} 初始化前访问 {nameof(Root)}。请先调用 {nameof(Root)}.setter 来设置 {nameof(Root)}"
+                    .LogError();
+                return;
+            }
+
+            Root.SendEvent(in e);
+        }
     }
 
     public abstract class MonoAggregateMember<TRoot> : MonoBehaviour, IAggregateMember
         where TRoot : IAggregateRoot
     {
-        protected virtual TRoot Root
+        protected TRoot Root
         {
             get => _root ??
-                   throw new InvalidOperationException($"尝试在 {nameof(MonoAggregateMember<TRoot>)} 初始化前访问 {nameof(Root)}。请先调用 {nameof(Root)}.setter 来设置 {nameof(Root)}");
+                   throw new InvalidOperationException(
+                       $"尝试在 {nameof(MonoAggregateMember<TRoot>)} 初始化前访问 {nameof(Root)}。请先调用 {nameof(Root)}.setter 来设置 {nameof(Root)}");
             set
             {
                 if (_root != null)
@@ -67,6 +175,5 @@ namespace SoyoFramework
         protected void SendEvent<T>() where T : new() => Root.SendEvent<T>();
 
         protected void SendEvent<T>(in T e) => Root.SendEvent(in e);
-
     }
 }
