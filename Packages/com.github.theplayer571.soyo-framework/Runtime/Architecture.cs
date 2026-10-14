@@ -36,8 +36,6 @@ namespace SoyoFramework
 
         #region 接口实现
 
-        public bool IgnoreCommandCanExecuteCheck { get; set; } = false;
-
         public IUnRegister RegisterEvent<T>(Action<T> onEvent)
         {
             return _eventSystem.Register<T>(onEvent);

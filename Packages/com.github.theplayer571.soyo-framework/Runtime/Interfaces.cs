@@ -37,11 +37,6 @@ namespace SoyoFramework
         #region Command
 
         /// <summary>
-        /// 是否忽略所有Command的CanExecute检查（仅Editor下生效）
-        /// </summary>
-        bool IgnoreCommandCanExecuteCheck { get; set; }
-
-        /// <summary>
         /// 发送一个Command
         /// </summary>
         /// <param name="command"></param>
