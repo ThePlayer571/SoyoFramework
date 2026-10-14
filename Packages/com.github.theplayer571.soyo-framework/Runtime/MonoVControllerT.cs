@@ -6,105 +6,140 @@ namespace SoyoFramework
     public abstract class MonoVController<TAggregateRoot> : MonoVController
         where TAggregateRoot : class, IAggregateRoot
     {
-        private IUnRegister? _aggregateRootRegisteredEvent;
+        private IAggregateRootHandle<TAggregateRoot> _aggregateRootHandle = null!;
+        private IUnRegister? _aggregateRootChanged;
+        private bool _isAvailable;
 
-        protected void Awake()
+        protected virtual void Awake()
         {
-            var aggregateRoot = this.GetAggregateRoot<TAggregateRoot>();
-
-            if (aggregateRoot != null)
-            {
-                OnAwake(aggregateRoot);
-            }
-            else
-            {
-                _aggregateRootRegisteredEvent =
-                    Architecture.Instance.RegisterEvent<AfterAggregateRootRegistered<TAggregateRoot>>(OnAggregateRootRegistered);
-            }
+            _aggregateRootHandle = this.GetAggregateRootHandle<TAggregateRoot>();
+            _aggregateRootChanged = _aggregateRootHandle.RegisterChanged(OnAggregateRootChanged);
+            UpdateAvailability();
         }
 
-        private void OnAggregateRootRegistered(AfterAggregateRootRegistered<TAggregateRoot> e)
+        private void OnAggregateRootChanged(TAggregateRoot? aggregateRoot)
         {
-            _aggregateRootRegisteredEvent?.UnRegister();
-            _aggregateRootRegisteredEvent = null;
-            OnAwake(e.AggregateRoot);
+            UpdateAvailability();
+        }
+
+        private void UpdateAvailability()
+        {
+            if (_aggregateRootHandle.TryGet(out var aggregateRoot))
+            {
+                if (!_isAvailable)
+                {
+                    _isAvailable = true;
+                    OnAvailable(aggregateRoot!);
+                }
+
+                return;
+            }
+
+            if (_isAvailable)
+            {
+                _isAvailable = false;
+                OnUnavailable();
+            }
         }
 
         protected virtual void OnDestroy()
         {
-            _aggregateRootRegisteredEvent?.UnRegister();
-            _aggregateRootRegisteredEvent = null;
+            if (_isAvailable)
+            {
+                _isAvailable = false;
+                OnUnavailable();
+            }
+
+            _aggregateRootChanged?.UnRegister();
+            _aggregateRootChanged = null;
         }
 
-        protected abstract void OnAwake(TAggregateRoot aggregateRoot);
+        /// <summary>
+        /// 依赖的 AggregateRoot 可用时调用一次；若 AggregateRoot 失效后恢复，会再次调用。
+        /// </summary>
+        protected abstract void OnAvailable(TAggregateRoot aggregateRoot);
+
+        /// <summary>
+        /// 依赖的 AggregateRoot 失效时调用一次；组件销毁时若仍处于可用状态，也会调用一次。
+        /// </summary>
+        protected abstract void OnUnavailable();
     }
 
     public abstract class MonoVController<TAggregateRootA, TAggregateRootB> : MonoVController
         where TAggregateRootA : class, IAggregateRoot
         where TAggregateRootB : class, IAggregateRoot
     {
-        private TAggregateRootA? _aggregateRootA;
-        private TAggregateRootB? _aggregateRootB;
-        private IUnRegister? _aggregateRootAEvent;
-        private IUnRegister? _aggregateRootBEvent;
+        private IAggregateRootHandle<TAggregateRootA> _aggregateRootAHandle = null!;
+        private IAggregateRootHandle<TAggregateRootB> _aggregateRootBHandle = null!;
+        private IUnRegister? _aggregateRootAChanged;
+        private IUnRegister? _aggregateRootBChanged;
+        private bool _isAvailable;
 
-        protected void Awake()
+        protected virtual void Awake()
         {
-            _aggregateRootA = this.GetAggregateRoot<TAggregateRootA>();
-            _aggregateRootB = this.GetAggregateRoot<TAggregateRootB>();
+            _aggregateRootAHandle = this.GetAggregateRootHandle<TAggregateRootA>();
+            _aggregateRootBHandle = this.GetAggregateRootHandle<TAggregateRootB>();
+            _aggregateRootAChanged = _aggregateRootAHandle.RegisterChanged(OnAggregateRootChanged);
+            _aggregateRootBChanged = _aggregateRootBHandle.RegisterChanged(OnAggregateRootChanged);
+            UpdateAvailability();
+        }
 
-            if (_aggregateRootA != null && _aggregateRootB != null)
+        private void OnAggregateRootChanged(TAggregateRootA? aggregateRoot)
+        {
+            UpdateAvailability();
+        }
+
+        private void OnAggregateRootChanged(TAggregateRootB? aggregateRoot)
+        {
+            UpdateAvailability();
+        }
+
+        private void UpdateAvailability()
+        {
+            var aAvailable = _aggregateRootAHandle.TryGet(out var aggregateRootA);
+            var bAvailable = _aggregateRootBHandle.TryGet(out var aggregateRootB);
+
+            if (aAvailable && bAvailable)
             {
-                OnAwake(_aggregateRootA, _aggregateRootB);
+                if (!_isAvailable)
+                {
+                    _isAvailable = true;
+                    OnAvailable(aggregateRootA!, aggregateRootB!);
+                }
+
                 return;
             }
 
-            if (_aggregateRootA == null)
+            if (_isAvailable)
             {
-                _aggregateRootAEvent =
-                    Architecture.Instance.RegisterEvent<AfterAggregateRootRegistered<TAggregateRootA>>(OnAggregateRootARegistered);
-            }
-
-            if (_aggregateRootB == null)
-            {
-                _aggregateRootBEvent =
-                    Architecture.Instance.RegisterEvent<AfterAggregateRootRegistered<TAggregateRootB>>(OnAggregateRootBRegistered);
-            }
-        }
-
-        private void OnAggregateRootARegistered(AfterAggregateRootRegistered<TAggregateRootA> e)
-        {
-            _aggregateRootA = e.AggregateRoot;
-            _aggregateRootAEvent?.UnRegister();
-            _aggregateRootAEvent = null;
-            TryInvokeOnAwake();
-        }
-
-        private void OnAggregateRootBRegistered(AfterAggregateRootRegistered<TAggregateRootB> e)
-        {
-            _aggregateRootB = e.AggregateRoot;
-            _aggregateRootBEvent?.UnRegister();
-            _aggregateRootBEvent = null;
-            TryInvokeOnAwake();
-        }
-
-        private void TryInvokeOnAwake()
-        {
-            if (_aggregateRootA != null && _aggregateRootB != null)
-            {
-                OnAwake(_aggregateRootA, _aggregateRootB);
+                _isAvailable = false;
+                OnUnavailable();
             }
         }
 
         protected virtual void OnDestroy()
         {
-            _aggregateRootAEvent?.UnRegister();
-            _aggregateRootAEvent = null;
-            _aggregateRootBEvent?.UnRegister();
-            _aggregateRootBEvent = null;
+            if (_isAvailable)
+            {
+                _isAvailable = false;
+                OnUnavailable();
+            }
+
+            _aggregateRootAChanged?.UnRegister();
+            _aggregateRootAChanged = null;
+            _aggregateRootBChanged?.UnRegister();
+            _aggregateRootBChanged = null;
         }
 
-        protected abstract void OnAwake(TAggregateRootA aggregateRootA, TAggregateRootB aggregateRootB);
+        /// <summary>
+        /// 所有依赖的 AggregateRoot 可用时调用一次；若 AggregateRoot 失效后恢复，会再次调用。
+        /// </summary>
+        protected abstract void OnAvailable(TAggregateRootA aggregateRootA, TAggregateRootB aggregateRootB);
+
+        /// <summary>
+        /// 任一依赖的 AggregateRoot 失效时调用一次；组件销毁时若仍处于可用状态，也会调用一次。
+        /// </summary>
+        protected abstract void OnUnavailable();
     }
 
     public abstract class MonoVController<TAggregateRootA, TAggregateRootB, TAggregateRootC> : MonoVController
@@ -112,88 +147,92 @@ namespace SoyoFramework
         where TAggregateRootB : class, IAggregateRoot
         where TAggregateRootC : class, IAggregateRoot
     {
-        private TAggregateRootA? _aggregateRootA;
-        private TAggregateRootB? _aggregateRootB;
-        private TAggregateRootC? _aggregateRootC;
-        private IUnRegister? _aggregateRootAEvent;
-        private IUnRegister? _aggregateRootBEvent;
-        private IUnRegister? _aggregateRootCEvent;
+        private IAggregateRootHandle<TAggregateRootA> _aggregateRootAHandle = null!;
+        private IAggregateRootHandle<TAggregateRootB> _aggregateRootBHandle = null!;
+        private IAggregateRootHandle<TAggregateRootC> _aggregateRootCHandle = null!;
+        private IUnRegister? _aggregateRootAChanged;
+        private IUnRegister? _aggregateRootBChanged;
+        private IUnRegister? _aggregateRootCChanged;
+        private bool _isAvailable;
 
-        protected void Awake()
+        protected virtual void Awake()
         {
-            _aggregateRootA = this.GetAggregateRoot<TAggregateRootA>();
-            _aggregateRootB = this.GetAggregateRoot<TAggregateRootB>();
-            _aggregateRootC = this.GetAggregateRoot<TAggregateRootC>();
+            _aggregateRootAHandle = this.GetAggregateRootHandle<TAggregateRootA>();
+            _aggregateRootBHandle = this.GetAggregateRootHandle<TAggregateRootB>();
+            _aggregateRootCHandle = this.GetAggregateRootHandle<TAggregateRootC>();
+            _aggregateRootAChanged = _aggregateRootAHandle.RegisterChanged(OnAggregateRootChanged);
+            _aggregateRootBChanged = _aggregateRootBHandle.RegisterChanged(OnAggregateRootChanged);
+            _aggregateRootCChanged = _aggregateRootCHandle.RegisterChanged(OnAggregateRootChanged);
+            UpdateAvailability();
+        }
 
-            if (_aggregateRootA != null && _aggregateRootB != null && _aggregateRootC != null)
+        private void OnAggregateRootChanged(TAggregateRootA? aggregateRoot)
+        {
+            UpdateAvailability();
+        }
+
+        private void OnAggregateRootChanged(TAggregateRootB? aggregateRoot)
+        {
+            UpdateAvailability();
+        }
+
+        private void OnAggregateRootChanged(TAggregateRootC? aggregateRoot)
+        {
+            UpdateAvailability();
+        }
+
+        private void UpdateAvailability()
+        {
+            var aAvailable = _aggregateRootAHandle.TryGet(out var aggregateRootA);
+            var bAvailable = _aggregateRootBHandle.TryGet(out var aggregateRootB);
+            var cAvailable = _aggregateRootCHandle.TryGet(out var aggregateRootC);
+
+            if (aAvailable && bAvailable && cAvailable)
             {
-                OnAwake(_aggregateRootA, _aggregateRootB, _aggregateRootC);
+                if (!_isAvailable)
+                {
+                    _isAvailable = true;
+                    OnAvailable(aggregateRootA!, aggregateRootB!, aggregateRootC!);
+                }
+
                 return;
             }
 
-            if (_aggregateRootA == null)
+            if (_isAvailable)
             {
-                _aggregateRootAEvent =
-                    Architecture.Instance.RegisterEvent<AfterAggregateRootRegistered<TAggregateRootA>>(OnAggregateRootARegistered);
-            }
-
-            if (_aggregateRootB == null)
-            {
-                _aggregateRootBEvent =
-                    Architecture.Instance.RegisterEvent<AfterAggregateRootRegistered<TAggregateRootB>>(OnAggregateRootBRegistered);
-            }
-
-            if (_aggregateRootC == null)
-            {
-                _aggregateRootCEvent =
-                    Architecture.Instance.RegisterEvent<AfterAggregateRootRegistered<TAggregateRootC>>(OnAggregateRootCRegistered);
-            }
-        }
-
-        private void OnAggregateRootARegistered(AfterAggregateRootRegistered<TAggregateRootA> e)
-        {
-            _aggregateRootA = e.AggregateRoot;
-            _aggregateRootAEvent?.UnRegister();
-            _aggregateRootAEvent = null;
-            TryInvokeOnAwake();
-        }
-
-        private void OnAggregateRootBRegistered(AfterAggregateRootRegistered<TAggregateRootB> e)
-        {
-            _aggregateRootB = e.AggregateRoot;
-            _aggregateRootBEvent?.UnRegister();
-            _aggregateRootBEvent = null;
-            TryInvokeOnAwake();
-        }
-
-        private void OnAggregateRootCRegistered(AfterAggregateRootRegistered<TAggregateRootC> e)
-        {
-            _aggregateRootC = e.AggregateRoot;
-            _aggregateRootCEvent?.UnRegister();
-            _aggregateRootCEvent = null;
-            TryInvokeOnAwake();
-        }
-
-        private void TryInvokeOnAwake()
-        {
-            if (_aggregateRootA != null && _aggregateRootB != null && _aggregateRootC != null)
-            {
-                OnAwake(_aggregateRootA, _aggregateRootB, _aggregateRootC);
+                _isAvailable = false;
+                OnUnavailable();
             }
         }
 
         protected virtual void OnDestroy()
         {
-            _aggregateRootAEvent?.UnRegister();
-            _aggregateRootAEvent = null;
-            _aggregateRootBEvent?.UnRegister();
-            _aggregateRootBEvent = null;
-            _aggregateRootCEvent?.UnRegister();
-            _aggregateRootCEvent = null;
+            if (_isAvailable)
+            {
+                _isAvailable = false;
+                OnUnavailable();
+            }
+
+            _aggregateRootAChanged?.UnRegister();
+            _aggregateRootAChanged = null;
+            _aggregateRootBChanged?.UnRegister();
+            _aggregateRootBChanged = null;
+            _aggregateRootCChanged?.UnRegister();
+            _aggregateRootCChanged = null;
         }
 
-        protected abstract void OnAwake(TAggregateRootA aggregateRootA, TAggregateRootB aggregateRootB,
+        /// <summary>
+        /// 所有依赖的 AggregateRoot 可用时调用一次；若 AggregateRoot 失效后恢复，会再次调用。
+        /// </summary>
+        protected abstract void OnAvailable(
+            TAggregateRootA aggregateRootA,
+            TAggregateRootB aggregateRootB,
             TAggregateRootC aggregateRootC);
+
+        /// <summary>
+        /// 任一依赖的 AggregateRoot 失效时调用一次；组件销毁时若仍处于可用状态，也会调用一次。
+        /// </summary>
+        protected abstract void OnUnavailable();
     }
 
     public abstract class MonoVController<TAggregateRootA, TAggregateRootB, TAggregateRootC, TAggregateRootD> :
@@ -203,106 +242,104 @@ namespace SoyoFramework
         where TAggregateRootC : class, IAggregateRoot
         where TAggregateRootD : class, IAggregateRoot
     {
-        private TAggregateRootA? _aggregateRootA;
-        private TAggregateRootB? _aggregateRootB;
-        private TAggregateRootC? _aggregateRootC;
-        private TAggregateRootD? _aggregateRootD;
-        private IUnRegister? _aggregateRootAEvent;
-        private IUnRegister? _aggregateRootBEvent;
-        private IUnRegister? _aggregateRootCEvent;
-        private IUnRegister? _aggregateRootDEvent;
+        private IAggregateRootHandle<TAggregateRootA> _aggregateRootAHandle = null!;
+        private IAggregateRootHandle<TAggregateRootB> _aggregateRootBHandle = null!;
+        private IAggregateRootHandle<TAggregateRootC> _aggregateRootCHandle = null!;
+        private IAggregateRootHandle<TAggregateRootD> _aggregateRootDHandle = null!;
+        private IUnRegister? _aggregateRootAChanged;
+        private IUnRegister? _aggregateRootBChanged;
+        private IUnRegister? _aggregateRootCChanged;
+        private IUnRegister? _aggregateRootDChanged;
+        private bool _isAvailable;
 
-        protected void Awake()
+        protected virtual void Awake()
         {
-            _aggregateRootA = this.GetAggregateRoot<TAggregateRootA>();
-            _aggregateRootB = this.GetAggregateRoot<TAggregateRootB>();
-            _aggregateRootC = this.GetAggregateRoot<TAggregateRootC>();
-            _aggregateRootD = this.GetAggregateRoot<TAggregateRootD>();
+            _aggregateRootAHandle = this.GetAggregateRootHandle<TAggregateRootA>();
+            _aggregateRootBHandle = this.GetAggregateRootHandle<TAggregateRootB>();
+            _aggregateRootCHandle = this.GetAggregateRootHandle<TAggregateRootC>();
+            _aggregateRootDHandle = this.GetAggregateRootHandle<TAggregateRootD>();
+            _aggregateRootAChanged = _aggregateRootAHandle.RegisterChanged(OnAggregateRootChanged);
+            _aggregateRootBChanged = _aggregateRootBHandle.RegisterChanged(OnAggregateRootChanged);
+            _aggregateRootCChanged = _aggregateRootCHandle.RegisterChanged(OnAggregateRootChanged);
+            _aggregateRootDChanged = _aggregateRootDHandle.RegisterChanged(OnAggregateRootChanged);
+            UpdateAvailability();
+        }
 
-            if (_aggregateRootA != null && _aggregateRootB != null && _aggregateRootC != null && _aggregateRootD != null)
+        private void OnAggregateRootChanged(TAggregateRootA? aggregateRoot)
+        {
+            UpdateAvailability();
+        }
+
+        private void OnAggregateRootChanged(TAggregateRootB? aggregateRoot)
+        {
+            UpdateAvailability();
+        }
+
+        private void OnAggregateRootChanged(TAggregateRootC? aggregateRoot)
+        {
+            UpdateAvailability();
+        }
+
+        private void OnAggregateRootChanged(TAggregateRootD? aggregateRoot)
+        {
+            UpdateAvailability();
+        }
+
+        private void UpdateAvailability()
+        {
+            var aAvailable = _aggregateRootAHandle.TryGet(out var aggregateRootA);
+            var bAvailable = _aggregateRootBHandle.TryGet(out var aggregateRootB);
+            var cAvailable = _aggregateRootCHandle.TryGet(out var aggregateRootC);
+            var dAvailable = _aggregateRootDHandle.TryGet(out var aggregateRootD);
+
+            if (aAvailable && bAvailable && cAvailable && dAvailable)
             {
-                OnAwake(_aggregateRootA, _aggregateRootB, _aggregateRootC, _aggregateRootD);
+                if (!_isAvailable)
+                {
+                    _isAvailable = true;
+                    OnAvailable(aggregateRootA!, aggregateRootB!, aggregateRootC!, aggregateRootD!);
+                }
+
                 return;
             }
 
-            if (_aggregateRootA == null)
+            if (_isAvailable)
             {
-                _aggregateRootAEvent =
-                    Architecture.Instance.RegisterEvent<AfterAggregateRootRegistered<TAggregateRootA>>(OnAggregateRootARegistered);
-            }
-
-            if (_aggregateRootB == null)
-            {
-                _aggregateRootBEvent =
-                    Architecture.Instance.RegisterEvent<AfterAggregateRootRegistered<TAggregateRootB>>(OnAggregateRootBRegistered);
-            }
-
-            if (_aggregateRootC == null)
-            {
-                _aggregateRootCEvent =
-                    Architecture.Instance.RegisterEvent<AfterAggregateRootRegistered<TAggregateRootC>>(OnAggregateRootCRegistered);
-            }
-
-            if (_aggregateRootD == null)
-            {
-                _aggregateRootDEvent =
-                    Architecture.Instance.RegisterEvent<AfterAggregateRootRegistered<TAggregateRootD>>(OnAggregateRootDRegistered);
-            }
-        }
-
-        private void OnAggregateRootARegistered(AfterAggregateRootRegistered<TAggregateRootA> e)
-        {
-            _aggregateRootA = e.AggregateRoot;
-            _aggregateRootAEvent?.UnRegister();
-            _aggregateRootAEvent = null;
-            TryInvokeOnAwake();
-        }
-
-        private void OnAggregateRootBRegistered(AfterAggregateRootRegistered<TAggregateRootB> e)
-        {
-            _aggregateRootB = e.AggregateRoot;
-            _aggregateRootBEvent?.UnRegister();
-            _aggregateRootBEvent = null;
-            TryInvokeOnAwake();
-        }
-
-        private void OnAggregateRootCRegistered(AfterAggregateRootRegistered<TAggregateRootC> e)
-        {
-            _aggregateRootC = e.AggregateRoot;
-            _aggregateRootCEvent?.UnRegister();
-            _aggregateRootCEvent = null;
-            TryInvokeOnAwake();
-        }
-
-        private void OnAggregateRootDRegistered(AfterAggregateRootRegistered<TAggregateRootD> e)
-        {
-            _aggregateRootD = e.AggregateRoot;
-            _aggregateRootDEvent?.UnRegister();
-            _aggregateRootDEvent = null;
-            TryInvokeOnAwake();
-        }
-
-        private void TryInvokeOnAwake()
-        {
-            if (_aggregateRootA != null && _aggregateRootB != null && _aggregateRootC != null && _aggregateRootD != null)
-            {
-                OnAwake(_aggregateRootA, _aggregateRootB, _aggregateRootC, _aggregateRootD);
+                _isAvailable = false;
+                OnUnavailable();
             }
         }
 
         protected virtual void OnDestroy()
         {
-            _aggregateRootAEvent?.UnRegister();
-            _aggregateRootAEvent = null;
-            _aggregateRootBEvent?.UnRegister();
-            _aggregateRootBEvent = null;
-            _aggregateRootCEvent?.UnRegister();
-            _aggregateRootCEvent = null;
-            _aggregateRootDEvent?.UnRegister();
-            _aggregateRootDEvent = null;
+            if (_isAvailable)
+            {
+                _isAvailable = false;
+                OnUnavailable();
+            }
+
+            _aggregateRootAChanged?.UnRegister();
+            _aggregateRootAChanged = null;
+            _aggregateRootBChanged?.UnRegister();
+            _aggregateRootBChanged = null;
+            _aggregateRootCChanged?.UnRegister();
+            _aggregateRootCChanged = null;
+            _aggregateRootDChanged?.UnRegister();
+            _aggregateRootDChanged = null;
         }
 
-        protected abstract void OnAwake(TAggregateRootA aggregateRootA, TAggregateRootB aggregateRootB,
-            TAggregateRootC aggregateRootC, TAggregateRootD aggregateRootD);
+        /// <summary>
+        /// 所有依赖的 AggregateRoot 可用时调用一次；若 AggregateRoot 失效后恢复，会再次调用。
+        /// </summary>
+        protected abstract void OnAvailable(
+            TAggregateRootA aggregateRootA,
+            TAggregateRootB aggregateRootB,
+            TAggregateRootC aggregateRootC,
+            TAggregateRootD aggregateRootD);
+
+        /// <summary>
+        /// 任一依赖的 AggregateRoot 失效时调用一次；组件销毁时若仍处于可用状态，也会调用一次。
+        /// </summary>
+        protected abstract void OnUnavailable();
     }
 }

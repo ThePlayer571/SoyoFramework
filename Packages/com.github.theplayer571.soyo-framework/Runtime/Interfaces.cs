@@ -15,11 +15,11 @@ namespace SoyoFramework
         void RegisterAggregateRoot<T>(T aggregateRoot) where T : class, IAggregateRoot;
 
         /// <summary>
-        /// 获取对应 key 的 AggregateRoot。
+        /// 获取对应 key 的 AggregateRootHandle。
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        T? GetAggregateRoot<T>() where T : class, IAggregateRoot;
+        IAggregateRootHandle<T> GetAggregateRootHandle<T>() where T : class, IAggregateRoot;
 
         /// <summary>
         /// 卸载对应 key 的 AggregateRoot。
@@ -28,11 +28,6 @@ namespace SoyoFramework
         void UnregisterAggregateRoot<T>() where T : class, IAggregateRoot;
 
         #endregion
-
-        /// <summary>
-        /// 订阅框架级通知。当前用于订阅聚合根注册完成通知。
-        /// </summary>
-        IUnRegister RegisterEvent<T>(Action<T> onEvent);
 
         #region Command
 
@@ -71,6 +66,15 @@ namespace SoyoFramework
             out CanExecuteResult canExecuteResult);
 
         #endregion
+    }
+
+    public interface IAggregateRootHandle<T> where T : class, IAggregateRoot
+    {
+        T? Current { get; }
+
+        bool TryGet(out T? aggregateRoot);
+
+        IUnRegister RegisterChanged(Action<T?> onChanged);
     }
 
     public interface IAggregateMember : IAggregateRule

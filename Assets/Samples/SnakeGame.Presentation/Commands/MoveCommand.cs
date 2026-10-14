@@ -14,14 +14,17 @@ namespace SoyoFramework.Samples.SnakeGame.Presentation.Commands
         
         protected override void OnExecute()
         {
-            var game = this.GetAggregateRoot<TheSnakeGame>();
-            game!.Map.Snake.Move(_direction);
+            var gameHandle = this.GetAggregateRootHandle<TheSnakeGame>();
+            if (gameHandle.TryGet(out var game))
+            {
+                game!.Map.Snake.Move(_direction);
+            }
         }
 
         public override CanExecuteResult CanExecute()
         {
-            var game = this.GetAggregateRoot<TheSnakeGame>();
-            if (game == null)
+            var gameHandle = this.GetAggregateRootHandle<TheSnakeGame>();
+            if (!gameHandle.TryGet(out _))
             {
                 return "缺少依赖：TheSnakeGame";
             }

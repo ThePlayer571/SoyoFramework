@@ -1,5 +1,3 @@
-using System;
-using SoyoFramework.Samples.SnakeGame.Backend.Aggregates;
 using SoyoFramework.Samples.SnakeGame.Presentation.Commands;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -16,8 +14,6 @@ namespace SoyoFramework.Samples.SnakeGame.Presentation.ViewControllers
 
         private void Update()
         {
-            var game = this.GetAggregateRoot<TheSnakeGame>();
-
             if (Keyboard.current.wKey.wasPressedThisFrame)
             {
                 Direction = Vector2Int.up;

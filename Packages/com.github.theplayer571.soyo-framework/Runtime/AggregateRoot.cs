@@ -40,7 +40,7 @@ namespace SoyoFramework
         }
 
         /// <summary>
-        /// 聚合根注销回调。回调时已被移出底层容器（无法被 <see cref="IArchitecture.GetAggregateRoot"/> 查找）。事件系统在回调后清空。
+        /// 聚合根注销回调。回调时已从注册表移除，事件系统在回调后清空。
         /// </summary>
         protected abstract void OnUnregister();
     }

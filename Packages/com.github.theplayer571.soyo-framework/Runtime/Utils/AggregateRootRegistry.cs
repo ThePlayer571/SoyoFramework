@@ -6,24 +6,22 @@ namespace SoyoFramework.Utils
 {
     internal sealed class AggregateRootRegistry
     {
-        // AggregateRoot 实例所有权拥有者，承诺内部示例为已注册状态
         private readonly SimpleIOCContainer _container = new();
+        private readonly Dictionary<Type, IAggregateRootHandleInternal> _handles = new();
 
-        // 
         private readonly Queue<Type> _pendingUnregisterQueue = new();
-        private readonly HashSet<Type> _pendingUnregisterTypes = new(); // 弥补 _pendingUnregisterQueue 不能去重的缺陷
-
-        // 临时的数据结构。记录注销流程已走完的类型
+        private readonly HashSet<Type> _pendingUnregisterTypes = new();
         private readonly HashSet<Type> _finalizedUnregisterTypes = new();
 
-        //
         private bool _isProcessingUnregisterQueue;
-        private Type? _activeUnregisterType; // 当前正在执行 OnUnregister 的类型。该类型已先从 _container 移除。
+        private Type? _activeUnregisterType;
 
         #region 注册操作
 
-        internal bool TryRegister(Type key, IAggregateRoot aggregateRoot)
+        internal bool TryRegister<T>(T aggregateRoot) where T : class, IAggregateRoot
         {
+            var key = typeof(T);
+
             if (_isProcessingUnregisterQueue)
             {
                 $"禁止在 UnregisterAggregateRoot 期间注册 {nameof(IAggregateRoot)}: {key.Name}".LogError();
@@ -36,21 +34,40 @@ namespace SoyoFramework.Utils
                 return false;
             }
 
-            // 重新注册代表一个新实例，允许该类型再次进入注销流程。
             _finalizedUnregisterTypes.Remove(key);
             _container.Register(key, aggregateRoot);
+
+            var handle = GetOrCreateHandle<T>();
+            handle.Attach(aggregateRoot);
+            handle.NotifyChanged();
             return true;
         }
 
-        internal object? Get(Type key) => _container.Get(key);
+        internal IAggregateRootHandle<T> GetHandle<T>() where T : class, IAggregateRoot
+        {
+            return GetOrCreateHandle<T>();
+        }
+
+        private AggregateRootHandle<T> GetOrCreateHandle<T>() where T : class, IAggregateRoot
+        {
+            var key = typeof(T);
+            if (_handles.TryGetValue(key, out var handle))
+            {
+                return (AggregateRootHandle<T>)handle;
+            }
+
+            var typedHandle = new AggregateRootHandle<T>();
+            _handles.Add(key, typedHandle);
+            return typedHandle;
+        }
 
         #endregion
 
         #region 注销操作
 
-        internal void RequestUnregister(Type key)
+        internal void RequestUnregister<T>() where T : class, IAggregateRoot
         {
-            TryQueueUnregister(key);
+            TryQueueUnregister(typeof(T));
             ProcessPendingUnregisters();
         }
 
@@ -64,7 +81,6 @@ namespace SoyoFramework.Utils
                 return false;
             }
 
-            // 
             _pendingUnregisterTypes.Add(aggregateRootType);
             _pendingUnregisterQueue.Enqueue(aggregateRootType);
             return true;
@@ -83,7 +99,6 @@ namespace SoyoFramework.Utils
             {
                 while (_pendingUnregisterQueue.Count > 0)
                 {
-                    // 移出待处理
                     var aggregateRootType = _pendingUnregisterQueue.Dequeue();
                     _pendingUnregisterTypes.Remove(aggregateRootType);
 
@@ -94,8 +109,9 @@ namespace SoyoFramework.Utils
                         continue;
                     }
 
-                    // 先从容器移除，防止回调中再次找到并注销自身。
                     _container.Unregister(aggregateRootType);
+                    _handles.TryGetValue(aggregateRootType, out var handle);
+                    handle?.Detach(aggregateRoot);
                     _activeUnregisterType = aggregateRootType;
                     try
                     {
@@ -103,9 +119,9 @@ namespace SoyoFramework.Utils
                     }
                     finally
                     {
-                        // 无论回调是否抛出异常，都认为该类型已完成注销。
                         _activeUnregisterType = null;
                         _finalizedUnregisterTypes.Add(aggregateRootType);
+                        handle?.NotifyChanged();
                     }
                 }
 
@@ -113,7 +129,7 @@ namespace SoyoFramework.Utils
             }
             finally
             {
-                if (!completed) // 如果意外终止了，清除后续的注销任务
+                if (!completed)
                 {
                     _pendingUnregisterQueue.Clear();
                     _pendingUnregisterTypes.Clear();

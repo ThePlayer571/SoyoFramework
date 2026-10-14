@@ -11,7 +11,7 @@ namespace SoyoFramework.Samples.SnakeGame.Presentation.ViewControllers
         [SerializeField] private TileBase wallTile;
         [SerializeField] private TileBase floorTile;
 
-        protected override void OnAwake(TheSnakeGame theSnakeGame)
+        protected override void OnAvailable(TheSnakeGame theSnakeGame)
         {
             var size = theSnakeGame.Map.Size;
             for (int x = 0; x < size.x; x++)
@@ -21,6 +21,11 @@ namespace SoyoFramework.Samples.SnakeGame.Presentation.ViewControllers
                 var isWall = theSnakeGame.Map.Walls.Contains(position);
                 wallFloorTilemap.SetTile(new Vector3Int(x, y, 0), isWall ? wallTile : floorTile);
             }
+        }
+
+        protected override void OnUnavailable()
+        {
+            wallFloorTilemap.ClearAllTiles();
         }
     }
 }

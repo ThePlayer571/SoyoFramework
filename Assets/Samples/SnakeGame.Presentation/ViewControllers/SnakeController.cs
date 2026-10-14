@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using SoyoFramework.Samples.SnakeGame.Backend.Aggregates;
 using SoyoFramework.Utils;
+using SoyoFramework.Utils.UnRegisters;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -26,11 +27,12 @@ namespace SoyoFramework.Samples.SnakeGame.Presentation.ViewControllers
         private Dictionary<Vector2Int, TileBase> _snakeBodyTileDict;
         private Dictionary<Vector2Int, TileBase> _snakeHeadTileDict;
         private Dictionary<Vector2Int, TileBase> _snakeTailTileDict;
-        private TheSnakeGame _theSnakeGame;
+        private TheSnakeGame? _theSnakeGame;
+        private IUnRegister? _snakeChanged;
 
         private void UpdateSnake()
         {
-            var snake = _theSnakeGame.Map.Snake;
+            var snake = _theSnakeGame!.Map.Snake;
             
             // 清除旧蛇
             snakeTilemap.ClearAllTiles();
@@ -65,7 +67,7 @@ namespace SoyoFramework.Samples.SnakeGame.Presentation.ViewControllers
                 _snakeHeadTileDict[snake.Body[1] - headPosition]);
         }
 
-        protected override void OnAwake(TheSnakeGame theSnakeGame)
+        protected override void OnAvailable(TheSnakeGame theSnakeGame)
         {
             _theSnakeGame = theSnakeGame;
 
@@ -84,8 +86,15 @@ namespace SoyoFramework.Samples.SnakeGame.Presentation.ViewControllers
 
             var snake = theSnakeGame.Map.Snake;
 
-            snake.AfterBodyChanged.RegisterWithInvoke(UpdateSnake)
-                .UnRegisterWhenGameObjectDestroyed(this);
+            _snakeChanged = snake.AfterBodyChanged.RegisterWithInvoke(UpdateSnake);
+        }
+
+        protected override void OnUnavailable()
+        {
+            _snakeChanged?.UnRegister();
+            _snakeChanged = null;
+            _theSnakeGame = null;
+            snakeTilemap.ClearAllTiles();
         }
     }
 }

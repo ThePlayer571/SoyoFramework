@@ -143,14 +143,14 @@ namespace SoyoFramework
     public static class CanGetAggregateRootExtension
     {
         /// <summary>
-        /// 获取一个AggregateRoot。会以T为key从IOCContainer里取出
+        /// 获取一个AggregateRootHandle。会以T为key从注册表里取出
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static T? GetAggregateRoot<T>(this ICanGetAggregateRoot self)
+        public static IAggregateRootHandle<T> GetAggregateRootHandle<T>(this ICanGetAggregateRoot self)
             where T : class, IAggregateRoot
         {
-            return Architecture.Instance.GetAggregateRoot<T>();
+            return Architecture.Instance.GetAggregateRootHandle<T>();
         }
     }
 

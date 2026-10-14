@@ -1,7 +1,6 @@
 using System;
 using SoyoFramework.Utils;
 using SoyoFramework.Utils.LogKit;
-using SoyoFramework.Utils.UnRegisters;
 
 namespace SoyoFramework
 {
@@ -26,9 +25,7 @@ namespace SoyoFramework
         #endregion
 
         private static IArchitecture? _instance;
-
         private readonly AggregateRootRegistry _aggregateRootRegistry = new();
-        private readonly TypeEventSystem _eventSystem = new();
 
         private Architecture()
         {
@@ -36,27 +33,19 @@ namespace SoyoFramework
 
         #region 接口实现
 
-        public IUnRegister RegisterEvent<T>(Action<T> onEvent)
-        {
-            return _eventSystem.Register<T>(onEvent);
-        }
-
         public void RegisterAggregateRoot<T>(T aggregateRoot) where T : class, IAggregateRoot
         {
-            if (_aggregateRootRegistry.TryRegister(typeof(T), aggregateRoot))
-            {
-                _eventSystem.Call(new AfterAggregateRootRegistered<T>(aggregateRoot));
-            }
+            _aggregateRootRegistry.TryRegister(aggregateRoot);
         }
 
         public void UnregisterAggregateRoot<T>() where T : class, IAggregateRoot
         {
-            _aggregateRootRegistry.RequestUnregister(typeof(T));
+            _aggregateRootRegistry.RequestUnregister<T>();
         }
 
-        public T? GetAggregateRoot<T>() where T : class, IAggregateRoot
+        public IAggregateRootHandle<T> GetAggregateRootHandle<T>() where T : class, IAggregateRoot
         {
-            return _aggregateRootRegistry.Get(typeof(T)) as T;
+            return _aggregateRootRegistry.GetHandle<T>();
         }
 
         public void SendCommand(ICommand command)
