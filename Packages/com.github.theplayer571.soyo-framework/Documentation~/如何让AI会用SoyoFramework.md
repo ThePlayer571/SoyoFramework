@@ -13,3 +13,11 @@
 
 `Documentation~/教程.md` 是提供给小白程序员的教程，你不需要阅读。
 ```
+
+TODO:
+
+理念：应当让AI学会一些小技巧
+
+AI不会用UnRegisterGroup、UnRegisterOnGameObjectDestroyed。
+
+AI不是很懂领域模型规范

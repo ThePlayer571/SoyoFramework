@@ -1,33 +1,43 @@
-#if UNITY_EDITOR
 using System;
+#if UNITY_EDITOR
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+#endif
 
 namespace SoyoFramework
 {
-    internal static class AggregateHigherThan
+    public static class AggregateHigherThan
     {
+#if UNITY_EDITOR
         internal static bool LifecycleCheckEnabled { get; set; } = true;
+#endif
 
-        internal static bool ValidateLifecycle(
-            IAggregateRoot aggregateRoot,
-            Type targetType)
+        /// <summary>
+        /// 检查所属聚合能否管理指定聚合 key。仅在 Editor 中执行检查；Player 中始终返回 true。
+        /// </summary>
+        public static bool ValidateLifecycle<T>(IAggregateMember owner)
+            where T : class, IAggregateRoot
+            => ValidateLifecycle(owner, typeof(T));
+
+        /// <summary>
+        /// 检查所属聚合能否管理指定聚合 key。检查失败不阻止注册或注销。
+        /// </summary>
+        public static bool ValidateLifecycle(IAggregateMember owner, Type targetKey)
         {
+#if UNITY_EDITOR
             if (!LifecycleCheckEnabled)
             {
                 return true;
             }
 
-            var rootType = aggregateRoot.GetType();
-            if (IsHigherThan(rootType, targetType))
-            {
-                return true;
-            }
-
-            return false;
+            return IsHigherThan(owner.AggregateRoot.GetType(), targetKey);
+#else
+            return true;
+#endif
         }
 
+#if UNITY_EDITOR
         internal static bool IsHigherThan(Type higherType, Type lowerType)
         {
             if (higherType == lowerType)
@@ -97,6 +107,6 @@ namespace SoyoFramework
             result.AddRange(sourceType.GetInterfaces());
             return result.Distinct();
         }
+#endif
     }
 }
-#endif

@@ -12,7 +12,7 @@ namespace SoyoFramework
 
         protected virtual void Awake()
         {
-            _aggregateRootHandle = this.GetAggregateRootHandle<TAggregateRoot>();
+            _aggregateRootHandle = GetAggregateRootHandle<TAggregateRoot>();
             _aggregateRootChanged = _aggregateRootHandle.RegisterChanged(OnAggregateRootChanged);
             UpdateAvailability();
         }
@@ -77,8 +77,8 @@ namespace SoyoFramework
 
         protected virtual void Awake()
         {
-            _aggregateRootAHandle = this.GetAggregateRootHandle<TAggregateRootA>();
-            _aggregateRootBHandle = this.GetAggregateRootHandle<TAggregateRootB>();
+            _aggregateRootAHandle = GetAggregateRootHandle<TAggregateRootA>();
+            _aggregateRootBHandle = GetAggregateRootHandle<TAggregateRootB>();
             _aggregateRootAChanged = _aggregateRootAHandle.RegisterChanged(OnAggregateRootChanged);
             _aggregateRootBChanged = _aggregateRootBHandle.RegisterChanged(OnAggregateRootChanged);
             UpdateAvailability();
@@ -157,9 +157,9 @@ namespace SoyoFramework
 
         protected virtual void Awake()
         {
-            _aggregateRootAHandle = this.GetAggregateRootHandle<TAggregateRootA>();
-            _aggregateRootBHandle = this.GetAggregateRootHandle<TAggregateRootB>();
-            _aggregateRootCHandle = this.GetAggregateRootHandle<TAggregateRootC>();
+            _aggregateRootAHandle = GetAggregateRootHandle<TAggregateRootA>();
+            _aggregateRootBHandle = GetAggregateRootHandle<TAggregateRootB>();
+            _aggregateRootCHandle = GetAggregateRootHandle<TAggregateRootC>();
             _aggregateRootAChanged = _aggregateRootAHandle.RegisterChanged(OnAggregateRootChanged);
             _aggregateRootBChanged = _aggregateRootBHandle.RegisterChanged(OnAggregateRootChanged);
             _aggregateRootCChanged = _aggregateRootCHandle.RegisterChanged(OnAggregateRootChanged);
@@ -254,10 +254,10 @@ namespace SoyoFramework
 
         protected virtual void Awake()
         {
-            _aggregateRootAHandle = this.GetAggregateRootHandle<TAggregateRootA>();
-            _aggregateRootBHandle = this.GetAggregateRootHandle<TAggregateRootB>();
-            _aggregateRootCHandle = this.GetAggregateRootHandle<TAggregateRootC>();
-            _aggregateRootDHandle = this.GetAggregateRootHandle<TAggregateRootD>();
+            _aggregateRootAHandle = GetAggregateRootHandle<TAggregateRootA>();
+            _aggregateRootBHandle = GetAggregateRootHandle<TAggregateRootB>();
+            _aggregateRootCHandle = GetAggregateRootHandle<TAggregateRootC>();
+            _aggregateRootDHandle = GetAggregateRootHandle<TAggregateRootD>();
             _aggregateRootAChanged = _aggregateRootAHandle.RegisterChanged(OnAggregateRootChanged);
             _aggregateRootBChanged = _aggregateRootBHandle.RegisterChanged(OnAggregateRootChanged);
             _aggregateRootCChanged = _aggregateRootCHandle.RegisterChanged(OnAggregateRootChanged);

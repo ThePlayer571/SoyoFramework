@@ -39,7 +39,7 @@ namespace SoyoFramework.Samples.SnakeGame.Presentation.ViewControllers
             if (_timer >= moveInterval)
             {
                 _timer = 0f;
-                this.SendCommand(new MoveCommand(Direction));
+                SendCommand(new MoveCommand(Direction));
             }
         }
     }

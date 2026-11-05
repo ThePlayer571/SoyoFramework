@@ -14,7 +14,7 @@ namespace SoyoFramework.Samples.SnakeGame.Presentation.Commands
         
         protected override void OnExecute()
         {
-            var gameHandle = this.GetAggregateRootHandle<TheSnakeGame>();
+            var gameHandle = GetAggregateRootHandle<TheSnakeGame>();
             if (gameHandle.TryGet(out var game))
             {
                 game!.Map.Snake.Move(_direction);
@@ -23,7 +23,7 @@ namespace SoyoFramework.Samples.SnakeGame.Presentation.Commands
 
         public override CanExecuteResult CanExecute()
         {
-            var gameHandle = this.GetAggregateRootHandle<TheSnakeGame>();
+            var gameHandle = GetAggregateRootHandle<TheSnakeGame>();
             if (!gameHandle.TryGet(out _))
             {
                 return "缺少依赖：TheSnakeGame";

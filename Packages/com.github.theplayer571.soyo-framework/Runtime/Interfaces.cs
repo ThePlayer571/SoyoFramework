@@ -77,7 +77,7 @@ namespace SoyoFramework
         IUnRegister RegisterChanged(Action<T?> onChanged);
     }
 
-    public interface IAggregateMember : IAggregateRule
+    public interface IAggregateMember
     {
         IAggregateRoot AggregateRoot { get; }
 
@@ -96,11 +96,11 @@ namespace SoyoFramework
         protected internal void OnUnregister();
     }
 
-    public interface IViewController : IViewControllerRule
+    public interface IViewController
     {
     }
 
-    public interface ICommand : ICommandRule
+    public interface ICommand
     {
         /// <summary>
         /// 执行Command的逻辑，约定只通过Architecture来调用

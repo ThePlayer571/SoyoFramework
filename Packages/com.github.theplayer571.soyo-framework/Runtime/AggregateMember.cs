@@ -19,6 +19,12 @@ namespace SoyoFramework
         protected void SendEvent<T>() where T : new() => Root.SendEvent<T>();
 
         protected void SendEvent<T>(in T e) => Root.SendEvent(in e);
+
+        protected void RegisterAggregateRoot<T>(T aggregateRoot) where T : class, IAggregateRoot
+            => AggregateLifecycleOperations.Register(this, aggregateRoot);
+
+        protected void UnregisterAggregateRoot<T>() where T : class, IAggregateRoot
+            => AggregateLifecycleOperations.Unregister<T>(this);
     }
 
     public abstract class AggregateMember<TRoot> : IAggregateMember
@@ -36,6 +42,12 @@ namespace SoyoFramework
         protected void SendEvent<T>() where T : new() => Root.SendEvent<T>();
 
         protected void SendEvent<T>(in T e) => Root.SendEvent(in e);
+
+        protected void RegisterAggregateRoot<T>(T aggregateRoot) where T : class, IAggregateRoot
+            => AggregateLifecycleOperations.Register(this, aggregateRoot);
+
+        protected void UnregisterAggregateRoot<T>() where T : class, IAggregateRoot
+            => AggregateLifecycleOperations.Unregister<T>(this);
     }
 
     public abstract class NullableAggregateMember : IAggregateMember
@@ -90,6 +102,12 @@ namespace SoyoFramework
 
             Root.SendEvent(in e);
         }
+
+        protected void RegisterAggregateRoot<T>(T aggregateRoot) where T : class, IAggregateRoot
+            => AggregateLifecycleOperations.Register(this, aggregateRoot);
+
+        protected void UnregisterAggregateRoot<T>() where T : class, IAggregateRoot
+            => AggregateLifecycleOperations.Unregister<T>(this);
     }
 
     public abstract class NullableAggregateMember<TRoot> : IAggregateMember
@@ -145,6 +163,12 @@ namespace SoyoFramework
 
             Root.SendEvent(in e);
         }
+
+        protected void RegisterAggregateRoot<T>(T aggregateRoot) where T : class, IAggregateRoot
+            => AggregateLifecycleOperations.Register(this, aggregateRoot);
+
+        protected void UnregisterAggregateRoot<T>() where T : class, IAggregateRoot
+            => AggregateLifecycleOperations.Unregister<T>(this);
     }
 
     public abstract class MonoAggregateMember<TRoot> : MonoBehaviour, IAggregateMember
@@ -175,5 +199,11 @@ namespace SoyoFramework
         protected void SendEvent<T>() where T : new() => Root.SendEvent<T>();
 
         protected void SendEvent<T>(in T e) => Root.SendEvent(in e);
+
+        protected void RegisterAggregateRoot<T>(T aggregateRoot) where T : class, IAggregateRoot
+            => AggregateLifecycleOperations.Register(this, aggregateRoot);
+
+        protected void UnregisterAggregateRoot<T>() where T : class, IAggregateRoot
+            => AggregateLifecycleOperations.Unregister<T>(this);
     }
 }
