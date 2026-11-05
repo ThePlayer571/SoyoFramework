@@ -11,6 +11,7 @@ namespace SoyoFramework
         /// 注册一个 AggregateRoot。
         /// </summary>
         /// <param name="aggregateRoot"></param>
+        /// <param name="requester"></param>
         /// <typeparam name="T"></typeparam>
         bool RegisterAggregateRoot<T>(T aggregateRoot, IAggregateMember? requester = null)
             where T : class, IAggregateRoot;

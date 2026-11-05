@@ -17,9 +17,3 @@ Domain成员：组成一个Domain的 DomainRoot / DomainEntity （不过外部�
 后端代码，有时会被迫添加因为表现层需求而存在的内容
 这并不是依赖于表现层
 而是依赖于需求
-
-
-
-
-Dictionary库
-Procedure节点编辑器
