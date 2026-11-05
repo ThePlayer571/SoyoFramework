@@ -50,7 +50,7 @@ namespace SoyoFramework
             return _aggregateRootRegistry.GetHandle<T>(requester);
         }
 
-        public T? GetAggregateRoot<T>(IAggregateMember? requester) where T : class, IAggregateRoot
+        public T? GetAggregateRoot<T>(IAggregateMember? requester = null) where T : class, IAggregateRoot
         {
             return _aggregateRootRegistry.GetRoot<T>(requester);
         }

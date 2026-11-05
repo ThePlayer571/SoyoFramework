@@ -24,7 +24,7 @@ namespace SoyoFramework
         IAggregateRootHandle<T>? GetAggregateRootHandle<T>(IAggregateMember? requester = null)
             where T : class, IAggregateRoot;
 
-        T? GetAggregateRoot<T>(IAggregateMember? requester) where T : class, IAggregateRoot;
+        T? GetAggregateRoot<T>(IAggregateMember? requester = null) where T : class, IAggregateRoot;
 
         /// <summary>
         /// 卸载对应 key 的 AggregateRoot。
