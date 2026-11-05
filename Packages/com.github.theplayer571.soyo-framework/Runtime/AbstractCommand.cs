@@ -21,12 +21,12 @@ namespace SoyoFramework
             => Architecture.Instance.TrySendCommand(command, out result, out _);
 
         protected IAggregateRootHandle<T> GetAggregateRootHandle<T>() where T : class, IAggregateRoot
-            => Architecture.Instance.GetAggregateRootHandle<T>();
+            => Architecture.Instance.GetAggregateRootHandle<T>()!;
 
-        protected void RegisterAggregateRoot<T>(T aggregateRoot) where T : class, IAggregateRoot
+        protected bool RegisterAggregateRoot<T>(T aggregateRoot) where T : class, IAggregateRoot
             => Architecture.Instance.RegisterAggregateRoot(aggregateRoot);
 
-        protected void UnregisterAggregateRoot<T>() where T : class, IAggregateRoot
+        protected bool UnregisterAggregateRoot<T>() where T : class, IAggregateRoot
             => Architecture.Instance.UnregisterAggregateRoot<T>();
 
         protected abstract void OnExecute();
@@ -63,12 +63,12 @@ namespace SoyoFramework
             => Architecture.Instance.TrySendCommand(command, out result, out _);
 
         protected IAggregateRootHandle<T> GetAggregateRootHandle<T>() where T : class, IAggregateRoot
-            => Architecture.Instance.GetAggregateRootHandle<T>();
+            => Architecture.Instance.GetAggregateRootHandle<T>()!;
 
-        protected void RegisterAggregateRoot<T>(T aggregateRoot) where T : class, IAggregateRoot
+        protected bool RegisterAggregateRoot<T>(T aggregateRoot) where T : class, IAggregateRoot
             => Architecture.Instance.RegisterAggregateRoot(aggregateRoot);
 
-        protected void UnregisterAggregateRoot<T>() where T : class, IAggregateRoot
+        protected bool UnregisterAggregateRoot<T>() where T : class, IAggregateRoot
             => Architecture.Instance.UnregisterAggregateRoot<T>();
 
         protected abstract TResult OnExecute();

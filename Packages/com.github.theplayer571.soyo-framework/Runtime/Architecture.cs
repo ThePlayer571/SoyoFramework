@@ -33,19 +33,26 @@ namespace SoyoFramework
 
         #region 接口实现
 
-        public void RegisterAggregateRoot<T>(T aggregateRoot) where T : class, IAggregateRoot
+        public bool RegisterAggregateRoot<T>(T aggregateRoot, IAggregateMember? requester = null)
+            where T : class, IAggregateRoot
         {
-            _aggregateRootRegistry.TryRegister(aggregateRoot);
+            return _aggregateRootRegistry.TryRegister(aggregateRoot, requester);
         }
 
-        public void UnregisterAggregateRoot<T>() where T : class, IAggregateRoot
+        public bool UnregisterAggregateRoot<T>(IAggregateMember? requester = null) where T : class, IAggregateRoot
         {
-            _aggregateRootRegistry.RequestUnregister<T>();
+            return _aggregateRootRegistry.RequestUnregister<T>(requester);
         }
 
-        public IAggregateRootHandle<T> GetAggregateRootHandle<T>() where T : class, IAggregateRoot
+        public IAggregateRootHandle<T>? GetAggregateRootHandle<T>(IAggregateMember? requester = null)
+            where T : class, IAggregateRoot
         {
-            return _aggregateRootRegistry.GetHandle<T>();
+            return _aggregateRootRegistry.GetHandle<T>(requester);
+        }
+
+        public T? GetAggregateRoot<T>(IAggregateMember? requester) where T : class, IAggregateRoot
+        {
+            return _aggregateRootRegistry.GetRoot<T>(requester);
         }
 
         public void SendCommand(ICommand command)

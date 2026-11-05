@@ -23,6 +23,6 @@ namespace SoyoFramework
             => Architecture.Instance.TrySendCommand(command, out result, out _);
 
         protected IAggregateRootHandle<T> GetAggregateRootHandle<T>() where T : class, IAggregateRoot
-            => Architecture.Instance.GetAggregateRootHandle<T>();
+            => Architecture.Instance.GetAggregateRootHandle<T>()!;
     }
 }

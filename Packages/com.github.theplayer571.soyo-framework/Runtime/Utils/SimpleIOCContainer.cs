@@ -44,6 +44,19 @@ namespace SoyoFramework.Utils
             return _container.TryGetValue(key, out var retInstance) ? retInstance : null;
         }
 
+        public Type? FindKeyByReference(object instance)
+        {
+            foreach (var entry in _container)
+            {
+                if (ReferenceEquals(entry.Value, instance))
+                {
+                    return entry.Key;
+                }
+            }
+
+            return null;
+        }
+
         public bool Unregister(Type key)
         {
             return _container.Remove(key);

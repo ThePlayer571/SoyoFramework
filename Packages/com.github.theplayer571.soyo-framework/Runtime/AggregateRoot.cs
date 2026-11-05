@@ -18,11 +18,17 @@ namespace SoyoFramework
 
         protected void SendEvent<T>(in T e) => ((IAggregateRoot)this).SendEvent(in e);
 
-        protected void RegisterAggregateRoot<T>(T aggregateRoot) where T : class, IAggregateRoot
-            => AggregateLifecycleOperations.Register(this, aggregateRoot);
+        protected bool RegisterAggregateRoot<T>(T aggregateRoot) where T : class, IAggregateRoot
+            => Architecture.Instance.RegisterAggregateRoot(aggregateRoot, this);
 
-        protected void UnregisterAggregateRoot<T>() where T : class, IAggregateRoot
-            => AggregateLifecycleOperations.Unregister<T>(this);
+        protected bool UnregisterAggregateRoot<T>() where T : class, IAggregateRoot
+            => Architecture.Instance.UnregisterAggregateRoot<T>(this);
+
+        protected T? GetAggregateRoot<T>() where T : class, IAggregateRoot
+            => Architecture.Instance.GetAggregateRoot<T>(this);
+
+        protected IAggregateRootHandle<T>? GetAggregateRootHandle<T>() where T : class, IAggregateRoot
+            => Architecture.Instance.GetAggregateRootHandle<T>(this);
 
         IUnRegister IAggregateRoot.RegisterEvent<T>(Action<T> onEvent)
         {
@@ -46,7 +52,7 @@ namespace SoyoFramework
         }
 
         /// <summary>
-        /// 聚合根注销回调。回调时已从注册表移除，事件系统在回调后清空。
+        /// 聚合根注销回调。回调期间仍在注册表中，成功返回后清空事件系统。
         /// </summary>
         protected abstract void OnUnregister();
     }

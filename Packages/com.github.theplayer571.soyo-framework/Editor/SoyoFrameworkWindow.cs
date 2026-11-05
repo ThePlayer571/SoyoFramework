@@ -40,17 +40,6 @@ namespace SoyoFramework.Editor
         private void OnGUI()
         {
             EditorGUILayout.LabelField("Aggregate相关", EditorStyles.boldLabel);
-            EditorGUILayout.BeginHorizontal();
-            var lifecycleCheck = EditorGUILayout.ToggleLeft("生命周期检查", AggregateEditorUtility.LifecycleCheckEnabled,
-                GUILayout.Width(120));
-            if (lifecycleCheck != AggregateEditorUtility.LifecycleCheckEnabled)
-            {
-                AggregateEditorUtility.LifecycleCheckEnabled = lifecycleCheck;
-            }
-
-            EditorGUILayout.LabelField("Register/Unregister 非 HigherThan 下位聚合时记录错误", EditorStyles.miniLabel);
-            EditorGUILayout.EndHorizontal();
-
             EditorGUILayout.Space(8);
             EditorGUILayout.LabelField("程序集范围", EditorStyles.boldLabel);
             var mode = (AssemblyMode)GUILayout.Toolbar((int)_assemblyMode, new[] { "智能选择", "指定程序集" });
@@ -156,7 +145,9 @@ namespace SoyoFramework.Editor
 
             var result = AggregateDependencyAnalyzer.Analyze(assemblies);
             errors.AddRange(result.Errors);
-            _result = errors.Count == 0 ? result.Mermaid : string.Join("\n", errors.Distinct());
+            _result = errors.Count == 0
+                ? result.Mermaid
+                : string.Join("\n", errors.Distinct()) + "\n\n" + result.Mermaid;
         }
     }
 }

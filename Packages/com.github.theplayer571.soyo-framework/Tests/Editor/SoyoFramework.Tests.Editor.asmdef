@@ -1,0 +1,7 @@
+{
+    "name": "SoyoFramework.Tests.Editor",
+    "rootNamespace": "SoyoFramework.Tests",
+    "references": ["SoyoFramework"],
+    "includePlatforms": ["Editor"],
+    "optionalUnityReferences": ["TestAssemblies"]
+}

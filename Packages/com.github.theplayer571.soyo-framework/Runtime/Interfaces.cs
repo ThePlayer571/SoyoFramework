@@ -12,20 +12,24 @@ namespace SoyoFramework
         /// </summary>
         /// <param name="aggregateRoot"></param>
         /// <typeparam name="T"></typeparam>
-        void RegisterAggregateRoot<T>(T aggregateRoot) where T : class, IAggregateRoot;
+        bool RegisterAggregateRoot<T>(T aggregateRoot, IAggregateMember? requester = null)
+            where T : class, IAggregateRoot;
 
         /// <summary>
         /// 获取对应 key 的 AggregateRootHandle。
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        IAggregateRootHandle<T> GetAggregateRootHandle<T>() where T : class, IAggregateRoot;
+        IAggregateRootHandle<T>? GetAggregateRootHandle<T>(IAggregateMember? requester = null)
+            where T : class, IAggregateRoot;
+
+        T? GetAggregateRoot<T>(IAggregateMember? requester) where T : class, IAggregateRoot;
 
         /// <summary>
         /// 卸载对应 key 的 AggregateRoot。
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        void UnregisterAggregateRoot<T>() where T : class, IAggregateRoot;
+        bool UnregisterAggregateRoot<T>(IAggregateMember? requester = null) where T : class, IAggregateRoot;
 
         #endregion
 
@@ -91,7 +95,7 @@ namespace SoyoFramework
 
         /// <summary>
         /// 聚合根注销回调。
-        /// 时序：回调时已被移出容器。
+        /// 时序：回调成功返回后，聚合根才移出注册表。
         /// </summary>
         protected internal void OnUnregister();
     }

@@ -2,14 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using UnityEditor;
 
 namespace SoyoFramework.Editor
 {
     internal static class AggregateEditorUtility
     {
-        internal const string LifecycleCheckPreference = "SoyoFramework.Aggregate.LifecycleCheck";
-
         private static readonly HashSet<string> FrameworkAssemblyPrefixes = new(StringComparer.OrdinalIgnoreCase)
         {
             "SoyoFramework",
@@ -20,23 +17,6 @@ namespace SoyoFramework.Editor
             "netstandard",
             "Microsoft"
         };
-
-        [InitializeOnLoadMethod]
-        private static void Initialize()
-        {
-            AggregateHigherThan.LifecycleCheckEnabled =
-                EditorPrefs.GetBool(LifecycleCheckPreference, true);
-        }
-
-        internal static bool LifecycleCheckEnabled
-        {
-            get => AggregateHigherThan.LifecycleCheckEnabled;
-            set
-            {
-                AggregateHigherThan.LifecycleCheckEnabled = value;
-                EditorPrefs.SetBool(LifecycleCheckPreference, value);
-            }
-        }
 
         internal static Assembly[] GetSmartAssemblies()
         {
